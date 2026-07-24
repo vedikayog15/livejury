@@ -1,0 +1,29 @@
+flowchart TD
+    A["User opens Live Jury"] --> B{"Authenticated?"}
+
+    B -- No --> C["Register or Login"]
+    C --> D["Open Home Screen"]
+
+    B -- Yes --> D
+
+    D --> E{"Select Room Type"}
+
+    E -- Public Match --> F["Join Matchmaking Queue"]
+    E -- Private Room --> G["Create or Join Using Room Code"]
+
+    F --> H["Wait for Six Players"]
+    G --> H
+
+    H --> I["Create Jury Room"]
+    I --> J["Assign Hypothetical Legal Case"]
+    J --> K["Read Case Facts and Evidence"]
+    K --> L["Submit Initial Private Vote"]
+    L --> M["Participate in Jury Discussion"]
+    M --> N["Submit Final Verdict"]
+    N --> O["Select Reason for Verdict"]
+    O --> P["Calculate Jury Result"]
+    P --> Q["Show Guilty and Not-Guilty Distribution"]
+    Q --> R["Reveal Expected Legal Outcome"]
+    R --> S["Show Legal Explanation"]
+    S --> T["Award Score and Save Match History"]
+    T --> U["Return to Home or Play Again"]

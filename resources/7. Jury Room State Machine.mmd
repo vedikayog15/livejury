@@ -1,0 +1,27 @@
+stateDiagram-v2
+    [*] --> WaitingForPlayers
+
+    WaitingForPlayers --> RoomReady: Six players joined
+    WaitingForPlayers --> Cancelled: Waiting timeout reached
+
+    RoomReady --> CaseReading: Case assigned
+    CaseReading --> InitialVoting: Reading timer completed
+
+    InitialVoting --> Discussion: Initial votes submitted
+    InitialVoting --> Discussion: Voting timer expired
+
+    Discussion --> FinalVoting: Deliberation timer completed
+    Discussion --> Paused: Server or room failure
+    Paused --> Discussion: Room state recovered
+    Paused --> Cancelled: Recovery failed
+
+    FinalVoting --> CalculatingResult: All votes submitted
+    FinalVoting --> CalculatingResult: Voting timer expired
+
+    CalculatingResult --> ResultPublished: Verdict calculated
+    ResultPublished --> Feedback: Result displayed
+
+    Feedback --> Completed: Feedback timer completed
+    Completed --> [*]
+
+    Cancelled --> [*]

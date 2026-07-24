@@ -1,0 +1,77 @@
+sequenceDiagram
+    autonumber
+
+    actor Player
+    participant Client as Web or Mobile Client
+    participant API as API Gateway
+    participant Auth as Authentication Service
+    participant Match as Matchmaking Service
+    participant Redis as Redis Queue
+    participant Room as Jury Room Service
+    participant Case as Case Service
+    participant WS as WebSocket Gateway
+    participant DB as PostgreSQL
+
+    Player->>Client: Login
+    Client->>API: POST /auth/login
+    API->>Auth: Validate credentials
+    Auth->>DB: Read user account
+    DB-->>Auth: User details
+    Auth-->>API: Access token
+    API-->>Client: Login successful
+
+    Player->>Client: Select Join Public Room
+    Client->>API: POST /matchmaking/join
+    API->>Match: Add authenticated user
+    Match->>Redis: Add player to waiting queue
+    Redis-->>Match: Queue position
+
+    alt Fewer than six players available
+        Match-->>Client: Waiting for players
+    else Six players available
+        Match->>Redis: Atomically reserve six players
+        Match->>Room: Create jury room
+        Room->>DB: Store room and participants
+        DB-->>Room: Room created
+
+        Room->>Case: Request eligible case
+        Case->>DB: Fetch unpublished case for players
+        DB-->>Case: Case information
+        Case-->>Room: Selected case
+
+        Room->>Redis: Save active room state
+        Room-->>Match: Room ready
+        Match-->>Client: Match found with room ID
+
+        Client->>WS: Connect using room token
+        WS->>Room: Register player connection
+        Room->>Redis: Mark player connected
+        Room-->>WS: Current room state
+        WS-->>Client: Case reading phase started
+
+        Room-->>WS: Publish case summary and evidence
+        WS-->>Client: Display case material
+
+        Note over Player,Room: All six players read the case
+
+        Room-->>WS: Start initial voting phase
+        WS-->>Client: Request private initial vote
+        Player->>Client: Submit initial opinion
+        Client->>WS: Initial vote
+        WS->>Room: Store initial vote
+        Room->>DB: Persist initial vote
+
+        Room-->>WS: Start discussion phase
+        WS-->>Client: Enable jury discussion
+
+        loop During deliberation
+            Player->>Client: Send message or speak
+            Client->>WS: Discussion event
+            WS->>Room: Validate room and phase
+            Room-->>WS: Broadcast event
+            WS-->>Client: Show discussion update
+        end
+
+        Room-->>WS: Discussion time completed
+        WS-->>Client: Start final voting phase
+    end

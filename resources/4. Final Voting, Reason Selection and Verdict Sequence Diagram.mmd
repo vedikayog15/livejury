@@ -1,0 +1,70 @@
+sequenceDiagram
+    autonumber
+
+    actor Juror
+    participant Client as Jury Client
+    participant WS as WebSocket Gateway
+    participant Room as Jury Room Service
+    participant Vote as Voting Service
+    participant Redis as Redis
+    participant DB as PostgreSQL
+    participant Result as Verdict Service
+    participant Case as Case Service
+    participant Analytics as Analytics Service
+
+    Room-->>WS: Open final voting phase
+    WS-->>Client: Request verdict and reason
+
+    Juror->>Client: Select Guilty or Not Guilty
+    Juror->>Client: Select reason
+    Juror->>Client: Add optional explanation
+
+    Client->>WS: Submit final vote
+    WS->>Vote: Submit vote with room and user IDs
+
+    Vote->>Redis: Acquire vote lock
+    Redis-->>Vote: Lock acquired
+
+    Vote->>DB: Check existing final vote
+
+    alt Final vote already submitted
+        DB-->>Vote: Existing vote found
+        Vote-->>WS: Duplicate vote rejected
+        WS-->>Client: Vote already submitted
+    else No existing final vote
+        DB-->>Vote: No vote found
+        Vote->>DB: Save verdict, reason and explanation
+        Vote->>Redis: Mark juror as voted
+        Vote-->>WS: Vote accepted
+        WS-->>Client: Vote recorded
+    end
+
+    Vote->>Redis: Count submitted votes
+
+    alt Fewer than required votes and timer active
+        Redis-->>Vote: Waiting for remaining jurors
+        Vote-->>Room: Voting still in progress
+    else All votes submitted or timer expired
+        Redis-->>Vote: Voting complete
+        Vote->>Room: Close voting phase
+        Room->>Result: Calculate room verdict
+
+        Result->>DB: Read valid final votes
+        DB-->>Result: Jury votes and reasons
+
+        Result->>Result: Aggregate guilty and not-guilty votes
+        Result->>Result: Aggregate selected reasons
+        Result->>Result: Apply configured verdict rule
+
+        Result->>Case: Fetch expected legal outcome
+        Case-->>Result: Legal verdict and explanation
+
+        Result->>DB: Save result summary
+        Result->>Analytics: Publish completed-session event
+        Result-->>Room: Final result prepared
+
+        Room-->>WS: Broadcast jury result
+        WS-->>Client: Show vote distribution
+        WS-->>Client: Show reason distribution
+        WS-->>Client: Reveal legal explanation
+    end

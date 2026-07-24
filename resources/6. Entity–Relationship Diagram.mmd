@@ -1,0 +1,220 @@
+erDiagram
+    USER {
+        uuid id PK
+        string email UK
+        string username UK
+        string password_hash
+        string profile_image_url
+        string account_status
+        int reputation_score
+        datetime created_at
+        datetime updated_at
+    }
+
+    USER_ROLE {
+        uuid id PK
+        uuid user_id FK
+        string role
+        datetime assigned_at
+    }
+
+    CASE_CATEGORY {
+        uuid id PK
+        string name
+        string description
+        datetime created_at
+    }
+
+    LEGAL_CASE {
+        uuid id PK
+        uuid category_id FK
+        uuid created_by FK
+        string title
+        text summary
+        text case_description
+        string difficulty
+        string jurisdiction
+        string expected_verdict
+        text legal_explanation
+        string publication_status
+        datetime created_at
+        datetime updated_at
+    }
+
+    CASE_EVIDENCE {
+        uuid id PK
+        uuid case_id FK
+        string evidence_type
+        string title
+        text description
+        string media_url
+        int display_order
+        datetime created_at
+    }
+
+    CASE_REASON {
+        uuid id PK
+        uuid case_id FK
+        string verdict_type
+        string reason_code
+        string reason_text
+        int display_order
+    }
+
+    JURY_ROOM {
+        uuid id PK
+        uuid case_id FK
+        string room_code UK
+        string room_type
+        string status
+        int maximum_players
+        int minimum_players
+        string current_phase
+        datetime started_at
+        datetime completed_at
+        datetime created_at
+    }
+
+    ROOM_PARTICIPANT {
+        uuid id PK
+        uuid room_id FK
+        uuid user_id FK
+        string participant_status
+        string assigned_role
+        int seat_number
+        datetime joined_at
+        datetime disconnected_at
+        datetime left_at
+    }
+
+    DISCUSSION_MESSAGE {
+        uuid id PK
+        uuid room_id FK
+        uuid sender_id FK
+        string message_type
+        text message_content
+        string moderation_status
+        datetime sent_at
+        datetime deleted_at
+    }
+
+    VOTE {
+        uuid id PK
+        uuid room_id FK
+        uuid user_id FK
+        uuid reason_id FK
+        string vote_stage
+        string verdict
+        text custom_reason
+        datetime submitted_at
+        datetime updated_at
+    }
+
+    ROOM_RESULT {
+        uuid id PK
+        uuid room_id FK
+        int guilty_votes
+        int not_guilty_votes
+        int abstained_votes
+        string jury_verdict
+        string expected_verdict
+        boolean matched_expected_verdict
+        datetime calculated_at
+    }
+
+    REASON_RESULT {
+        uuid id PK
+        uuid room_result_id FK
+        uuid reason_id FK
+        int selection_count
+    }
+
+    USER_SESSION_SCORE {
+        uuid id PK
+        uuid room_id FK
+        uuid user_id FK
+        int participation_score
+        int reasoning_score
+        int peer_rating
+        int total_score
+        datetime created_at
+    }
+
+    USER_REPORT {
+        uuid id PK
+        uuid room_id FK
+        uuid reporter_id FK
+        uuid reported_user_id FK
+        uuid message_id FK
+        string report_reason
+        text description
+        string status
+        datetime created_at
+        datetime reviewed_at
+    }
+
+    MODERATION_ACTION {
+        uuid id PK
+        uuid report_id FK
+        uuid moderator_id FK
+        string action_type
+        text action_reason
+        datetime expires_at
+        datetime created_at
+    }
+
+    NOTIFICATION {
+        uuid id PK
+        uuid user_id FK
+        string notification_type
+        string title
+        text body
+        boolean is_read
+        datetime created_at
+        datetime read_at
+    }
+
+    MATCHMAKING_ENTRY {
+        uuid id PK
+        uuid user_id FK
+        string queue_type
+        string preferred_category
+        string status
+        datetime joined_at
+        datetime matched_at
+    }
+
+    USER ||--o{ USER_ROLE : has
+    USER ||--o{ LEGAL_CASE : creates
+    CASE_CATEGORY ||--o{ LEGAL_CASE : classifies
+    LEGAL_CASE ||--o{ CASE_EVIDENCE : contains
+    LEGAL_CASE ||--o{ CASE_REASON : provides
+    LEGAL_CASE ||--o{ JURY_ROOM : assigned_to
+
+    USER ||--o{ ROOM_PARTICIPANT : joins
+    JURY_ROOM ||--o{ ROOM_PARTICIPANT : contains
+
+    USER ||--o{ DISCUSSION_MESSAGE : sends
+    JURY_ROOM ||--o{ DISCUSSION_MESSAGE : contains
+
+    USER ||--o{ VOTE : submits
+    JURY_ROOM ||--o{ VOTE : receives
+    CASE_REASON ||--o{ VOTE : selected_as
+
+    JURY_ROOM ||--o| ROOM_RESULT : produces
+    ROOM_RESULT ||--o{ REASON_RESULT : summarizes
+    CASE_REASON ||--o{ REASON_RESULT : aggregates
+
+    USER ||--o{ USER_SESSION_SCORE : earns
+    JURY_ROOM ||--o{ USER_SESSION_SCORE : generates
+
+    USER ||--o{ USER_REPORT : submits
+    USER ||--o{ USER_REPORT : reported_in
+    JURY_ROOM ||--o{ USER_REPORT : associated_with
+    DISCUSSION_MESSAGE o|--o{ USER_REPORT : referenced_by
+
+    USER_REPORT ||--o| MODERATION_ACTION : results_in
+    USER ||--o{ MODERATION_ACTION : performs
+
+    USER ||--o{ NOTIFICATION : receives
+    USER ||--o{ MATCHMAKING_ENTRY : enters

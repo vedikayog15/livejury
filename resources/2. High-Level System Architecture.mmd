@@ -1,0 +1,100 @@
+flowchart TB
+    subgraph Clients["Client Applications"]
+        WEB["Web Application"]
+        MOBILE["Mobile Application"]
+        ADMIN_UI["Admin Dashboard"]
+    end
+
+    subgraph Edge["Edge Layer"]
+        CDN["CDN"]
+        LB["Load Balancer"]
+        GATEWAY["API Gateway"]
+        WS_GATEWAY["WebSocket Gateway"]
+    end
+
+    subgraph Services["Backend Services"]
+        AUTH["Authentication Service"]
+        USER_SERVICE["User Service"]
+        MATCH_SERVICE["Matchmaking Service"]
+        ROOM_SERVICE["Jury Room Service"]
+        CASE_SERVICE["Case Management Service"]
+        VOTE_SERVICE["Voting Service"]
+        CHAT_SERVICE["Chat and Voice Service"]
+        RESULT_SERVICE["Verdict and Result Service"]
+        MOD_SERVICE["Moderation Service"]
+        NOTIFICATION_SERVICE["Notification Service"]
+        ANALYTICS_SERVICE["Analytics Service"]
+    end
+
+    subgraph Data["Data and Messaging Layer"]
+        POSTGRES[("PostgreSQL")]
+        REDIS[("Redis")]
+        OBJECT_STORE[("Object Storage")]
+        SEARCH[("Search and Transcript Store")]
+        QUEUE[["Message Queue"]]
+    end
+
+    subgraph External["External Services"]
+        EMAIL["Email or Push Provider"]
+        OAUTH["OAuth Provider"]
+        AI_MOD["AI Moderation Model"]
+        RTC["Voice or WebRTC Service"]
+    end
+
+    WEB --> CDN
+    MOBILE --> LB
+    ADMIN_UI --> CDN
+
+    CDN --> LB
+    LB --> GATEWAY
+    WEB --> WS_GATEWAY
+    MOBILE --> WS_GATEWAY
+
+    GATEWAY --> AUTH
+    GATEWAY --> USER_SERVICE
+    GATEWAY --> MATCH_SERVICE
+    GATEWAY --> CASE_SERVICE
+    GATEWAY --> VOTE_SERVICE
+    GATEWAY --> RESULT_SERVICE
+    GATEWAY --> MOD_SERVICE
+    GATEWAY --> ANALYTICS_SERVICE
+
+    WS_GATEWAY --> ROOM_SERVICE
+    WS_GATEWAY --> CHAT_SERVICE
+    WS_GATEWAY --> VOTE_SERVICE
+
+    AUTH --> POSTGRES
+    AUTH --> OAUTH
+    USER_SERVICE --> POSTGRES
+
+    MATCH_SERVICE --> REDIS
+    MATCH_SERVICE --> ROOM_SERVICE
+
+    ROOM_SERVICE --> REDIS
+    ROOM_SERVICE --> POSTGRES
+    ROOM_SERVICE --> CASE_SERVICE
+
+    CASE_SERVICE --> POSTGRES
+    CASE_SERVICE --> OBJECT_STORE
+
+    CHAT_SERVICE --> REDIS
+    CHAT_SERVICE --> SEARCH
+    CHAT_SERVICE --> RTC
+    CHAT_SERVICE --> QUEUE
+
+    VOTE_SERVICE --> POSTGRES
+    VOTE_SERVICE --> REDIS
+    VOTE_SERVICE --> QUEUE
+
+    RESULT_SERVICE --> POSTGRES
+    RESULT_SERVICE --> QUEUE
+
+    MOD_SERVICE --> AI_MOD
+    MOD_SERVICE --> POSTGRES
+    MOD_SERVICE --> QUEUE
+
+    NOTIFICATION_SERVICE --> EMAIL
+    NOTIFICATION_SERVICE --> QUEUE
+
+    ANALYTICS_SERVICE --> POSTGRES
+    ANALYTICS_SERVICE --> QUEUE

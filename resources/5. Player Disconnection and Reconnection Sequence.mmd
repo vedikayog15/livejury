@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+
+    actor Player
+    participant Client
+    participant WS as WebSocket Gateway
+    participant Room as Jury Room Service
+    participant Redis
+    participant DB as PostgreSQL
+    participant Notify as Notification Service
+
+    Player->>Client: Participates in jury room
+    Client->>WS: Active WebSocket connection
+
+    Note over Client,WS: Network connection is interrupted
+
+    WS->>Room: Player disconnected
+    Room->>Redis: Mark player temporarily disconnected
+    Room->>Redis: Store current phase and remaining time
+    Room->>Notify: Schedule reconnect notification
+    Notify-->>Player: Rejoin active jury room
+
+    alt Player reconnects within grace period
+        Client->>WS: Reconnect with room token
+        WS->>Room: Validate player membership
+        Room->>Redis: Read active room state
+        Redis-->>Room: Current case phase and timer
+        Room->>Redis: Mark player connected
+        Room-->>WS: Restore room state
+        WS-->>Client: Resume active session
+    else Player does not reconnect
+        Room->>Redis: Mark player inactive
+
+        alt Disconnection occurred before discussion
+            Room->>Room: Find replacement player
+        else Disconnection occurred during or after discussion
+            Room->>DB: Record player as absent
+            Room->>Room: Continue with remaining jurors
+        end
+    end
