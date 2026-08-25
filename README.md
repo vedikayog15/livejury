@@ -1,17 +1,49 @@
-# livejury
+# Live Jury
 
-A new Flutter project.
+Live Jury is a Flutter mobile application where six jurors examine a fictional
+legal case, submit private and final votes, deliberate together, and compare
+their reasoning with the expected legal outcome.
 
-## Getting Started
+## Current stage
 
-This project is a starting point for a Flutter application.
+The repository currently contains a complete local-first UI prototype. User
+accounts, matchmaking, rooms, chat, voting, results, history, notifications,
+leaderboards, and profile data are simulated in memory. Backend integrations
+will replace those local state transitions in the next phase.
 
-A few resources to get you started if this is your first Flutter project:
+## Project structure
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```text
+lib/
+├── main.dart                         # Application entry point only
+├── app/
+│   └── live_jury_app.dart            # Root MaterialApp and app-level flow
+├── core/
+│   ├── theme/                        # Color tokens and Flutter theme
+│   └── widgets/                      # Reusable presentation components
+└── features/
+    ├── auth/
+    ├── onboarding/
+    ├── navigation/
+    ├── home/
+    ├── matchmaking/
+    ├── jury/
+    ├── history/
+    ├── leaderboard/
+    ├── notifications/
+    └── profile/
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Feature code should remain inside its feature directory. Components shared by
+multiple features belong in `core/widgets`, while global visual tokens belong
+in `core/theme`. Future API clients, repositories, domain models, and state
+controllers should be added within the feature that owns them instead of being
+placed in `main.dart`.
+
+## Verification
+
+```bash
+flutter analyze
+flutter test --reporter compact
+flutter build web
+```
