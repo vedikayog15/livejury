@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/live_jury_theme.dart';
 import 'primitives.dart';
+import 'state_widgets.dart';
 
 class HistoryCard extends StatelessWidget {
   const HistoryCard({
@@ -10,16 +11,19 @@ class HistoryCard extends StatelessWidget {
     required this.verdict,
     required this.score,
     required this.date,
+    this.matchedLaw = true,
+    this.onTap,
   });
   final String title;
   final String category;
   final String verdict;
   final int score;
   final String date;
+  final bool matchedLaw;
+  final VoidCallback? onTap;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: SurfaceCard(
+  Widget build(BuildContext context) {
+    final card = SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -49,7 +53,9 @@ class HistoryCard extends StatelessWidget {
           Row(
             children: [
               Icon(
-                verdict.contains('Not') ? Icons.shield_outlined : Icons.gavel,
+                verdict.contains('Not')
+                    ? Icons.shield_outlined
+                    : Icons.gavel_outlined,
                 size: 18,
                 color: verdict.contains('Not')
                     ? AppColors.teal
@@ -65,13 +71,45 @@ class HistoryCard extends StatelessWidget {
                 ).textTheme.bodyMedium?.copyWith(color: AppColors.gold),
               ),
               const SizedBox(width: 5),
-              const Icon(Icons.chevron_right, color: AppColors.muted),
+              const Icon(Icons.chevron_right_rounded, color: AppColors.muted),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(
+                matchedLaw
+                    ? Icons.check_circle_outline_rounded
+                    : Icons.info_outline_rounded,
+                size: 14,
+                color: matchedLaw ? AppColors.teal : AppColors.warning,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                matchedLaw
+                    ? 'Matched the legal outcome'
+                    : 'Differed from the legal outcome',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 11.5,
+                  color: matchedLaw ? AppColors.teal : AppColors.warning,
+                ),
+              ),
             ],
           ),
         ],
       ),
-    ),
-  );
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: onTap == null
+          ? card
+          : Pressable(
+              onTap: onTap,
+              semanticLabel: '$title, $verdict, reasoning score $score',
+              child: card,
+            ),
+    );
+  }
 }
 
 class Podium extends StatelessWidget {
@@ -141,13 +179,16 @@ class SettingTile extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.trailing,
+    this.onTap,
   });
   final IconData icon;
   final String title;
   final String trailing;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) => ListTile(
     contentPadding: EdgeInsets.zero,
+    onTap: onTap,
     leading: Icon(icon, color: AppColors.gold),
     title: Text(title),
     trailing: Row(
@@ -175,75 +216,83 @@ class NotificationTile extends StatelessWidget {
     required this.body,
     required this.time,
     this.unread = false,
+    this.onTap,
   });
   final IconData icon;
   final String title;
   final String body;
   final String time;
   final bool unread;
+  final VoidCallback? onTap;
   @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(bottom: 10),
-    padding: const EdgeInsets.all(15),
-    decoration: BoxDecoration(
-      color: unread ? AppColors.gold.withValues(alpha: .07) : AppColors.surface,
-      borderRadius: BorderRadius.circular(18),
-      border: Border.all(
+  Widget build(BuildContext context) => Pressable(
+    onTap: onTap ?? () {},
+    semanticLabel: '${unread ? 'Unread. ' : ''}$title. $body. $time ago.',
+    child: Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
         color: unread
-            ? AppColors.gold.withValues(alpha: .2)
-            : AppColors.outline,
-      ),
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: AppColors.gold.withValues(alpha: .1),
-            borderRadius: BorderRadius.circular(13),
-          ),
-          child: Icon(icon, color: AppColors.gold),
+            ? AppColors.gold.withValues(alpha: .07)
+            : AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: unread
+              ? AppColors.gold.withValues(alpha: .2)
+              : AppColors.outline,
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                  if (unread)
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: AppColors.gold,
-                        shape: BoxShape.circle,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: AppColors.gold.withValues(alpha: .1),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(icon, color: AppColors.gold),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(body, style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 6),
-              Text(
-                time,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.muted,
-                  fontSize: 11,
+                    if (unread)
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: AppColors.gold,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(body, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                Text(
+                  time,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.muted,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }

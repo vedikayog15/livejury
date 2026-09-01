@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/design/design_tokens.dart';
 import '../../core/theme/live_jury_theme.dart';
 import '../../core/widgets/app_controls.dart';
 import '../../core/widgets/app_frame.dart';

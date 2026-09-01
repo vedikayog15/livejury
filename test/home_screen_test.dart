@@ -61,17 +61,11 @@ void main() {
     expect(find.text('Notifications'), findsOneWidget);
   });
 
-  testWidgets('view profile changes the selected shell destination', (
+  testWidgets('profile avatar opens the existing profile destination', (
     tester,
   ) async {
     await tester.pumpWidget(homeHarness(child: const MainShell()));
-
-    await tester.drag(
-      find.byKey(const Key('home-scroll-view')),
-      const Offset(0, -1000),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('View profile'));
+    await tester.tap(find.bySemanticsLabel('Open profile'));
     await tester.pumpAndSettle();
     expect(find.text('Considered Juror • Level 7'), findsOneWidget);
   });

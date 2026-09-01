@@ -57,6 +57,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 TextField(
                   controller: username,
                   textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.newUsername],
                   decoration: const InputDecoration(
                     labelText: 'Username',
                     prefixIcon: Icon(Icons.person_outline),
@@ -68,6 +69,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 controller: email,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
                 decoration: const InputDecoration(
                   labelText: 'Email address',
                   prefixIcon: Icon(Icons.mail_outline),
@@ -78,12 +80,20 @@ class _AuthScreenState extends State<AuthScreen> {
                 controller: password,
                 obscureText: obscurePassword,
                 onSubmitted: (_) => widget.onAuthenticated(),
+                autofillHints: [
+                  createAccount
+                      ? AutofillHints.newPassword
+                      : AutofillHints.password,
+                ],
                 decoration: InputDecoration(
                   labelText: 'Password',
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     onPressed: () =>
                         setState(() => obscurePassword = !obscurePassword),
+                    tooltip: obscurePassword
+                        ? 'Show password'
+                        : 'Hide password',
                     icon: Icon(
                       obscurePassword
                           ? Icons.visibility_outlined

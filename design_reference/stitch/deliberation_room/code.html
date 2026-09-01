@@ -1,0 +1,138 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Jost:ital,wght@0,100..900;1,100..900&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@100..900&amp;family=Jost:wght@100..900&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "inverse-on-surface": "#2e3130", "surface-container-high": "#272b29", "inverse-primary": "#2b6954", "on-tertiary-fixed-variant": "#8b1a00", "secondary-container": "#703343", "on-secondary-container": "#f09eb0", "secondary-fixed-dim": "#ffb1c2", "surface-container": "#1d201f", "tertiary-container": "#871800", "tertiary-fixed-dim": "#ffb4a3", "on-surface-variant": "#bfc9c3", "on-secondary-fixed": "#3a0819", "outline": "#89938d", "error": "#ffb4ab", "on-secondary": "#541d2d", "surface-bright": "#373a38", "outline-variant": "#404944", "on-primary-container": "#80bea6", "surface-container-lowest": "#0c0f0e", "background": "#111413", "error-container": "#93000a", "surface-variant": "#323534", "surface-dim": "#111413", "on-surface": "#e1e3e1", "on-error": "#690005", "on-primary": "#003829", "on-error-container": "#ffdad6", "primary-container": "#064e3b", "secondary": "#ffb1c2", "secondary-fixed": "#ffd9df", "tertiary-fixed": "#ffdad2", "surface-container-highest": "#323534", "on-tertiary": "#630f00", "on-tertiary-fixed": "#3d0600", "primary": "#95d3ba", "surface-tint": "#95d3ba", "on-primary-fixed-variant": "#0b513d", "surface": "#111413", "on-secondary-fixed-variant": "#703343", "on-tertiary-container": "#ff957c", "tertiary": "#ffb4a3", "primary-fixed": "#b0f0d6", "on-primary-fixed": "#002117", "on-background": "#e1e3e1", "primary-fixed-dim": "#95d3ba", "inverse-surface": "#e1e3e1", "surface-container-low": "#191c1b" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-md": "16px", "unit": "4px", "margin-desktop": "48px", "margin-mobile": "20px", "container-max": "1480px", "gutter-lg": "24px", "gutter-sm": "12px" }, "fontFamily": { "body-base": ["Jost"], "display-md": ["Bodoni Moda"], "stat-lg": ["Jost"], "headline-lg": ["Bodoni Moda"], "title-lg": ["Jost"], "display-lg": ["Bodoni Moda"], "label-caps": ["Jost"], "headline-md": ["Jost"], "headline-lg-mobile": ["Bodoni Moda"] }, "fontSize": { "body-base": ["15px", { "lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400" }], "display-md": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "stat-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "title-lg": ["20px", { "lineHeight": "28px", "letterSpacing": "0", "fontWeight": "600" }], "display-lg": ["52px", { "lineHeight": "60px", "letterSpacing": "-0.025em", "fontWeight": "700" }], "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" }] } } } };</script><style>@layer base { body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; background-color: #1a1f1d; background-image: radial-gradient(circle at top center, #272b29 0%, #1a1f1d 100%); } .pb-safe { padding-bottom: env(safe-area-inset-bottom); } .pt-safe { padding-top: env(safe-area-inset-top); } } .glass { backdrop-filter: blur(24px); background: rgba(39, 43, 41, 0.65); border: 1px solid rgba(255, 255, 255, 0.05); } .glass-nav { backdrop-filter: blur(32px); background: rgba(26, 31, 29, 0.75); border: 1px solid rgba(149, 211, 186, 0.1); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); } .active-glow { filter: drop-shadow(0 0 12px rgba(149, 211, 186, 0.6)); } .prosecution-bubble { box-shadow: -4px 0 12px -4px rgba(225, 227, 225, 0.1); border-left: 2px solid rgba(225, 227, 225, 0.2); } .defense-bubble { box-shadow: -4px 0 12px -4px rgba(255, 180, 163, 0.15); border-left: 2px solid rgba(255, 180, 163, 0.3); } .juror-bubble { box-shadow: 4px 0 12px -4px rgba(149, 211, 186, 0.2); border-right: 2px solid rgba(149, 211, 186, 0.4); } </style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="text-on-surface font-body-base"><header class="fixed top-0 w-full z-50 glass pt-safe border-t-0 border-x-0"><div class="h-16 flex items-center justify-between px-margin-mobile"><div class="flex items-center gap-gutter-sm"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-on-primary-container flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[20px]">gavel</span></div><span class="font-display-md text-title-lg text-primary tracking-tight italic">Deliberate</span></div><div class="flex items-center gap-gutter-sm"><button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">notifications</span></button><div class="w-9 h-9 rounded-full border border-primary/30 overflow-hidden shadow-[0_0_10px_rgba(149,211,186,0.2)]"><img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDy83KGIrokb_5HJ-8TaW055tT_NOmnmY89NZWyl3_-_JmXUEx0Weu3U102t-fS6rIfc5OrOHAsmzMnTcQYJKz0tz5HHmOZz65zWzgIOvthGQM6ohM1lgJrwruAnV-lFkU6BVmTCjHANqTJpPyER1K2Ve1S1nShlsm1mWgMV1aBMIt-NHPhFAJVq0dAhVBZocPJXaMdlk1QamRfMYzfc7AjKj4JV2yUiYecR1ynUrV1Ad3jFUTF50SkQA"/></div></div></div></header><main class="pt-16 pb-32 min-h-screen bg-transparent"><div class="flex flex-col w-full relative">
+<!-- Floating Phase Banner -->
+<div class="sticky top-16 z-20 mx-margin-mobile mt-4 px-4 py-3 glass rounded-2xl shadow-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative flex items-center justify-center w-4 h-4">
+<div class="absolute inset-0 rounded-full bg-tertiary opacity-40 animate-ping"></div>
+<div class="relative w-2 h-2 rounded-full bg-tertiary shadow-[0_0_10px_rgba(255,180,163,0.8)]"></div>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-tertiary tracking-widest uppercase">Phase III Active</span>
+<span class="font-title-lg text-on-surface text-sm">Intent Analysis</span>
+</div>
+</div>
+<div class="flex items-center gap-2 glass px-3 py-1.5 rounded-full bg-surface-lowest/50 border-none">
+<span class="material-symbols-outlined text-primary text-[16px]">timer</span>
+<span class="font-label-caps text-primary">00:45:12</span>
+</div>
+</div>
+<!-- Chat Deliberation Area -->
+<div class="flex flex-col gap-gutter-lg px-margin-mobile py-8 pb-40">
+<!-- System Timestamp -->
+<div class="w-full flex justify-center">
+<span class="font-label-caps text-on-surface-variant/50 tracking-wider">Session Decrypted • 10:40 AM</span>
+</div>
+<!-- Prosecution Message -->
+<div class="flex flex-col gap-2 items-start w-[92%] md:w-[80%]">
+<div class="flex items-center gap-2 px-2">
+<div class="w-7 h-7 rounded-full bg-surface-bright flex items-center justify-center overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Cinematic macro portrait of a sharp female prosecutor in a dimly lit, high-stakes digital courtroom, bathed in subtle emerald and obsidian shadows, highly detailed 8k photography with sharp focus on the eyes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDni7-2qwmTf2gJwZzxIZ1BzcNEb6mdBroat6nijkoNDy2r9yW-2-LOwNteZ_bkLRkyyIoFMlKfTIfHGkFv20ipaCYVd1P3TrQy4uVjrPQs32INijEzOxi8ez-zVSdOZYaWjPUB2v-s6oaQKK7dQ2HBrwWNlr_0-mwMotpciXFym_wCfEDM8QB0lPVZSaYJuTIQ3OfsACnCzVFWhllUdY8RiC9K0yAy3s4yxwSVGomG7nnutuj_SLy5LA"/>
+</div>
+<span class="font-label-caps text-on-surface-variant uppercase tracking-widest">Prosecution</span>
+<span class="font-label-caps text-on-surface-variant/40 lowercase">10:42 am</span>
+</div>
+<div class="relative p-5 rounded-3xl rounded-tl-sm glass bg-surface-container-high/80 prosecution-bubble">
+<p class="font-body-base text-on-surface leading-relaxed">
+                    The sequence of events leading up to the transaction clearly demonstrates premeditation. We direct the jury's attention to <span class="font-body-base text-on-surface-variant bg-surface-variant/50 px-2 py-1 rounded-md shadow-inner border border-outline/10">Exhibit C: Encrypted Ledger</span>, which confirms a calculated transfer of auxiliary assets exactly 48 hours prior to the incident.
+                </p>
+</div>
+</div>
+<!-- Defense Message -->
+<div class="flex flex-col gap-2 items-start w-[92%] md:w-[80%]">
+<div class="flex items-center gap-2 px-2">
+<div class="w-7 h-7 rounded-full bg-tertiary-container flex items-center justify-center overflow-hidden shadow-sm">
+<img class="w-full h-full object-cover" data-alt="Cinematic portrait of a stern male defense attorney in a dark textured suit, warm dramatic top lighting against an obsidian background, conveying authority and high-stakes tension, detailed 8k" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJWR8Q43tXZeG9tLa7IL8JrxbMJU6lKRvjwQlwJzDdSdq8qlezNyUN_bBdfa7LIxcieSrrgbVUOS2jPwvHl0IWnA51zvw4_BmMnjHZFpDBwyZN0F7GxnMmom05g3apnKF0xqICK54mA380mAIsnatjDDEQgOxbvvgoMjjcuQZW1eRiASW9QFnITZyNONGV7pzy5q5NHf08q2xE6U6VZd6uvTo64RRTJ7sRuyY_4sNjSfSJVYrnQXgylw"/>
+</div>
+<span class="font-label-caps text-tertiary uppercase tracking-widest">Defense</span>
+<span class="font-label-caps text-on-surface-variant/40 lowercase">10:45 am</span>
+</div>
+<div class="relative p-5 rounded-3xl rounded-tl-sm glass bg-surface-container-high/80 defense-bubble">
+<p class="font-body-base text-on-surface leading-relaxed">
+                    Objection to the framing. The ledger entries are entirely circumstantial. Furthermore, <span class="font-body-base text-tertiary bg-tertiary/10 px-2 py-1 rounded-md shadow-inner border border-tertiary/20">Testimony 4A</span> explicitly states the transfer was automated by a legacy smart contract protocol, negating any assertion of immediate, conscious intent.
+                </p>
+</div>
+</div>
+<!-- System Event: Evidence Added -->
+<div class="w-full flex justify-center my-4">
+<div class="px-5 py-2.5 rounded-full glass bg-surface-container/60 flex items-center gap-3 shadow-sm border border-outline/5">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">account_tree</span>
+<span class="font-label-caps text-on-surface-variant">Defense attached 1 new document to the registry</span>
+</div>
+</div>
+<!-- User/Lead Juror Message -->
+<div class="flex flex-col gap-2 items-end w-[92%] md:w-[80%] self-end">
+<div class="flex items-center gap-2 px-2">
+<span class="font-label-caps text-on-surface-variant/40 lowercase">10:48 am</span>
+<span class="font-label-caps text-primary uppercase tracking-widest">Lead Juror (You)</span>
+</div>
+<div class="relative p-5 rounded-3xl rounded-tr-sm glass bg-primary/10 juror-bubble">
+<p class="font-body-base text-on-surface leading-relaxed text-right">
+                    We need to cross-reference the contract execution timestamp with the <span class="font-body-base text-primary bg-primary/20 px-2 py-1 rounded-md shadow-inner border border-primary/30">Server Logs (Ex. F)</span>. If the contract parameters were modified manually after 08:00 UTC, the automation defense completely falls apart.
+                </p>
+</div>
+</div>
+<!-- Typing Indicator -->
+<div class="flex items-center gap-3 px-4 py-2 opacity-60">
+<div class="flex gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-on-surface-variant animate-bounce" style="animation-delay: 0ms;"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-surface-variant animate-bounce" style="animation-delay: 150ms;"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-on-surface-variant animate-bounce" style="animation-delay: 300ms;"></div>
+</div>
+<span class="font-label-caps text-on-surface-variant lowercase">Prosecution is formulating a response...</span>
+</div>
+<!-- Submit Final Verdict Action -->
+<div class="w-full flex justify-center mt-6">
+<button class="px-8 py-4 rounded-full bg-gradient-to-r from-primary to-inverse-primary text-on-primary font-title-lg shadow-[0_4px_24px_rgba(149,211,186,0.3)] hover:shadow-[0_6px_32px_rgba(149,211,186,0.4)] transition-all active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined">gavel</span>
+<span>Submit Final Verdict</span>
+</button>
+</div>
+</div>
+<!-- Sticky Input Area -->
+<div class="fixed bottom-24 left-0 w-full z-40 p-margin-mobile glass backdrop-blur-3xl bg-surface/80 pt-4 pb-6 border-t border-outline/10">
+<div class="flex flex-col gap-4 max-w-3xl mx-auto">
+<!-- Quick Actions -->
+<div class="flex items-center gap-4 px-2">
+<button class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[18px]">attach_file</span>
+<span class="font-label-caps">Exhibit</span>
+</button>
+<button class="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors active:scale-95">
+<span class="material-symbols-outlined text-[18px]">how_to_vote</span>
+<span class="font-label-caps">Call Vote</span>
+</button>
+<div class="flex-1"></div>
+<div class="flex items-center gap-1.5 text-primary/60">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span class="font-label-caps">P2P Secure</span>
+</div>
+</div>
+<!-- Input Box -->
+<div class="relative flex items-end gap-2 w-full p-1.5 pl-5 rounded-3xl bg-surface-container-highest/50 border border-outline/10 shadow-inner group transition-all duration-300">
+<div class="absolute inset-0 rounded-3xl bg-primary/0 group-focus-within:bg-primary/5 transition-colors pointer-events-none"></div>
+<textarea class="flex-1 bg-transparent text-body-base text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none resize-none py-3 min-h-[44px] max-h-[120px] overflow-y-auto" placeholder="Draft your reasoning for the chamber..." rows="1"></textarea>
+<button class="w-11 h-11 rounded-full bg-gradient-to-br from-tertiary-container to-on-tertiary-fixed flex items-center justify-center shadow-[0_0_15px_rgba(135,24,0,0.3)] transition-transform active:scale-90 flex-shrink-0 relative overflow-hidden">
+<div class="absolute inset-x-0 top-0 h-[1px] bg-white/20"></div>
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[20px] ml-0.5">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    // Auto-resize textarea logic
+    const textarea = document.querySelector('textarea');
+    if(textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+</script></main><nav class="fixed bottom-4 left-4 right-4 z-50 pb-safe glass-nav rounded-2xl" data-active-classes="text-primary active-glow"><div class="h-16 flex justify-around items-center px-gutter-md"><a class="flex flex-col items-center gap-1 text-on-surface-variant/60 hover:text-on-surface transition-all duration-300 scale-95 hover:scale-100 active:scale-90" data-path="lobby" href="#"><span class="material-symbols-outlined">dashboard</span><span class="font-label-caps">Lobby</span></a><a class="flex flex-col items-center gap-1 text-on-surface-variant/60 hover:text-on-surface transition-all duration-300 scale-95 hover:scale-100 active:scale-90" data-path="evidence" href="#"><span class="material-symbols-outlined">folder_managed</span><span class="font-label-caps">Evidence</span></a><a aria-current="page" class="flex flex-col items-center gap-1 transition-all duration-300 scale-100 active:scale-90 text-primary active-glow" data-path="deliberate" href="#"><span class="material-symbols-outlined">groups</span><span class="font-label-caps">Deliberate</span></a><a class="flex flex-col items-center gap-1 text-on-surface-variant/60 hover:text-on-surface transition-all duration-300 scale-95 hover:scale-100 active:scale-90" data-path="history" href="#"><span class="material-symbols-outlined">auto_stories</span><span class="font-label-caps">History</span></a></div></nav></body></html>

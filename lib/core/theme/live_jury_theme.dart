@@ -2,28 +2,45 @@ import 'package:flutter/material.dart';
 
 import '../design/design_tokens.dart';
 
+/// Refined Emerald semantic palette extracted from the supplied Stitch project.
 abstract final class AppColors {
-  static const canvas = Color(0xFF0B1016);
-  static const surface = Color(0xFF121A23);
-  static const surfaceRaised = Color(0xFF1A2531);
-  static const ink = Color(0xFF060A0F);
-  static const outline = Color(0xFF2B3947);
-  static const primary = Color(0xFFFF7658);
-  static const primaryPressed = Color(0xFFE65F43);
-  static const onPrimary = Color(0xFF1C0B07);
-  static const textPrimary = Color(0xFFF5F1E9);
-  static const textSecondary = Color(0xFF9DA9B5);
-  static const positive = Color(0xFF58B79D);
-  static const negative = Color(0xFFE26A73);
-  static const warning = Color(0xFFE0B35A);
-  static const shadow = Color(0x6602070C);
+  static const surfaceLowest = Color(0xFF0C0F0E);
+  static const canvas = Color(0xFF111413);
+  static const surfaceLow = Color(0xFF191C1B);
+  static const surface = Color(0xFF1D201F);
+  static const surfaceHigh = Color(0xFF272B29);
+  static const surfaceHighest = Color(0xFF323534);
 
+  static const primary = Color(0xFF95D3BA);
+  static const primaryPressed = Color(0xFF80BEA6);
+  static const primaryContainer = Color(0xFF064E3B);
+  static const onPrimary = Color(0xFF003829);
+  static const textPrimary = Color(0xFFE1E3E1);
+  static const textSecondary = Color(0xFFBFC9C3);
+  static const outline = Color(0xFF404944);
+  static const outlineStrong = Color(0xFF89938D);
+  static const urgent = Color(0xFFFFB4A3);
+  static const urgentContainer = Color(0xFF871800);
+  static const error = Color(0xFFFFB4AB);
+  static const errorContainer = Color(0xFF93000A);
+  static const secondary = Color(0xFFFFB1C2);
+  static const warning = Color(0xFFE7C374);
+  static const shadow = Color(0x70000000);
+
+  // Compatibility aliases for the existing, working feature layer.
+  static const ink = surfaceLowest;
+  static const surfaceAlt = surfaceLow;
+  static const surfaceRaised = surfaceHigh;
+  static const primarySoft = primaryPressed;
+  static const positive = primary;
+  static const negative = error;
+  static const highlight = primary;
   static const navy = canvas;
   static const navySoft = surface;
   static const cream = textPrimary;
   static const gold = primary;
-  static const teal = positive;
-  static const burgundy = negative;
+  static const teal = primary;
+  static const burgundy = urgent;
   static const muted = textSecondary;
 }
 
@@ -32,11 +49,16 @@ abstract final class LiveJuryTheme {
     const scheme = ColorScheme.dark(
       primary: AppColors.primary,
       onPrimary: AppColors.onPrimary,
-      secondary: AppColors.positive,
-      onSecondary: AppColors.ink,
+      primaryContainer: AppColors.primaryContainer,
+      onPrimaryContainer: AppColors.primary,
+      secondary: AppColors.secondary,
+      onSecondary: Color(0xFF541D2D),
+      tertiary: AppColors.urgent,
+      onTertiary: Color(0xFF630F00),
+      error: AppColors.error,
+      onError: Color(0xFF690005),
       surface: AppColors.surface,
       onSurface: AppColors.textPrimary,
-      error: AppColors.negative,
       outline: AppColors.outline,
       shadow: AppColors.shadow,
     );
@@ -46,87 +68,46 @@ abstract final class LiveJuryTheme {
       brightness: Brightness.dark,
       colorScheme: scheme,
       scaffoldBackgroundColor: AppColors.canvas,
-      fontFamily: 'Manrope',
+      fontFamily: 'Jost',
+      splashFactory: InkRipple.splashFactory,
     );
 
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
-        displayLarge: const TextStyle(
-          fontFamily: 'SourceSerif4',
-          fontSize: 46,
-          height: 1,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -1.2,
+        displayLarge: AppTypography.display.copyWith(
+          fontSize: 52,
           color: AppColors.textPrimary,
         ),
-        headlineLarge: const TextStyle(
-          fontFamily: 'SourceSerif4',
-          fontSize: 35,
-          height: 1.03,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -.75,
+        headlineLarge: AppTypography.headline.copyWith(
           color: AppColors.textPrimary,
         ),
-        headlineMedium: const TextStyle(
-          fontFamily: 'SourceSerif4',
-          fontSize: 28,
-          height: 1.08,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -.4,
+        headlineMedium: AppTypography.editorialTitle.copyWith(
           color: AppColors.textPrimary,
         ),
-        titleLarge: const TextStyle(
+        titleLarge: AppTypography.title.copyWith(
           fontSize: 20,
-          height: 1.22,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -.3,
           color: AppColors.textPrimary,
         ),
-        titleMedium: const TextStyle(
+        titleMedium: AppTypography.title.copyWith(
           fontSize: 16,
-          height: 1.3,
-          fontWeight: FontWeight.w700,
-          letterSpacing: -.1,
           color: AppColors.textPrimary,
         ),
-        bodyLarge: const TextStyle(
-          fontSize: 16,
-          height: 1.5,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
-        ),
-        bodyMedium: const TextStyle(
+        bodyLarge: AppTypography.body.copyWith(color: AppColors.textPrimary),
+        bodyMedium: AppTypography.body.copyWith(
           fontSize: 14,
-          height: 1.45,
-          fontWeight: FontWeight.w500,
           color: AppColors.textSecondary,
         ),
-        labelLarge: const TextStyle(
-          fontSize: 14,
-          height: 1.2,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -.05,
-        ),
-        labelMedium: const TextStyle(
-          fontSize: 12,
-          height: 1.2,
-          fontWeight: FontWeight.w700,
+        labelLarge: AppTypography.label.copyWith(color: AppColors.textPrimary),
+        labelMedium: AppTypography.caption.copyWith(
+          color: AppColors.textSecondary,
         ),
       ),
       appBarTheme: const AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: AppColors.canvas,
+        backgroundColor: Colors.transparent,
         foregroundColor: AppColors.textPrimary,
         surfaceTintColor: Colors.transparent,
-        centerTitle: false,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Manrope',
-          color: AppColors.textPrimary,
-          fontSize: 18,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -.2,
-        ),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.outline,
@@ -135,24 +116,27 @@ abstract final class LiveJuryTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: AppColors.surfaceLow,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
-          vertical: AppSpacing.md,
+          vertical: 15,
         ),
-        border: OutlineInputBorder(
-          borderRadius: AppRadii.card,
-          borderSide: const BorderSide(color: AppColors.outline),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadii.input,
+          borderSide: BorderSide(color: AppColors.outline),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadii.card,
-          borderSide: const BorderSide(color: AppColors.outline),
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: AppRadii.input,
+          borderSide: BorderSide(color: AppColors.outline),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadii.card,
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: AppRadii.input,
+          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
         ),
         labelStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(
+          color: AppColors.textSecondary.withValues(alpha: .65),
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: ButtonStyle(
@@ -161,17 +145,25 @@ abstract final class LiveJuryTheme {
           ),
           foregroundColor: const WidgetStatePropertyAll(AppColors.onPrimary),
           backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return AppColors.surfaceHighest;
+            }
             return states.contains(WidgetState.pressed)
                 ? AppColors.primaryPressed
                 : AppColors.primary;
           }),
-          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          overlayColor: const WidgetStatePropertyAll(Color(0x18000000)),
           elevation: const WidgetStatePropertyAll(0),
           shape: const WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: AppRadii.card),
+            RoundedRectangleBorder(borderRadius: AppRadii.input),
           ),
           textStyle: const WidgetStatePropertyAll(
-            TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+            TextStyle(
+              fontFamily: 'Jost',
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              letterSpacing: .15,
+            ),
           ),
         ),
       ),
@@ -180,57 +172,60 @@ abstract final class LiveJuryTheme {
           minimumSize: const Size.fromHeight(52),
           foregroundColor: AppColors.textPrimary,
           side: const BorderSide(color: AppColors.outline),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadii.card),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+          textStyle: AppTypography.label,
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          minimumSize: const Size(48, 48),
+          textStyle: AppTypography.label,
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          foregroundColor: AppColors.textPrimary,
+        ),
+      ),
+      chipTheme: base.chipTheme.copyWith(
+        backgroundColor: AppColors.surfaceLow,
+        selectedColor: AppColors.primaryContainer,
+        labelStyle: AppTypography.caption.copyWith(
+          color: AppColors.textPrimary,
+        ),
+        side: const BorderSide(color: AppColors.outline),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.md),
         ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
-        dragHandleColor: AppColors.outline,
+        dragHandleColor: AppColors.outlineStrong,
+        modalElevation: 0,
+        shadowColor: AppColors.shadow,
       ),
-      snackBarTheme: const SnackBarThemeData(
-        backgroundColor: AppColors.surfaceRaised,
-        contentTextStyle: TextStyle(
-          fontFamily: 'Manrope',
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w600,
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        height: 72,
+      dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
-        indicatorColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: WidgetStateProperty.resolveWith((states) {
-          return IconThemeData(
-            size: 23,
-            color: states.contains(WidgetState.selected)
-                ? AppColors.primary
-                : AppColors.textSecondary,
-          );
-        }),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          return TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 11,
-            fontWeight: states.contains(WidgetState.selected)
-                ? FontWeight.w800
-                : FontWeight.w600,
-            color: states.contains(WidgetState.selected)
-                ? AppColors.primary
-                : AppColors.textSecondary,
-          );
-        }),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.surfaceHighest,
+        contentTextStyle: AppTypography.body.copyWith(
+          fontSize: 14,
+          color: AppColors.textPrimary,
+        ),
+        actionTextColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.input),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.primary,
+        linearTrackColor: AppColors.surfaceHighest,
+        circularTrackColor: AppColors.surfaceHighest,
       ),
     );
   }

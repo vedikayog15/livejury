@@ -30,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
               ),
+              tooltip: 'Edit profile',
               icon: const Icon(Icons.edit_outlined),
             ),
           ],
@@ -70,16 +71,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SurfaceCard(
           child: Column(
             children: [
-              const SettingTile(
+              SettingTile(
                 icon: Icons.workspace_premium_outlined,
                 title: 'Achievements',
                 trailing: '12 earned',
+                onTap: () => _comingSoon(context, 'Achievements'),
               ),
               const Divider(),
-              const SettingTile(
+              SettingTile(
                 icon: Icons.block_outlined,
                 title: 'Blocked jurors',
                 trailing: 'Manage',
+                onTap: () => _comingSoon(context, 'Blocked jurors'),
               ),
               const Divider(),
               SwitchListTile(
@@ -90,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 title: const Text('Push notifications'),
                 value: push,
-                activeThumbColor: AppColors.gold,
+                activeThumbColor: AppColors.primary,
                 onChanged: (value) => setState(() => push = value),
               ),
               const Divider(),
@@ -100,44 +103,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: const Text('Voice deliberation'),
                 subtitle: const Text('Allow microphone in supported rooms'),
                 value: voice,
-                activeThumbColor: AppColors.gold,
+                activeThumbColor: AppColors.primary,
                 onChanged: (value) => setState(() => voice = value),
               ),
             ],
           ),
         ),
         const SizedBox(height: 14),
-        const SurfaceCard(
+        SurfaceCard(
           child: Column(
             children: [
               SettingTile(
                 icon: Icons.shield_outlined,
                 title: 'Privacy & safety',
                 trailing: '',
+                onTap: () => _comingSoon(context, 'Privacy & safety'),
               ),
-              Divider(),
+              const Divider(),
               SettingTile(
                 icon: Icons.description_outlined,
                 title: 'Community rules',
                 trailing: '',
+                onTap: () => _comingSoon(context, 'Community rules'),
               ),
-              Divider(),
+              const Divider(),
               SettingTile(
                 icon: Icons.help_outline,
                 title: 'Help centre',
                 trailing: '',
+                onTap: () => _comingSoon(context, 'Help centre'),
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
         OutlinedButton(
-          onPressed: () => ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Signed in as Vaibhav'))),
+          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Sign-out arrives with account integration'),
+            ),
+          ),
           child: const Text('SIGN OUT'),
         ),
       ],
     ),
   );
+
+  void _comingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('$feature is coming soon')));
+  }
 }

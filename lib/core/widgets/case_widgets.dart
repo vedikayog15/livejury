@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design/design_tokens.dart';
 import '../theme/live_jury_theme.dart';
 import 'primitives.dart';
 
@@ -70,11 +71,9 @@ class TimelineItem extends StatelessWidget {
           width: 78,
           child: Text(
             time,
-            style: const TextStyle(
-              fontFamily: 'Manrope',
+            style: AppTypography.caption.copyWith(
               color: AppColors.gold,
               fontSize: 12,
-              fontWeight: FontWeight.bold,
             ),
           ),
         ),

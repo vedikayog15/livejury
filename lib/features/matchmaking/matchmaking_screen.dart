@@ -51,7 +51,6 @@ class _MatchmakingScreenState extends State<MatchmakingScreen> {
                       ),
                       const BrandMark(size: 72),
                       ...List.generate(6, (i) {
-                        final angle = i * 1.047;
                         final offsets = [
                           (0.0, -orbitRadius),
                           (sideOffset, -diagonalOffset),
@@ -72,7 +71,11 @@ class _MatchmakingScreenState extends State<MatchmakingScreen> {
                                 ? AppColors.teal
                                 : AppColors.muted,
                             empty: i >= players,
-                            semantics: '$angle',
+                            semantics: i < players
+                                ? (i == 0
+                                      ? 'You, joined'
+                                      : 'Juror ${i + 1}, joined')
+                                : 'Seat ${i + 1}, waiting for a juror',
                           ),
                         );
                       }),
@@ -198,7 +201,6 @@ class _PrivateRoomScreenState extends State<PrivateRoomScreen> {
                   const SelectableText(
                     'JURY26',
                     style: TextStyle(
-                      fontFamily: 'Manrope',
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 7,
@@ -209,7 +211,7 @@ class _PrivateRoomScreenState extends State<PrivateRoomScreen> {
                     onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Invite link copied')),
                     ),
-                    icon: const Icon(Icons.ios_share),
+                    icon: const Icon(Icons.ios_share_rounded),
                     label: const Text('SHARE INVITE'),
                   ),
                 ],
@@ -231,46 +233,49 @@ class _PrivateRoomScreenState extends State<PrivateRoomScreen> {
             const SizedBox(height: 14),
             ...List.generate(
               6,
-              (i) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SurfaceCard(
-                  child: Row(
-                    children: [
-                      JurorAvatar(
-                        initials: i < players
-                            ? ['VK', 'AM', 'SK', 'RN', 'JT', 'LP'][i]
-                            : '?',
-                        color: i < players ? AppColors.teal : AppColors.muted,
-                        empty: i >= players,
-                      ),
-                      const SizedBox(width: 13),
-                      Expanded(
-                        child: Text(
-                          i < players
-                              ? [
-                                  'Vaibhav (Host)',
-                                  'Aarav Mehta',
-                                  'Sara Khan',
-                                  'Rohan Nair',
-                                  'Jia Thomas',
-                                  'Leena Patel',
-                                ][i]
-                              : 'Open seat',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: i < players
-                                    ? AppColors.cream
-                                    : AppColors.muted,
-                              ),
+              (i) => StaggeredEntrance(
+                index: i,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: SurfaceCard(
+                    child: Row(
+                      children: [
+                        JurorAvatar(
+                          initials: i < players
+                              ? ['VK', 'AM', 'SK', 'RN', 'JT', 'LP'][i]
+                              : '?',
+                          color: i < players ? AppColors.teal : AppColors.muted,
+                          empty: i >= players,
                         ),
-                      ),
-                      Icon(
-                        i < players
-                            ? Icons.check_circle
-                            : Icons.hourglass_empty,
-                        color: i < players ? AppColors.teal : AppColors.muted,
-                      ),
-                    ],
+                        const SizedBox(width: 13),
+                        Expanded(
+                          child: Text(
+                            i < players
+                                ? [
+                                    'Vaibhav (Host)',
+                                    'Aarav Mehta',
+                                    'Sara Khan',
+                                    'Rohan Nair',
+                                    'Jia Thomas',
+                                    'Leena Patel',
+                                  ][i]
+                                : 'Open seat',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: i < players
+                                      ? AppColors.cream
+                                      : AppColors.muted,
+                                ),
+                          ),
+                        ),
+                        Icon(
+                          i < players
+                              ? Icons.check_circle
+                              : Icons.hourglass_empty,
+                          color: i < players ? AppColors.teal : AppColors.muted,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

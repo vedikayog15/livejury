@@ -10,12 +10,15 @@ class AppFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: const Color(0xFF05080C),
+      color: AppColors.surfaceLowest,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: AppSizes.maxContentWidth),
           child: DecoratedBox(
-            decoration: const BoxDecoration(color: AppColors.canvas),
+            decoration: const BoxDecoration(
+              color: AppColors.canvas,
+              boxShadow: AppElevation.level2,
+            ),
             child: child,
           ),
         ),

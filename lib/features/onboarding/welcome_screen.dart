@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/design/design_tokens.dart';
 import '../../core/theme/live_jury_theme.dart';
 import '../../core/widgets/app_frame.dart';
 import '../../core/widgets/live_jury_widgets.dart';
@@ -111,7 +110,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       margin: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: index == page
-                            ? AppColors.gold
+                            ? AppColors.primary
                             : AppColors.outline,
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -178,9 +177,9 @@ class _OnboardingArtwork extends StatelessWidget {
             top: 20,
             child: Text(
               '0${index + 1}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Manrope',
-                color: Color(0xFF899198),
+                color: AppColors.textSecondary.withValues(alpha: .7),
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.5,

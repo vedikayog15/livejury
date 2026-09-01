@@ -15,8 +15,8 @@ void main() {
     expect(find.text('Welcome back.'), findsOneWidget);
     await tester.tap(find.text('Continue with demo profile'));
     await tester.pumpAndSettle();
-    expect(find.text('Find my jury'), findsOneWidget);
-    expect(find.text('Vaibhav'), findsOneWidget);
+    expect(find.text('Lobby'), findsWidgets);
+    expect(find.text('State v. Davis'), findsOneWidget);
   });
 
   testWidgets('public matchmaking reaches the jury room', (tester) async {
@@ -33,13 +33,15 @@ void main() {
     expect(find.text('The Midnight Gallery'), findsOneWidget);
   });
 
-  testWidgets('bottom navigation opens history', (tester) async {
+  testWidgets('bottom navigation opens the refined verdict history', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(home: AppFrame(child: MainShell())),
     );
-    await tester.tap(find.text('Casebook'));
+    await tester.tap(find.bySemanticsLabel('History'));
     await tester.pump();
-    expect(find.text('Your casebook'), findsOneWidget);
+    expect(find.text('OFFICIAL COURT RULING'), findsOneWidget);
   });
 
   testWidgets('juror can review evidence and enter deliberation', (

@@ -39,6 +39,14 @@ class _JuryExperienceState extends State<JuryExperience> {
     ),
     ('You', 'I want to revisit the guard’s statement before deciding.', true),
   ];
+  final _messageInput = TextEditingController();
+  bool _micMuted = true;
+
+  @override
+  void dispose() {
+    _messageInput.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +69,8 @@ class _JuryExperienceState extends State<JuryExperience> {
         children: [
           IconButton(
             onPressed: () => _confirmExit(),
-            icon: const Icon(Icons.close),
+            tooltip: 'Leave the jury room',
+            icon: const Icon(Icons.close_rounded),
           ),
           Expanded(
             child: Column(
@@ -92,7 +101,8 @@ class _JuryExperienceState extends State<JuryExperience> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back),
+            tooltip: 'Back',
+            icon: const Icon(Icons.arrow_back_rounded),
           ),
           const Spacer(),
           const TimerPill(text: 'CASE #1042'),
@@ -148,11 +158,7 @@ class _JuryExperienceState extends State<JuryExperience> {
                 Expanded(
                   child: Text(
                     'Your private votes remain anonymous.',
-                    style: TextStyle(
-                      fontFamily: 'Manrope',
-                      color: AppColors.teal,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: AppColors.teal, fontSize: 13),
                   ),
                 ),
               ],
@@ -196,8 +202,8 @@ class _JuryExperienceState extends State<JuryExperience> {
               const TabBar(
                 isScrollable: true,
                 tabAlignment: TabAlignment.start,
-                labelColor: AppColors.gold,
-                indicatorColor: AppColors.gold,
+                labelColor: AppColors.primary,
+                indicatorColor: AppColors.primary,
                 tabs: [
                   Tab(text: 'OVERVIEW'),
                   Tab(text: 'TIMELINE'),
@@ -292,7 +298,7 @@ class _JuryExperienceState extends State<JuryExperience> {
     padding: const EdgeInsets.all(20),
     children: const [
       EvidenceTile(
-        icon: Icons.credit_card,
+        icon: Icons.credit_card_outlined,
         tag: 'EXHIBIT A',
         title: 'Keycard access log',
         detail:
@@ -370,7 +376,7 @@ class _JuryExperienceState extends State<JuryExperience> {
           label: 'GUILTY',
           description:
               'The evidence proves the charge beyond reasonable doubt.',
-          icon: Icons.gavel,
+          icon: Icons.gavel_outlined,
           color: AppColors.burgundy,
           selected: selected == 'Guilty',
           onTap: () => setState(
@@ -405,35 +411,51 @@ class _JuryExperienceState extends State<JuryExperience> {
           ].map(
             (item) => Padding(
               padding: const EdgeInsets.only(bottom: 7),
-              child: Material(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
+              child: Semantics(
+                inMutuallyExclusiveGroup: true,
+                checked: reason == item,
+                label: item,
+                child: Material(
+                  color: reason == item
+                      ? AppColors.primary.withValues(alpha: .08)
+                      : AppColors.surface,
                   borderRadius: BorderRadius.circular(12),
-                  onTap: () => setState(() => reason = item),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 13,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          reason == item
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_off,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => setState(() => reason = item),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
                           color: reason == item
-                              ? AppColors.gold
-                              : AppColors.muted,
+                              ? AppColors.primary
+                              : AppColors.outline,
+                          width: reason == item ? 1.5 : 1,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            item,
-                            style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 13,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            reason == item
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_off,
+                            color: reason == item
+                                ? AppColors.primary
+                                : AppColors.muted,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              item,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -539,7 +561,6 @@ class _JuryExperienceState extends State<JuryExperience> {
   );
 
   Widget _discussion() {
-    final input = TextEditingController();
     return Column(
       children: [
         _phaseHeader('Jury deliberation', 'Phase 3 of 4'),
@@ -557,11 +578,7 @@ class _JuryExperienceState extends State<JuryExperience> {
               Expanded(
                 child: Text(
                   'Discuss the evidence, not the person.',
-                  style: TextStyle(
-                    fontFamily: 'Manrope',
-                    color: AppColors.gold,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: AppColors.gold, fontSize: 13),
                 ),
               ),
             ],
@@ -587,8 +604,17 @@ class _JuryExperienceState extends State<JuryExperience> {
                     padding: const EdgeInsets.only(right: 8),
                     child: ActionChip(
                       label: Text(e),
-                      avatar: const Icon(Icons.link, size: 16),
-                      onPressed: () {},
+                      avatar: const Icon(Icons.link_rounded, size: 16),
+                      tooltip: 'Reference $e in your message',
+                      onPressed: () => setState(() {
+                        final prefix = _messageInput.text.isEmpty
+                            ? ''
+                            : '${_messageInput.text} ';
+                        _messageInput.text = '$prefix$e — ';
+                        _messageInput.selection = TextSelection.collapsed(
+                          offset: _messageInput.text.length,
+                        );
+                      }),
                     ),
                   ),
                 )
@@ -600,17 +626,19 @@ class _JuryExperienceState extends State<JuryExperience> {
           child: Row(
             children: [
               IconButton.filledTonal(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Microphone toggled')),
+                onPressed: () => setState(() => _micMuted = !_micMuted),
+                tooltip: _micMuted ? 'Unmute microphone' : 'Mute microphone',
+                icon: Icon(
+                  _micMuted ? Icons.mic_off_rounded : Icons.mic_none_rounded,
                 ),
-                icon: const Icon(Icons.mic_none),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: TextField(
-                  controller: input,
+                  controller: _messageInput,
                   minLines: 1,
                   maxLines: 3,
+                  onChanged: (_) => setState(() {}),
                   decoration: const InputDecoration(
                     hintText: 'Make your case…',
                     contentPadding: EdgeInsets.symmetric(
@@ -622,14 +650,14 @@ class _JuryExperienceState extends State<JuryExperience> {
               ),
               const SizedBox(width: 8),
               IconButton.filled(
-                onPressed: () {
-                  if (input.text.trim().isNotEmpty) {
-                    setState(
-                      () => messages.add(('You', input.text.trim(), true)),
-                    );
-                  }
-                },
-                icon: const Icon(Icons.send),
+                onPressed: _messageInput.text.trim().isEmpty
+                    ? null
+                    : () => setState(() {
+                        messages.add(('You', _messageInput.text.trim(), true));
+                        _messageInput.clear();
+                      }),
+                tooltip: 'Send message',
+                icon: const Icon(Icons.send_rounded),
               ),
             ],
           ),
@@ -655,7 +683,8 @@ class _JuryExperienceState extends State<JuryExperience> {
           IconButton(
             onPressed: () =>
                 Navigator.popUntil(context, (route) => route.isFirst),
-            icon: const Icon(Icons.close),
+            tooltip: 'Return home',
+            icon: const Icon(Icons.close_rounded),
           ),
         ],
       ),
@@ -743,7 +772,7 @@ class _JuryExperienceState extends State<JuryExperience> {
                 Expanded(
                   child: MiniStat(label: 'Initial', value: '3–3'),
                 ),
-                Icon(Icons.arrow_forward, color: AppColors.muted),
+                Icon(Icons.arrow_forward_rounded, color: AppColors.muted),
                 Expanded(
                   child: MiniStat(label: 'Final', value: '2–4'),
                 ),
@@ -770,7 +799,6 @@ class _JuryExperienceState extends State<JuryExperience> {
                 Text(
                   'LEGAL OUTCOME',
                   style: TextStyle(
-                    fontFamily: 'Manrope',
                     color: AppColors.teal,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,

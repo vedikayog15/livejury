@@ -58,6 +58,12 @@ flutter:
   uses-material-design: true
 
   fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/fonts/Jost-Variable.ttf
+    - family: BodoniModa
+      fonts:
+        - asset: assets/fonts/BodoniModa-Variable.ttf
     - family: Manrope
       fonts:
         - asset: assets/fonts/Manrope-Variable.ttf

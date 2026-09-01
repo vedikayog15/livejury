@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design/design_tokens.dart';
 import '../theme/live_jury_theme.dart';
 import 'primitives.dart';
 
@@ -19,58 +20,63 @@ class VerdictCard extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: selected ? color.withValues(alpha: .14) : AppColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? color : AppColors.outline,
-            width: selected ? 2 : 1,
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    selected: selected,
+    label: '$label. $description',
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: selected ? color.withValues(alpha: .14) : AppColors.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: selected ? color : AppColors.outline,
+              width: selected ? 2 : 1,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: .13),
-                borderRadius: BorderRadius.circular(15),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: .13),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(icon, color: color),
               ),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: color,
-                      letterSpacing: .8,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: color,
+                        letterSpacing: .8,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    description,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Icon(
-              selected ? Icons.check_circle : Icons.circle_outlined,
-              color: selected ? color : AppColors.muted,
-            ),
-          ],
+              Icon(
+                selected ? Icons.check_circle : Icons.circle_outlined,
+                color: selected ? color : AppColors.muted,
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -88,33 +94,37 @@ class JurorStrip extends StatelessWidget {
       6,
       (i) => Column(
         children: [
-          Stack(
-            children: [
-              JurorAvatar(
-                initials: ['VK', 'AM', 'SK', 'RN', 'JT', 'LP'][i],
-                size: 40,
-                color: i < voted ? AppColors.teal : AppColors.muted,
-              ),
-              if (speaking == i)
-                const Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: CircleAvatar(
-                    radius: 7,
-                    backgroundColor: AppColors.gold,
-                    child: Icon(Icons.mic, size: 9, color: AppColors.navy),
-                  ),
+          Semantics(
+            label:
+                '${i == 0 ? 'You' : 'Juror ${i + 1}'}, '
+                '${speaking == i ? 'speaking, ' : ''}'
+                '${i < voted ? 'voted' : 'has not voted yet'}',
+            child: Stack(
+              children: [
+                JurorAvatar(
+                  initials: ['VK', 'AM', 'SK', 'RN', 'JT', 'LP'][i],
+                  size: 40,
+                  color: i < voted ? AppColors.teal : AppColors.muted,
                 ),
-            ],
+                if (speaking == i)
+                  const Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: CircleAvatar(
+                      radius: 7,
+                      backgroundColor: AppColors.gold,
+                      child: Icon(Icons.mic, size: 9, color: AppColors.navy),
+                    ),
+                  ),
+              ],
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             i == 0 ? 'YOU' : '${i + 1}',
-            style: const TextStyle(
-              fontFamily: 'Manrope',
+            style: AppTypography.caption.copyWith(
               fontSize: 9,
               color: AppColors.muted,
-              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -161,11 +171,9 @@ class ChatBubble extends StatelessWidget {
         children: [
           Text(
             name,
-            style: TextStyle(
-              fontFamily: 'Manrope',
+            style: AppTypography.caption.copyWith(
               fontSize: 11,
               color: mine ? AppColors.gold : AppColors.teal,
-              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 5),

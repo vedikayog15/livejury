@@ -17,14 +17,17 @@ class PrimaryJuryPanel extends StatelessWidget {
         final compact = constraints.maxWidth < 330;
         return Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.primary, AppColors.primaryPressed],
+            ),
             borderRadius: AppRadii.feature,
-            border: Border.all(color: AppColors.outline),
             boxShadow: const [
               BoxShadow(
-                color: AppColors.shadow,
-                blurRadius: 24,
-                offset: Offset(0, 14),
+                color: Color(0x401F3A5F),
+                blurRadius: 28,
+                offset: Offset(0, 16),
               ),
             ],
           ),
@@ -48,7 +51,7 @@ class PrimaryJuryPanel extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: const BoxDecoration(
-                          color: AppColors.primary,
+                          color: AppColors.highlight,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -59,7 +62,7 @@ class PrimaryJuryPanel extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.textPrimary,
+                            color: Colors.white,
                             letterSpacing: .15,
                           ),
                         ),
@@ -69,7 +72,7 @@ class PrimaryJuryPanel extends StatelessWidget {
                         Text(
                           'CASE 024',
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Colors.white.withValues(alpha: .6),
                             letterSpacing: 1.1,
                             fontFeatures: const [FontFeature.tabularFigures()],
                           ),
@@ -82,7 +85,7 @@ class PrimaryJuryPanel extends StatelessWidget {
                     'A difficult question.\nSix honest perspectives.',
                     style: AppTypography.display.copyWith(
                       fontSize: compact ? 34 : 38,
-                      color: AppColors.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -91,30 +94,38 @@ class PrimaryJuryPanel extends StatelessWidget {
                     child: Text(
                       'Review the evidence, vote privately, and reason toward a verdict together.',
                       style: AppTypography.body.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Colors.white.withValues(alpha: .78),
                       ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
-                  FilledButton(
-                    onPressed: onJoin,
-                    child: const Text('Find my jury'),
+                  SizedBox(
+                    height: AppSizes.primaryButtonHeight,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: AppColors.primary,
+                        disabledBackgroundColor: Colors.white38,
+                      ),
+                      onPressed: onJoin,
+                      child: const Text('Find my jury'),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.schedule_rounded,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: Colors.white.withValues(alpha: .7),
                       ),
                       const SizedBox(width: AppSpacing.xs),
                       Flexible(
                         child: Text(
                           'Usually ready in under a minute',
                           style: AppTypography.caption.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Colors.white.withValues(alpha: .7),
                           ),
                         ),
                       ),
@@ -137,11 +148,11 @@ class _JuryMapPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width * .74, 99);
     final rule = Paint()
-      ..color = AppColors.outline.withValues(alpha: .72)
+      ..color = Colors.white.withValues(alpha: .28)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
     final faint = Paint()
-      ..color = AppColors.outline.withValues(alpha: .24)
+      ..color = Colors.white.withValues(alpha: .14)
       ..style = PaintingStyle.stroke
       ..strokeWidth = .7;
 
@@ -155,7 +166,7 @@ class _JuryMapPainter extends CustomPainter {
       rule,
     );
 
-    final table = Paint()..color = AppColors.surfaceRaised;
+    final table = Paint()..color = Colors.white.withValues(alpha: .1);
     canvas.drawCircle(center, 28, table);
     canvas.drawCircle(center, 28, rule);
 
@@ -167,19 +178,21 @@ class _JuryMapPainter extends CustomPainter {
       );
       canvas.drawLine(center, seat, faint);
       final seatPaint = Paint()
-        ..color = index == 0 ? AppColors.primary : AppColors.textSecondary;
+        ..color = index == 0
+            ? AppColors.highlight
+            : Colors.white.withValues(alpha: .85);
       canvas.drawCircle(seat, index == 0 ? 7 : 5, seatPaint);
       canvas.drawCircle(
         seat,
         index == 0 ? 11 : 9,
         Paint()
-          ..color = (index == 0 ? AppColors.primary : AppColors.outline)
-              .withValues(alpha: .18),
+          ..color = (index == 0 ? AppColors.highlight : Colors.white)
+              .withValues(alpha: .2),
       );
     }
 
     final accent = Paint()
-      ..color = AppColors.primary
+      ..color = AppColors.highlight
       ..strokeWidth = 2;
     canvas.drawLine(
       Offset(0, size.height * .56),
@@ -259,8 +272,11 @@ class HomeQuickAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceRaised,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadii.card),
+      color: AppColors.surfaceAlt,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadii.card,
+        side: const BorderSide(color: AppColors.outline),
+      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -325,6 +341,13 @@ class FeaturedCaseCard extends StatelessWidget {
           color: AppColors.surface,
           borderRadius: AppRadii.feature,
           border: Border.all(color: AppColors.outline),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 18,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
         clipBehavior: Clip.antiAlias,
         child: CustomPaint(
@@ -340,7 +363,7 @@ class FeaturedCaseCard extends StatelessWidget {
                     Text(
                       'MYSTERY',
                       style: AppTypography.caption.copyWith(
-                        color: AppColors.primary,
+                        color: AppColors.highlight,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -391,15 +414,15 @@ class _CaseCoverPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final coral = Paint()..color = AppColors.primary.withValues(alpha: .1);
+    final tint = Paint()..color = AppColors.highlight.withValues(alpha: .1);
     final line = Paint()
-      ..color = AppColors.primary.withValues(alpha: .45)
+      ..color = AppColors.highlight.withValues(alpha: .5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
-    final neutral = Paint()..color = AppColors.outline.withValues(alpha: .5);
+    final neutral = Paint()..color = AppColors.outline.withValues(alpha: .7);
 
     final anchor = Offset(size.width - 72, 76);
-    canvas.drawCircle(anchor, 64, coral);
+    canvas.drawCircle(anchor, 64, tint);
     canvas.drawCircle(anchor, 42, line);
 
     final bubbleOne = RRect.fromRectAndRadius(
@@ -412,7 +435,7 @@ class _CaseCoverPainter extends CustomPainter {
     );
     canvas.drawRRect(bubbleOne, neutral);
     canvas.drawRRect(bubbleOne, line);
-    canvas.drawRRect(bubbleTwo, coral);
+    canvas.drawRRect(bubbleTwo, tint);
     canvas.drawRRect(bubbleTwo, line);
 
     final detail = Paint()

@@ -1,55 +1,72 @@
-# Live Jury design system
+# The Virtual Jury Room
 
-## Direction
+## Product direction
 
-Live Jury uses a refined dark product language built around thoughtful group decisions. It should feel modern, confident, and human without relying on legal clichés, generated photography, glossy gradients, or game-dashboard clutter.
+The interface is a focused digital jury chamber: authoritative, calm, secure, and contemporary. The signed-in product is organized around four primary destinations: Lobby, Evidence, Deliberate, and History.
 
-The visual identity comes from deep ink surfaces, warm coral interaction color, editorial serif headlines, precise sans-serif controls, custom geometric jury diagrams, and restrained spacing.
+This direction is based on the supplied Stitch project `15608316780719115325` and its four Refined Emerald screens. The exported Stitch PNG and HTML references are archived under `design_reference/stitch/`.
 
-## Palette
+## Visual language
+
+- Obsidian-green backgrounds create focus without using generic pure-black surfaces.
+- Emerald communicates active, verified, secure, selected, and successful states.
+- Coral is restricted to urgent phases, prosecution emphasis, flags, and destructive warnings.
+- Fine emerald borders and low ambient shadows provide depth. Decorative blur is avoided where it would hurt performance.
+- No AI-generated imagery is used inside the Flutter application. Evidence atmosphere and case-closed decoration are drawn with Flutter primitives.
+
+## Token architecture
+
+The implementation follows three layers:
+
+1. Primitive values: surface ladder, 4dp spacing scale, radii, type sizes, durations.
+2. Semantic roles: canvas, surface, primary, urgent, error, text, outline.
+3. Component roles: glass panel, bottom dock, exhibit tag, status indicator, buttons, inputs.
+
+Source files:
+
+- `lib/core/design/design_tokens.dart`
+- `lib/core/theme/live_jury_theme.dart`
+- `lib/features/jury_room/widgets/jury_room_components.dart`
+
+## Core palette
 
 | Role | Value |
 | --- | --- |
-| Canvas | `#0B1016` |
-| Surface | `#121A23` |
-| Raised surface | `#1A2531` |
-| Deep ink | `#060A0F` |
-| Outline | `#2B3947` |
-| Primary coral | `#FF7658` |
-| Main text | `#F5F1E9` |
-| Supporting text | `#9DA9B5` |
-| Positive | `#58B79D` |
-| Negative | `#E26A73` |
-| Warning | `#E0B35A` |
-
-Coral is the only interaction accent. Green, red, and amber are semantic only.
+| Canvas | `#111413` |
+| Lowest surface | `#0C0F0E` |
+| Low surface | `#191C1B` |
+| Standard surface | `#1D201F` |
+| High surface | `#272B29` |
+| Primary emerald | `#95D3BA` |
+| Primary container | `#064E3B` |
+| Primary text | `#E1E3E1` |
+| Secondary text | `#BFC9C3` |
+| Outline | `#404944` |
+| Urgent coral | `#FFB4A3` |
+| Error | `#FFB4AB` |
 
 ## Typography
 
-- Source Serif 4 for major statements, case names, and narrative moments.
-- Manrope for body text, controls, navigation, metadata, and numbers.
-- Sentence case throughout the interface.
-- Tabular figures for scores, timers, and rankings.
+- Bodoni Moda: product titles, rulings, editorial headings.
+- Jost: navigation, controls, body text, metadata, and labels.
+- Body text is 16sp with a 1.55 line height for long-form deliberation reading.
+- Uppercase metadata uses restrained 1.4sp tracking.
 
-## Composition
+Both fonts are bundled locally, so the UI does not rely on a runtime network request.
 
-- One dominant action per screen.
-- Use whitespace and direct grouping before adding containers.
-- Feature surfaces use 20 to 24 radius.
-- Standard controls use 12 to 16 radius.
-- Cards require a real grouping or interaction purpose.
-- No generated images are used in the interface.
-- Product-specific visuals are drawn directly in Flutter.
+## Interaction standards
 
-## Home signature
+- Minimum touch target: 48dp.
+- Bottom navigation always includes icons and labels, with no more than four destinations.
+- Every icon-only control has a tooltip or semantic label.
+- Selection never relies on color alone; labels, icons, and component states reinforce meaning.
+- Motion is limited to short state transitions and platform-native ink feedback.
+- Content scrolls above the floating navigation dock and respects system safe areas.
 
-The Home screen uses a custom six-seat jury diagram, a focused case-ready hero, two compact private-session actions, a typographic featured-case cover, and a clean bottom navigation bar.
+## Responsive behavior
 
-## Accessibility and responsiveness
-
-- Interactive targets are at least 44 logical pixels.
-- Text and states never rely on color alone.
-- Compact layout uses 16-pixel gutters under 360 logical pixels.
-- Standard layout uses 20-pixel gutters.
-- Content remains constrained to 560 logical pixels on larger displays.
-- Verify 320, 390, and 560 logical-pixel widths.
+- Mobile-first at 320–560dp.
+- 20dp phone margins, reducing only where necessary on compact devices.
+- Cards and paragraphs remain within a 560dp reading column on larger displays.
+- Message bubbles cap their width and reflow text instead of truncating it.
+- Primary content remains accessible in portrait and landscape; fixed controls reserve their own layout space.

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design/design_tokens.dart';
 import '../theme/live_jury_theme.dart';
 
 class BrandMark extends StatelessWidget {
@@ -10,10 +11,17 @@ class BrandMark extends StatelessWidget {
     height: size,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(size * .28),
-      color: AppColors.gold.withValues(alpha: .12),
-      border: Border.all(color: AppColors.gold.withValues(alpha: .5)),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          AppColors.primary.withValues(alpha: .22),
+          AppColors.primary.withValues(alpha: .08),
+        ],
+      ),
+      border: Border.all(color: AppColors.primary.withValues(alpha: .5)),
     ),
-    child: Icon(Icons.balance, color: AppColors.gold, size: size * .56),
+    child: Icon(Icons.balance, color: AppColors.primarySoft, size: size * .56),
   );
 }
 
@@ -48,8 +56,7 @@ class JurorAvatar extends StatelessWidget {
       ),
       child: Text(
         initials,
-        style: TextStyle(
-          fontFamily: 'Manrope',
+        style: AppTypography.label.copyWith(
           color: empty ? AppColors.muted : color,
           fontWeight: FontWeight.w800,
           fontSize: size * .29,
@@ -68,14 +75,25 @@ class SurfaceCard extends StatelessWidget {
   final Widget child;
   final EdgeInsets padding;
   @override
-  Widget build(BuildContext context) => Material(
-    color: AppColors.surface,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-      side: const BorderSide(color: AppColors.outline),
+  Widget build(BuildContext context) => Container(
+    decoration: const BoxDecoration(
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.shadow,
+          blurRadius: 18,
+          offset: Offset(0, 8),
+        ),
+      ],
     ),
-    clipBehavior: Clip.antiAlias,
-    child: Padding(padding: padding, child: child),
+    child: Material(
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: AppColors.outline),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(padding: padding, child: child),
+    ),
   );
 }
 
@@ -98,10 +116,8 @@ class InfoChip extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           text,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
+          style: AppTypography.caption.copyWith(
             fontSize: 11,
-            fontWeight: FontWeight.bold,
             letterSpacing: .7,
           ),
         ),
@@ -128,10 +144,8 @@ class TimerPill extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           text,
-          style: const TextStyle(
-            fontFamily: 'Manrope',
+          style: AppTypography.caption.copyWith(
             color: AppColors.gold,
-            fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
         ),
