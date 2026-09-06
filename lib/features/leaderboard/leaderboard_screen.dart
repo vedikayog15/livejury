@@ -1,176 +1,142 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/live_jury_theme.dart';
-import '../../core/widgets/live_jury_widgets.dart';
-
-class _StandingRow {
-  const _StandingRow(this.rank, this.name, this.points);
-  final String rank;
-  final String name;
-  final String points;
-}
-
-class _Standings {
-  const _Standings({required this.podium, required this.rows});
-  final List<_StandingRow> podium;
-  final List<_StandingRow> rows;
-}
-
-const _standingsByPeriod = {
-  'week': _Standings(
-    podium: [
-      _StandingRow('2', 'Mira', '2,840'),
-      _StandingRow('1', 'Arjun', '3,120'),
-      _StandingRow('3', 'Noah', '2,610'),
-    ],
-    rows: [
-      _StandingRow('4', 'Sara Khan', '2,480'),
-      _StandingRow('5', 'Leena Patel', '2,320'),
-      _StandingRow('6', 'Rohan Nair', '2,190'),
-      _StandingRow('18', 'You', '1,420'),
-    ],
-  ),
-  'month': _Standings(
-    podium: [
-      _StandingRow('2', 'Sara Khan', '9,760'),
-      _StandingRow('1', 'Mira', '11,020'),
-      _StandingRow('3', 'Arjun', '9,340'),
-    ],
-    rows: [
-      _StandingRow('4', 'Noah', '8,910'),
-      _StandingRow('5', 'Rohan Nair', '8,470'),
-      _StandingRow('6', 'Jia Thomas', '7,980'),
-      _StandingRow('12', 'You', '5,260'),
-    ],
-  ),
-  'all': _Standings(
-    podium: [
-      _StandingRow('2', 'Arjun', '48,300'),
-      _StandingRow('1', 'Mira', '52,900'),
-      _StandingRow('3', 'Sara Khan', '44,150'),
-    ],
-    rows: [
-      _StandingRow('4', 'Noah', '41,760'),
-      _StandingRow('5', 'Leena Patel', '39,220'),
-      _StandingRow('6', 'Rohan Nair', '36,880'),
-      _StandingRow('27', 'You', '18,040'),
-    ],
-  ),
-};
-
-const _podiumHeights = {'1': 146.0, '2': 116.0, '3': 98.0};
+import '../../core/state/jury_controller.dart';
+import '../../design/tokens.dart';
+import '../../design/widgets/jury_widgets.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
-
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }
 
 class _LeaderboardScreenState extends State<LeaderboardScreen> {
-  String _period = 'week';
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) JuryScope.of(context).loadRankings();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final standings = _standingsByPeriod[_period]!;
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(20),
+    final s = JuryScope.of(context);
+    return JuryPage(
+      title: 'The considered company',
+      back: false,
+      tab: 2,
+      actions: [
+        IconButton(
+          tooltip: 'Refresh rankings',
+          onPressed: s.busy ? null : s.loadRankings,
+          icon: const Icon(Icons.refresh_rounded),
+        ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Reasoned voices',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Recognising thoughtful, respectful jurors.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
-          ),
-          const SizedBox(height: 20),
-          SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'week', label: Text('WEEK')),
-              ButtonSegment(value: 'month', label: Text('MONTH')),
-              ButtonSegment(value: 'all', label: Text('ALL TIME')),
-            ],
-            selected: {_period},
-            onSelectionChanged: (value) =>
-                setState(() => _period = value.first),
-          ),
           const SizedBox(height: 28),
-          KeyedSubtree(
-            key: ValueKey(_period),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                for (final p in standings.podium)
-                  StaggeredEntrance(
-                    index: int.parse(p.rank) - 1,
-                    child: Podium(
-                      rank: int.parse(p.rank),
-                      name: p.name,
-                      points: p.points,
-                      height: _podiumHeights[p.rank]!,
-                    ),
-                  ),
-              ],
-            ),
+          const Eyebrow('A place for thoughtful minds'),
+          const SizedBox(height: 14),
+          Text('Good judgment\nis a practice.', style: JType.display(40)),
+          const SizedBox(height: 16),
+          const Text(
+            'A little recognition for showing up, looking closer, and making the conversation better.',
+            style: TextStyle(color: JColors.muted, height: 1.7),
           ),
           const SizedBox(height: 24),
-          for (var i = 0; i < standings.rows.length; i++)
-            StaggeredEntrance(
-              index: i,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SurfaceCard(
-                  child: Semantics(
-                    label:
-                        'Rank ${standings.rows[i].rank}, ${standings.rows[i].name}, '
-                        '${standings.rows[i].points} points',
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 28,
-                          child: Text(
-                            standings.rows[i].rank,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  color: standings.rows[i].name == 'You'
-                                      ? AppColors.gold
-                                      : AppColors.muted,
-                                ),
-                          ),
+          StatusTag(
+            s.isDemo
+                ? 'SAMPLE RANKINGS + YOUR SCORE'
+                : 'ALL-TIME PARTICIPATION',
+          ),
+          const SizedBox(height: 24),
+          if (s.busy)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: LinearProgressIndicator(),
+            ),
+          if (!s.busy && s.leaders.isEmpty)
+            const EmptyState(
+              title: 'The first seat is open.',
+              body: 'Complete a case to start the community rankings.',
+              icon: Icons.leaderboard_outlined,
+            ),
+          for (final (i, entry) in s.leaders.indexed)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Panel(
+                color: i == 0 ? JColors.ink : JColors.surface,
+                padding: 18,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 26,
+                      child: Text(
+                        '${i + 1}'.padLeft(2, '0'),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: i == 0 ? JColors.accent : JColors.muted,
                         ),
-                        JurorAvatar(
-                          initials: standings.rows[i].name
-                              .split(' ')
-                              .map((e) => e[0])
-                              .take(2)
-                              .join(),
-                          color: standings.rows[i].name == 'You'
-                              ? AppColors.gold
-                              : AppColors.teal,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            standings.rows[i].name,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ),
-                        Text(
-                          standings.rows[i].points,
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(color: AppColors.gold),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Avatar(entry.name, index: i, size: 38),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            entry.name,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: i == 0 ? JColors.surface : JColors.ink,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${entry.cases} cases',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: i == 0
+                                  ? JColors.onDarkMuted
+                                  : JColors.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${entry.points}',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: i == 0 ? JColors.accent : JColors.ink,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
+          const SizedBox(height: 24),
+          const Panel(
+            color: JColors.secondary,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Eyebrow('Thoughtfulness over conformity'),
+                SizedBox(height: 12),
+                Text(
+                  'You earn points for reviewing evidence, contributing a reference, and explaining your final call. You never earn more for following the majority.',
+                  style: TextStyle(fontSize: 13, height: 1.7),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

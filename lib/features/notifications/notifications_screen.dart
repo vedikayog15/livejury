@@ -1,107 +1,105 @@
 import 'package:flutter/material.dart';
-import '../../core/widgets/live_jury_widgets.dart';
+import '../../core/state/jury_controller.dart';
+import '../../design/tokens.dart';
+import '../../design/widgets/jury_widgets.dart';
 
-class _NotificationRecord {
-  _NotificationRecord({
-    required this.icon,
-    required this.title,
-    required this.body,
-    required this.time,
-    this.unread = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final String body;
-  final String time;
-  bool unread;
-}
-
-class NotificationsScreen extends StatefulWidget {
+class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
-
-  @override
-  State<NotificationsScreen> createState() => _NotificationsScreenState();
-}
-
-class _NotificationsScreenState extends State<NotificationsScreen> {
-  late final List<_NotificationRecord> _items = [
-    _NotificationRecord(
-      icon: Icons.groups_2_outlined,
-      title: 'A new jury is forming',
-      body: 'Criminal Law • Intermediate',
-      time: '2m',
-      unread: true,
-    ),
-    _NotificationRecord(
-      icon: Icons.emoji_events_outlined,
-      title: 'You moved up 4 places',
-      body: 'You are now #18 on the weekly board.',
-      time: '1h',
-      unread: true,
-    ),
-    _NotificationRecord(
-      icon: Icons.balance_outlined,
-      title: 'Verdict available',
-      body: 'See the outcome of The Silent Witness.',
-      time: 'Yesterday',
-      unread: true,
-    ),
-    _NotificationRecord(
-      icon: Icons.workspace_premium_outlined,
-      title: 'Achievement unlocked',
-      body: 'Open Mind: changed position after new evidence.',
-      time: '3d',
-    ),
-  ];
-
-  bool get _hasUnread => _items.any((n) => n.unread);
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifications'),
-        backgroundColor: Colors.transparent,
-        actions: [
-          TextButton(
-            onPressed: _hasUnread
-                ? () => setState(() {
-                    for (final item in _items) {
-                      item.unread = false;
-                    }
-                  })
-                : null,
-            child: const Text('MARK READ'),
+    final s = JuryScope.of(context);
+    return JuryPage(
+      title: 'Notes from the room',
+      actions: [
+        IconButton(
+          tooltip: 'Mark all as read',
+          onPressed: s.unread == 0 || s.busy
+              ? null
+              : () async {
+                  if (await s.markNoticesRead() && context.mounted) {
+                    toast(context, 'All caught up.');
+                  }
+                },
+          icon: const Icon(Icons.done_all_rounded),
+        ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 28),
+          Text('A little\ncorrespondence.', style: JType.display(40)),
+          const SizedBox(height: 14),
+          Text(
+            '${s.unread} unread ${s.unread == 1 ? 'note' : 'notes'}',
+            style: const TextStyle(color: JColors.muted, fontSize: 13),
           ),
+          const SizedBox(height: 28),
+          if (s.player!.notices.isEmpty)
+            const EmptyState(
+              title: 'A quiet room.',
+              body: 'New case notes will appear here after your next session.',
+              icon: Icons.notifications_none_rounded,
+            ),
+          for (final n in s.player!.notices)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Panel(
+                color: n.read ? JColors.surface : JColors.secondary,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          n.id == 'welcome'
+                              ? Icons.waving_hand_outlined
+                              : Icons.mark_email_read_outlined,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            n.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        if (!n.read)
+                          const Icon(
+                            Icons.circle,
+                            size: 7,
+                            color: JColors.success,
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      n.body,
+                      style: const TextStyle(
+                        color: JColors.muted,
+                        fontSize: 13,
+                        height: 1.7,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () => n.id == 'welcome'
+                          ? home(context)
+                          : go(context, '/history'),
+                      child: Text(
+                        n.id == 'welcome'
+                            ? 'Find your first case'
+                            : 'Open your journal',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
-      body: _items.isEmpty
-          ? const EmptyState(
-              icon: Icons.notifications_none_rounded,
-              title: 'You’re all caught up',
-              message:
-                  'New jury invites, standings changes, and verdicts will appear here.',
-            )
-          : ListView(
-              padding: const EdgeInsets.all(18),
-              children: [
-                for (var i = 0; i < _items.length; i++)
-                  StaggeredEntrance(
-                    index: i,
-                    child: NotificationTile(
-                      icon: _items[i].icon,
-                      title: _items[i].title,
-                      body: _items[i].body,
-                      time: _items[i].time,
-                      unread: _items[i].unread,
-                      onTap: _items[i].unread
-                          ? () => setState(() => _items[i].unread = false)
-                          : null,
-                    ),
-                  ),
-              ],
-            ),
     );
   }
 }

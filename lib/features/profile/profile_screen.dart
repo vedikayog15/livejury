@@ -1,157 +1,346 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/live_jury_theme.dart';
-import '../../core/widgets/live_jury_widgets.dart';
+import '../../core/state/jury_controller.dart';
+import '../../design/tokens.dart';
+import '../../design/widgets/jury_widgets.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool push = true;
-  bool voice = false;
-
-  @override
-  Widget build(BuildContext context) => SafeArea(
-    child: ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        Row(
-          children: [
-            Text('Profile', style: Theme.of(context).textTheme.headlineLarge),
-            const Spacer(),
-            IconButton(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Profile editing coming with account integration',
-                  ),
-                ),
-              ),
-              tooltip: 'Edit profile',
-              icon: const Icon(Icons.edit_outlined),
-            ),
-          ],
-        ),
-        const SizedBox(height: 22),
-        const Center(
-          child: JurorAvatar(initials: 'VK', size: 88, color: AppColors.gold),
-        ),
-        const SizedBox(height: 14),
-        Text(
-          'Vaibhav',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 5),
-        Text(
-          'Considered Juror • Level 7',
-          textAlign: TextAlign.center,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: AppColors.gold),
-        ),
-        const SizedBox(height: 24),
-        const Row(
-          children: [
-            Expanded(
-              child: MiniStat(label: 'Cases', value: '34'),
-            ),
-            Expanded(
-              child: MiniStat(label: 'Reasoning', value: '82'),
-            ),
-            Expanded(
-              child: MiniStat(label: 'Reputation', value: '4.8'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        SurfaceCard(
-          child: Column(
-            children: [
-              SettingTile(
-                icon: Icons.workspace_premium_outlined,
-                title: 'Achievements',
-                trailing: '12 earned',
-                onTap: () => _comingSoon(context, 'Achievements'),
-              ),
-              const Divider(),
-              SettingTile(
-                icon: Icons.block_outlined,
-                title: 'Blocked jurors',
-                trailing: 'Manage',
-                onTap: () => _comingSoon(context, 'Blocked jurors'),
-              ),
-              const Divider(),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(
-                  Icons.notifications_outlined,
-                  color: AppColors.gold,
-                ),
-                title: const Text('Push notifications'),
-                value: push,
-                activeThumbColor: AppColors.primary,
-                onChanged: (value) => setState(() => push = value),
-              ),
-              const Divider(),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                secondary: const Icon(Icons.mic_none, color: AppColors.gold),
-                title: const Text('Voice deliberation'),
-                subtitle: const Text('Allow microphone in supported rooms'),
-                value: voice,
-                activeThumbColor: AppColors.primary,
-                onChanged: (value) => setState(() => voice = value),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        SurfaceCard(
-          child: Column(
-            children: [
-              SettingTile(
-                icon: Icons.shield_outlined,
-                title: 'Privacy & safety',
-                trailing: '',
-                onTap: () => _comingSoon(context, 'Privacy & safety'),
-              ),
-              const Divider(),
-              SettingTile(
-                icon: Icons.description_outlined,
-                title: 'Community rules',
-                trailing: '',
-                onTap: () => _comingSoon(context, 'Community rules'),
-              ),
-              const Divider(),
-              SettingTile(
-                icon: Icons.help_outline,
-                title: 'Help centre',
-                trailing: '',
-                onTap: () => _comingSoon(context, 'Help centre'),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        OutlinedButton(
-          onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Sign-out arrives with account integration'),
-            ),
-          ),
-          child: const Text('SIGN OUT'),
+  Widget build(BuildContext context) {
+    final s = JuryScope.of(context);
+    final p = s.player!;
+    final badges = [
+      (
+        'Close reader',
+        Icons.auto_stories_outlined,
+        p.history.any((h) => h.reviewed >= 4),
+        'Review every exhibit in a completed case.',
+      ),
+      (
+        'Evidence advocate',
+        Icons.attach_file,
+        p.history.any((h) => h.citations > 0),
+        'Reference evidence during a completed discussion.',
+      ),
+      (
+        'Open mind',
+        Icons.psychology_outlined,
+        p.history.any((h) => h.changedMind),
+        'Revise your first impression after deliberating.',
+      ),
+      (
+        'Regular at the table',
+        Icons.chair_alt_outlined,
+        p.history.length >= 5,
+        'Complete five cases.',
+      ),
+    ];
+    return JuryPage(
+      title: 'Your juror profile',
+      back: false,
+      tab: 3,
+      actions: [
+        IconButton(
+          tooltip: 'Edit profile',
+          onPressed: () => go(context, '/profile-edit'),
+          icon: const Icon(Icons.tune_rounded),
         ),
       ],
-    ),
-  );
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 28),
+          Row(
+            children: [
+              Avatar(p.name, size: 72),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(p.name, style: JType.display(32)),
+                    const SizedBox(height: 8),
+                    StatusTag(
+                      s.isDemo ? 'DEMO JUROR' : 'CONNECTED JUROR',
+                      icon: s.isDemo
+                          ? Icons.science_outlined
+                          : Icons.verified_user_outlined,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          Panel(
+            color: JColors.ink,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Eyebrow('The thoughtful juror', dark: true),
+                const SizedBox(height: 18),
+                Text(
+                  p.history.isEmpty
+                      ? 'A fresh perspective.'
+                      : p.history.length >= 5
+                      ? 'A regular at the table.'
+                      : 'Finding your voice.',
+                  style: JType.display(32, JColors.surface),
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${p.points}',
+                            style: JType.display(36, JColors.accent),
+                          ),
+                          const Text(
+                            'TOTAL POINTS',
+                            style: TextStyle(
+                              color: JColors.onDarkMuted,
+                              fontSize: 9,
+                              letterSpacing: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${p.history.length}',
+                            style: JType.display(36, JColors.surface),
+                          ),
+                          const Text(
+                            'CASES CLOSED',
+                            style: TextStyle(
+                              color: JColors.onDarkMuted,
+                              fontSize: 9,
+                              letterSpacing: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 30),
+          SectionHeading('Earned through thought'),
+          const SizedBox(height: 16),
+          for (final (name, icon, earned, description) in badges)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Panel(
+                padding: 16,
+                color: earned ? JColors.secondary : JColors.surface,
+                child: Row(
+                  children: [
+                    Icon(
+                      icon,
+                      size: 26,
+                      color: earned ? JColors.ink : JColors.muted,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            description,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: JColors.muted,
+                              height: 1.6,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      earned ? Icons.check_circle_outline : Icons.lock_outline,
+                      size: 18,
+                      color: earned ? JColors.success : JColors.muted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: 20),
+          InfoRow(
+            icon: Icons.settings_outlined,
+            title: 'Your preferences',
+            subtitle: 'Name, haptics, and in-app notifications',
+            onTap: () => go(context, '/profile-edit'),
+          ),
+          const Divider(),
+          InfoRow(
+            icon: Icons.info_outline,
+            title: 'About this experience',
+            subtitle: 'Fictional cases. Respectful conversation.',
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: Text('The Jury Room', style: JType.display(28)),
+                content: const SingleChildScrollView(
+                  child: Text(
+                    'Version 1.0.0\n\nA social deliberation game for curious minds. Every case, character, document, and statement is fictional.\n\nYour score reflects participation and evidence review, not legal expertise.\n\nDemo data is stored on this device. Connected accounts store profile and game records in the configured Supabase project. Ballots are account-linked and visible only to their owner; other jurors see only the final aggregate.\n\nRespect other jurors. Challenge ideas, avoid personal data, and use mute or report when needed.',
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('Back to the room'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: s.busy
+                  ? null
+                  : () async {
+                      if (await s.signOut() && context.mounted) {
+                        Navigator.of(
+                          context,
+                        ).pushNamedAndRemoveUntil('/', (_) => false);
+                      }
+                    },
+              child: const Text('Sign out'),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Center(
+            child: Text(
+              'LIVE JURY · 1.0.0',
+              style: TextStyle(
+                fontSize: 10,
+                color: JColors.muted,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-  void _comingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('$feature is coming soon')));
+class ProfileEditScreen extends StatefulWidget {
+  const ProfileEditScreen({super.key});
+  @override
+  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
+}
+
+class _ProfileEditScreenState extends State<ProfileEditScreen> {
+  TextEditingController? name;
+  bool haptics = true, notifications = true;
+  final form = GlobalKey<FormState>();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (name == null) {
+      final p = JuryScope.of(context).player!;
+      name = TextEditingController(text: p.name);
+      haptics = p.haptics;
+      notifications = p.notifications;
+    }
+  }
+
+  @override
+  void dispose() {
+    name?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = JuryScope.of(context);
+    return JuryPage(
+      title: 'Make yourself at home',
+      bottom: PrimaryButton(
+        'Save preferences',
+        loading: s.busy,
+        icon: Icons.check_rounded,
+        onPressed: () async {
+          if (!form.currentState!.validate()) return;
+          if (await s.updateProfile(name!.text, haptics, notifications) &&
+              context.mounted) {
+            toast(context, 'Your preferences are saved.');
+            Navigator.pop(context);
+          }
+        },
+      ),
+      child: Form(
+        key: form,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 28),
+            Text('Your presence\nin the room.', style: JType.display(40)),
+            const SizedBox(height: 28),
+            TextFormField(
+              controller: name,
+              maxLength: 30,
+              decoration: const InputDecoration(
+                labelText: 'Display name',
+                helperText: 'Other jurors see this name.',
+              ),
+              validator: (v) => (v?.trim().length ?? 0) < 2
+                  ? 'Use at least two characters.'
+                  : null,
+            ),
+            const SizedBox(height: 28),
+            const Eyebrow('Small things, your way'),
+            const SizedBox(height: 18),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Tactile feedback'),
+              subtitle: const Text('A subtle haptic when you cast a vote.'),
+              value: haptics,
+              onChanged: (v) => setState(() => haptics = v),
+            ),
+            const Divider(),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Case notifications'),
+              subtitle: const Text('Receive in-app case completion notices.'),
+              value: notifications,
+              onChanged: (v) => setState(() => notifications = v),
+            ),
+            const SizedBox(height: 26),
+            Panel(
+              color: JColors.secondary,
+              child: Text(
+                s.isDemo
+                    ? 'Your demo preferences and journal stay on this device. Signing out does not erase them.'
+                    : 'Your preferences are saved to your Supabase account. Push notifications are not enabled in this version.',
+                style: const TextStyle(fontSize: 13, height: 1.7),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "livejury" "\0"
+            VALUE "CompanyName", "The Jury Room" "\0"
+            VALUE "FileDescription", "The Jury Room" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "livejury" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "livejury.exe" "\0"
-            VALUE "ProductName", "livejury" "\0"
+            VALUE "InternalName", "The Jury Room" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 The Jury Room. All rights reserved." "\0"
+            VALUE "OriginalFilename", "live_jury_room.exe" "\0"
+            VALUE "ProductName", "The Jury Room" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

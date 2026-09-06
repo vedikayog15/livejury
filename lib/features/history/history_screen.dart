@@ -1,219 +1,146 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/live_jury_theme.dart';
-import '../../core/widgets/live_jury_widgets.dart';
+import '../../core/models/models.dart';
+import '../../core/state/jury_controller.dart';
+import '../../design/tokens.dart';
+import '../../design/widgets/jury_widgets.dart';
 
-enum _CasebookFilter { all, thisMonth, matchedLaw }
-
-class _CaseRecord {
-  const _CaseRecord({
-    required this.title,
-    required this.category,
-    required this.verdict,
-    required this.score,
-    required this.date,
-    required this.isThisMonth,
-    required this.matchedLaw,
-  });
-
-  final String title;
-  final String category;
-  final String verdict;
-  final int score;
-  final String date;
-  final bool isThisMonth;
-  final bool matchedLaw;
-}
-
-const _cases = [
-  _CaseRecord(
-    title: 'The Silent Witness',
-    category: 'Criminal',
-    verdict: 'Not Guilty',
-    score: 91,
-    date: 'Yesterday',
-    isThisMonth: true,
-    matchedLaw: true,
-  ),
-  _CaseRecord(
-    title: 'Terms & Conditions',
-    category: 'Technology',
-    verdict: 'Liable',
-    score: 84,
-    date: '8 Aug',
-    isThisMonth: true,
-    matchedLaw: false,
-  ),
-  _CaseRecord(
-    title: 'A Question of Care',
-    category: 'Civil',
-    verdict: 'Not Liable',
-    score: 79,
-    date: '2 Aug',
-    isThisMonth: true,
-    matchedLaw: true,
-  ),
-  _CaseRecord(
-    title: 'The Last Delivery',
-    category: 'Ethics',
-    verdict: 'Guilty',
-    score: 86,
-    date: '29 Jul',
-    isThisMonth: false,
-    matchedLaw: true,
-  ),
-];
-
-class HistoryScreen extends StatefulWidget {
+class HistoryScreen extends StatelessWidget {
   const HistoryScreen({super.key});
-
-  @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
-}
-
-class _HistoryScreenState extends State<HistoryScreen> {
-  _CasebookFilter _filter = _CasebookFilter.all;
-
-  List<_CaseRecord> get _filtered => switch (_filter) {
-    _CasebookFilter.all => _cases,
-    _CasebookFilter.thisMonth => _cases.where((c) => c.isThisMonth).toList(),
-    _CasebookFilter.matchedLaw => _cases.where((c) => c.matchedLaw).toList(),
-  };
-
   @override
   Widget build(BuildContext context) {
-    final filtered = _filtered;
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(20),
+    final s = JuryScope.of(context);
+    return JuryPage(
+      title: 'Your case journal',
+      back: false,
+      tab: 1,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 28),
+          const Eyebrow('A record of considered calls'),
+          const SizedBox(height: 14),
+          Text('Every case leaves\na perspective.', style: JType.display(39)),
+          const SizedBox(height: 14),
           Text(
-            'Your casebook',
-            style: Theme.of(context).textTheme.headlineLarge,
+            '${s.player!.history.length} cases completed · ${s.player!.points} points earned',
+            style: const TextStyle(color: JColors.muted, fontSize: 13),
           ),
-          const SizedBox(height: 6),
-          Text(
-            'Decisions, discussions, and what you learned.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
-          ),
-          const SizedBox(height: 20),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              FilterChip(
-                label: const Text('All cases'),
-                selected: _filter == _CasebookFilter.all,
-                onSelected: (_) =>
-                    setState(() => _filter = _CasebookFilter.all),
-              ),
-              FilterChip(
-                label: const Text('This month'),
-                selected: _filter == _CasebookFilter.thisMonth,
-                onSelected: (_) =>
-                    setState(() => _filter = _CasebookFilter.thisMonth),
-              ),
-              FilterChip(
-                label: const Text('Matched law'),
-                selected: _filter == _CasebookFilter.matchedLaw,
-                onSelected: (_) =>
-                    setState(() => _filter = _CasebookFilter.matchedLaw),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          if (filtered.isEmpty)
+          const SizedBox(height: 26),
+          if (s.player!.history.isEmpty)
             EmptyState(
-              icon: Icons.menu_book_outlined,
-              title: 'No cases here yet',
-              message: _filter == _CasebookFilter.matchedLaw
-                  ? 'Cases where your verdict matched the legal outcome will show up here.'
-                  : 'Cases from this month will show up here once you deliberate one.',
-              actionLabel: 'Show all cases',
-              onAction: () => setState(() => _filter = _CasebookFilter.all),
+              title: 'Your first chapter awaits.',
+              body:
+                  'Completed cases, your reasoning, and earned achievements will live here.',
+              action: PrimaryButton(
+                'Find my first jury',
+                onPressed: () => home(context),
+              ),
             )
           else
-            for (var i = 0; i < filtered.length; i++)
-              StaggeredEntrance(
-                index: i,
-                child: HistoryCard(
-                  title: filtered[i].title,
-                  category: filtered[i].category,
-                  verdict: filtered[i].verdict,
-                  score: filtered[i].score,
-                  date: filtered[i].date,
-                  matchedLaw: filtered[i].matchedLaw,
-                  onTap: () => _openSummary(context, filtered[i]),
+            for (final h in s.player!.history)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Material(
+                  color: JColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    onTap: () => go(context, '/history-detail', arguments: h),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Eyebrow(
+                                  '${h.date.day.toString().padLeft(2, '0')} / ${h.date.month.toString().padLeft(2, '0')} / ${h.date.year}',
+                                ),
+                              ),
+                              Text(
+                                '+${h.points} pts',
+                                style: const TextStyle(
+                                  color: JColors.success,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Text(h.title, style: JType.display(31)),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              StatusTag(h.outcome),
+                              const Spacer(),
+                              const Icon(Icons.arrow_forward_rounded, size: 20),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
         ],
       ),
     );
   }
+}
 
-  void _openSummary(BuildContext context, _CaseRecord record) {
-    showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (sheetContext) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              record.category.toUpperCase(),
-              style: Theme.of(sheetContext).textTheme.labelLarge?.copyWith(
-                color: AppColors.gold,
-                fontSize: 11,
-                letterSpacing: 1,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              record.title,
-              style: Theme.of(sheetContext).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Verdict: ${record.verdict}',
-              style: Theme.of(sheetContext).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Reasoning score: ${record.score} · Deliberated ${record.date}',
-              style: Theme.of(
-                sheetContext,
-              ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
-            ),
-            const SizedBox(height: 12),
-            Row(
+class HistoryDetailScreen extends StatelessWidget {
+  const HistoryDetailScreen({super.key, required this.record});
+  final CaseRecord record;
+  @override
+  Widget build(BuildContext context) {
+    final s = JuryScope.of(context);
+    final c = s.cases.firstWhere((c) => c.id == record.caseId);
+    return JuryPage(
+      title: 'From your journal',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 24),
+          StatusTag(record.outcome),
+          const SizedBox(height: 22),
+          Text(record.title, style: JType.display(42)),
+          const SizedBox(height: 24),
+          Panel(
+            color: JColors.secondary,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  record.matchedLaw
-                      ? Icons.check_circle_outline_rounded
-                      : Icons.info_outline_rounded,
-                  size: 18,
-                  color: record.matchedLaw ? AppColors.teal : AppColors.warning,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    record.matchedLaw
-                        ? 'Your jury’s verdict matched the legal outcome.'
-                        : 'Your jury’s verdict differed from the legal outcome.',
-                    style: Theme.of(sheetContext).textTheme.bodyMedium,
-                  ),
-                ),
+                const Eyebrow('Your reasoning, preserved'),
+                const SizedBox(height: 16),
+                Text(record.reason, style: JType.body),
               ],
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 24),
+          InfoRow(
+            icon: Icons.stars_outlined,
+            title: '${record.points} points earned',
+            subtitle:
+                '${record.reviewed} exhibits reviewed · ${record.citations} evidence references',
+          ),
+          if (record.changedMind)
+            const InfoRow(
+              icon: Icons.psychology_outlined,
+              title: 'A mind open to change',
+              subtitle: 'Your final call differed from your first impression.',
+            ),
+          const SizedBox(height: 24),
+          SectionHeading('The case in perspective'),
+          const SizedBox(height: 16),
+          Text(c.debrief, style: JType.body),
+          const SizedBox(height: 28),
+          PrimaryButton(
+            'Revisit the case briefing',
+            onPressed: () => go(context, '/case-preview', arguments: c),
+          ),
+        ],
       ),
     );
   }

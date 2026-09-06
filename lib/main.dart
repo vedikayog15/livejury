@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
-import 'app/live_jury_app.dart';
+import 'app/bootstrap.dart';
 
-void main() => runApp(const LiveJuryApp());
+Future<void> main() => bootstrap();

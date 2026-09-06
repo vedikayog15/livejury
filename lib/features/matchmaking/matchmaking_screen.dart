@@ -1,301 +1,178 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/live_jury_theme.dart';
-import '../../core/widgets/app_frame.dart';
-import '../../core/widgets/live_jury_widgets.dart';
-import '../jury/jury_experience.dart';
+import 'package:flutter/services.dart';
+import '../../core/models/models.dart';
+import '../../core/state/jury_controller.dart';
+import '../../design/tokens.dart';
+import '../../design/widgets/jury_widgets.dart';
 
 class MatchmakingScreen extends StatefulWidget {
-  const MatchmakingScreen({super.key});
-
+  const MatchmakingScreen({super.key, this.join = false});
+  final bool join;
   @override
   State<MatchmakingScreen> createState() => _MatchmakingScreenState();
 }
 
 class _MatchmakingScreenState extends State<MatchmakingScreen> {
-  int players = 1;
-
+  final _code = TextEditingController();
+  final _form = GlobalKey<FormState>();
+  String? _caseId;
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: const Text('Finding your jury'),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final compact = constraints.maxHeight < 650;
-            final orbitSize = compact ? 190.0 : 260.0;
-            final orbitRadius = compact ? 80.0 : 110.0;
-            final sideOffset = compact ? 69.0 : 95.0;
-            final diagonalOffset = compact ? 40.0 : 55.0;
-            return Padding(
-              padding: EdgeInsets.all(compact ? 16 : 24),
-              child: Column(
-                children: [
-                  const Spacer(),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: orbitSize,
-                        height: orbitSize,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColors.gold.withValues(alpha: .18),
-                          ),
-                          color: AppColors.gold.withValues(alpha: .03),
-                        ),
-                      ),
-                      const BrandMark(size: 72),
-                      ...List.generate(6, (i) {
-                        final offsets = [
-                          (0.0, -orbitRadius),
-                          (sideOffset, -diagonalOffset),
-                          (sideOffset, diagonalOffset),
-                          (0.0, orbitRadius),
-                          (-sideOffset, diagonalOffset),
-                          (-sideOffset, -diagonalOffset),
-                        ];
-                        final o = offsets[i];
-                        return Transform.translate(
-                          offset: Offset(o.$1, o.$2),
-                          child: JurorAvatar(
-                            initials: i < players
-                                ? ['VK', 'AM', 'SK', 'RN', 'JT', 'LP'][i]
-                                : '${i + 1}',
-                            size: 48,
-                            color: i < players
-                                ? AppColors.teal
-                                : AppColors.muted,
-                            empty: i >= players,
-                            semantics: i < players
-                                ? (i == 0
-                                      ? 'You, joined'
-                                      : 'Juror ${i + 1}, joined')
-                                : 'Seat ${i + 1}, waiting for a juror',
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                  SizedBox(height: compact ? 20 : 38),
-                  Text(
-                    '$players of 6 jurors ready',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    players == 6
-                        ? 'Your case is ready.'
-                        : 'Building a balanced room…',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(color: AppColors.muted),
-                  ),
-                  SizedBox(height: compact ? 14 : 24),
-                  SurfaceCard(
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.shield_outlined,
-                          color: AppColors.gold,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Criminal law • Intermediate\nEstimated session: 12–15 min',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  if (players < 6) ...[
-                    FilledButton.tonal(
-                      onPressed: () =>
-                          setState(() => players = (players + 1).clamp(1, 6)),
-                      child: const Text('SIMULATE JUROR JOINING'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('CANCEL SEARCH'),
-                    ),
-                  ] else
-                    FilledButton(
-                      onPressed: () => Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              const AppFrame(child: JuryExperience()),
-                        ),
-                      ),
-                      child: const Text('ENTER THE JURY ROOM'),
-                    ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
+  void dispose() {
+    _code.dispose();
+    super.dispose();
   }
-}
-
-class PrivateRoomScreen extends StatefulWidget {
-  const PrivateRoomScreen({super.key});
-
-  @override
-  State<PrivateRoomScreen> createState() => _PrivateRoomScreenState();
-}
-
-class _PrivateRoomScreenState extends State<PrivateRoomScreen> {
-  int players = 3;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Private jury'),
-        backgroundColor: Colors.transparent,
+    final s = JuryScope.of(context);
+    return JuryPage(
+      title: widget.join ? 'Join a room' : 'A room of your own',
+      bottom: PrimaryButton(
+        widget.join ? 'Find my seat' : 'Create private room',
+        loading: s.busy,
+        onPressed: () async {
+          if (!_form.currentState!.validate()) return;
+          final file = s.cases.firstWhere(
+            (c) => c.id == _caseId,
+            orElse: () => s.cases.first,
+          );
+          if (await s.openRoom(
+                file,
+                private: true,
+                code: widget.join ? _code.text.trim().toUpperCase() : null,
+              ) &&
+              context.mounted) {
+            go(context, '/room', replace: true);
+          }
+        },
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(22),
+      child: Form(
+        key: _form,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Invite your jury',
-              style: Theme.of(context).textTheme.headlineLarge,
+            const SizedBox(height: 30),
+            Eyebrow(
+              widget.join
+                  ? 'An invitation, accepted'
+                  : 'Good company. Different opinions.',
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             Text(
-              'Share this code with up to five people.',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyLarge?.copyWith(color: AppColors.muted),
+              widget.join
+                  ? 'Your people\nare in the room.'
+                  : 'Bring five minds.\nFind a sixth view.',
+              style: JType.display(40),
             ),
             const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.gold.withValues(alpha: .08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.gold.withValues(alpha: .28),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'ROOM CODE',
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: AppColors.gold,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const SelectableText(
-                    'JURY26',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 7,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton.icon(
-                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Invite link copied')),
-                    ),
-                    icon: const Icon(Icons.ios_share_rounded),
-                    label: const Text('SHARE INVITE'),
-                  ),
+            Text(
+              widget.join
+                  ? 'Enter the six-character code shared by your host.'
+                  : 'Choose a case, share your room code, and let the conversation unfold.',
+              style: const TextStyle(color: JColors.muted, height: 1.7),
+            ),
+            const SizedBox(height: 32),
+            if (widget.join) ...[
+              TextFormField(
+                key: const Key('room-code'),
+                controller: _code,
+                textCapitalization: TextCapitalization.characters,
+                maxLength: 6,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]')),
                 ],
-              ),
-            ),
-            const SizedBox(height: 28),
-            Row(
-              children: [
-                Text('Jurors', style: Theme.of(context).textTheme.titleLarge),
-                const Spacer(),
-                Text(
-                  '$players / 6',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(color: AppColors.gold),
+                style: const TextStyle(
+                  fontSize: 26,
+                  letterSpacing: 8,
+                  fontWeight: FontWeight.w700,
                 ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            ...List.generate(
-              6,
-              (i) => StaggeredEntrance(
-                index: i,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: SurfaceCard(
-                    child: Row(
-                      children: [
-                        JurorAvatar(
-                          initials: i < players
-                              ? ['VK', 'AM', 'SK', 'RN', 'JT', 'LP'][i]
-                              : '?',
-                          color: i < players ? AppColors.teal : AppColors.muted,
-                          empty: i >= players,
-                        ),
-                        const SizedBox(width: 13),
-                        Expanded(
-                          child: Text(
-                            i < players
-                                ? [
-                                    'Vaibhav (Host)',
-                                    'Aarav Mehta',
-                                    'Sara Khan',
-                                    'Rohan Nair',
-                                    'Jia Thomas',
-                                    'Leena Patel',
-                                  ][i]
-                                : 'Open seat',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  color: i < players
-                                      ? AppColors.cream
-                                      : AppColors.muted,
-                                ),
+                decoration: const InputDecoration(
+                  labelText: 'Room code',
+                  hintText: 'JURY06',
+                  counterText: '',
+                ),
+                validator: (v) =>
+                    v?.trim().length != 6 ? 'Enter all six characters.' : null,
+              ),
+              const SizedBox(height: 20),
+              if (s.isDemo)
+                const Panel(
+                  color: JColors.secondary,
+                  child: Text(
+                    'Try JURY06 to join the sample room. Demo room codes work on this device; connect Supabase for rooms with friends.',
+                    style: TextStyle(fontSize: 13, height: 1.7),
+                  ),
+                ),
+            ] else ...[
+              const Eyebrow('Choose your case'),
+              const SizedBox(height: 12),
+              for (final c in s.cases)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Semantics(
+                    selected: (_caseId ?? s.cases.first.id) == c.id,
+                    child: InkWell(
+                      onTap: () => setState(() => _caseId = c.id),
+                      borderRadius: BorderRadius.circular(18),
+                      child: Container(
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: (_caseId ?? s.cases.first.id) == c.id
+                              ? JColors.secondary
+                              : JColors.surface,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: (_caseId ?? s.cases.first.id) == c.id
+                                ? JColors.ink
+                                : JColors.border,
                           ),
                         ),
-                        Icon(
-                          i < players
-                              ? Icons.check_circle
-                              : Icons.hourglass_empty,
-                          color: i < players ? AppColors.teal : AppColors.muted,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(c.title, style: JType.display(25)),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '${c.category} · ${c.minutes} minutes',
+                                    style: const TextStyle(
+                                      color: JColors.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              (_caseId ?? s.cases.first.id) == c.id
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_off,
+                              size: 22,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
+              const SizedBox(height: 16),
+              InfoRow(
+                icon: Icons.lock_outline,
+                title: 'Invitation only',
+                subtitle: s.isDemo
+                    ? 'Five simulated jurors join your demo room.'
+                    : 'Only people with your code can join. Six seats per room.',
               ),
-            ),
-            const SizedBox(height: 10),
-            if (players < 6)
+            ],
+            if (s.room != null && s.room!.stage != RoundStage.complete) ...[
+              const SizedBox(height: 20),
               OutlinedButton(
-                onPressed: () => setState(() => players++),
-                child: const Text('SIMULATE FRIEND JOINING'),
-              )
-            else
-              FilledButton(
-                onPressed: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AppFrame(child: JuryExperience()),
-                  ),
-                ),
-                child: const Text('START SESSION'),
+                onPressed: () => go(context, s.resumeRoute),
+                child: const Text('Resume my existing room'),
               ),
+            ],
           ],
         ),
       ),
