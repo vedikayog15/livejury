@@ -2,7 +2,7 @@
 
 **Six perspectives. One room.** An original Flutter social deliberation game with a complete local demo and a Supabase implementation for real shared rooms.
 
-The **After Hours** design combines original Flutter-painted case scenes, an illuminated six-seat chamber, Outfit / Inter typography, soft atmospheric backgrounds, and a floating navigation bar. No stock or AI-generated images. See [DESIGN.md](DESIGN.md) for the design rationale.
+The **After Hours** design combines original Flutter-painted case scenes, an illuminated six-seat chamber, Fraunces / DM Sans typography, soft atmospheric backgrounds, and a floating navigation bar. No stock or AI-generated images. See [DESIGN.md](DESIGN.md) for the design rationale.
 
 ## Run the demo
 
@@ -95,6 +95,6 @@ Points reward behavior, not agreement: 60 for completing the case, 10 per review
 
 ## Credits
 
-Outfit and Inter are bundled under their SIL Open Font Licenses in `assets/fonts/`. Artwork and case narratives were authored specifically for this app. Apple’s public design guidance informed hierarchy and restrained navigation materials; the app uses Flutter Material 3 with an original visual implementation.
+Fraunces and DM Sans are bundled under their SIL Open Font Licenses in `assets/fonts/`. Artwork and case narratives were authored specifically for this app. Apple’s public design guidance informed hierarchy and restrained navigation materials; the app uses Flutter Material 3 with an original visual implementation.
 
 The previous unused Firebase scaffolding and unused font assets are preserved in `archives/pre-rebuild-reference.zip`; they are not part of the rebuilt app or deployment bundle.

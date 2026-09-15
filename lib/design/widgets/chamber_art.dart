@@ -273,7 +273,7 @@ class _ChamberPainter extends CustomPainter {
       text: TextSpan(
         text: 'VI',
         style: TextStyle(
-          fontFamily: 'Outfit',
+          fontFamily: 'Fraunces',
           fontSize: compact ? 24 : 26,
           fontWeight: FontWeight.w300,
           color: JColors.accent.withValues(alpha: .9),

@@ -309,7 +309,7 @@ class _PlanPainter extends CustomPainter {
         text: TextSpan(
           text: text,
           style: const TextStyle(
-            fontFamily: 'Inter',
+            fontFamily: 'DM Sans',
             fontSize: 9,
             color: JColors.onDarkMuted,
           ),

@@ -1,0 +1,227 @@
+[
+    {
+        "payload": {
+            "id": "glass-hour",
+            "title": "The Glass Hour",
+            "number": "001",
+            "debrief": "The file was designed around a distinction: opportunity is not identity. The key log and witness account are meaningful, but each has a limitation. The voice note offers a plausible alternative without proving it.\n\nThere is no hidden \u201ccorrect juror\u201d score. Strong reasoning addresses the best evidence against its own conclusion. A majority is a shared judgment, not a new fact.",
+            "minutes": 18,
+            "parties": "The fictional state v. Alex Vale \u00b7 Alleged gallery theft",
+            "summary": "At 9:41 pm, the lights went out at the Halden Gallery. Eleven minutes later, the lights returned. A glass sculpture called Still Water did not.\n\nGallery technician Alex Vale had a service key, a disputed invoice, and a reason to be in the building. A visitor says she saw Alex carrying a covered object toward the loading bay. Alex says it was a broken projector.\n\nThe prosecution calls it a planned theft. The defense calls it an assumption built around a familiar face. Six jurors must decide what the evidence actually proves.",
+            "category": "Criminal",
+            "evidence": [
+                {
+                    "id": "E1",
+                    "kind": "document",
+                    "title": "The access log",
+                    "source": "Gallery security \u00b7 export 04",
+                    "caution": "Access establishes opportunity. It does not independently identify who carried the key.",
+                    "content": "21:32 \u2014 Service key S-04 opens the side door.\n21:39 \u2014 S-04 opens the west service corridor.\n21:47 \u2014 S-04 opens the loading bay.\n\nS-04 was assigned to Alex Vale. The facilities manager confirms that staff sometimes leave shared keys in an unlocked drawer. The log records a key identifier, not the person holding it.",
+                    "summary": "One key. Two possible users."
+                },
+                {
+                    "id": "E2",
+                    "kind": "witness",
+                    "title": "A witness in the rain",
+                    "source": "Statement of Mara Chen \u00b7 next morning",
+                    "caution": "Distinguish an observation (coat and covered object) from an inference (identity and contents).",
+                    "content": "\u201cI was waiting for a taxi across the road. Someone came out in a dark green coat. I thought it was Alex \u2014 I had seen them earlier. They were carrying something under a gray cloth.\n\nIt was raining quite hard. I could not see their face. I could not tell you what was underneath the cloth.\u201d\n\nThe witness was about 24 metres from the loading bay.",
+                    "summary": "A familiar coat, seen through glass."
+                },
+                {
+                    "id": "E3",
+                    "kind": "diagram",
+                    "title": "Eleven missing minutes",
+                    "source": "Reconstructed gallery floor plan",
+                    "caution": "The coverage gap supports several routes. An unobserved route is not proof that it was used.",
+                    "content": "The west camera and loading-bay camera share a power circuit. Both stop recording at 21:41. The main entrance stays on a separate backup circuit.\n\nA service passage links the sculpture room to both the loading bay and the staff stairwell. The stairwell is not monitored. The plan is a reconstruction supplied for this fictional case.",
+                    "summary": "The blind spot connects more than one exit."
+                },
+                {
+                    "id": "E4",
+                    "kind": "audio",
+                    "title": "The last voice note",
+                    "source": "Alex\u2019s message to facilities \u00b7 21:36",
+                    "caution": "The message fits the projector account, but does not verify what was actually removed.",
+                    "content": "Transcript \u2014 12 seconds\n\n\u201cHi, it\u2019s Alex. The replacement is in. I\u2019m taking the old one out through the bay. Can you confirm when the invoice will be paid? Call me tomorrow.\u201d\n\nThe attachment metadata places the recording before the outage. \u201cThe old one\u201d is not named. No audio recording is available; this is an interactive transcript visualization.",
+                    "summary": "\u201cI\u2019m taking the old one out.\u201d"
+                }
+            ],
+            "question": "Has the case established that Alex Vale stole Still Water?",
+            "subtitle": "A missing sculpture. An eleven-minute silence.",
+            "timeline": [
+                {
+                    "body": "Alex signs into the gallery to replace a faulty projector.",
+                    "time": "21:32",
+                    "title": "A routine repair"
+                },
+                {
+                    "body": "A power fault interrupts cameras in the west wing.",
+                    "time": "21:41",
+                    "title": "The lights go out"
+                },
+                {
+                    "body": "A witness observes a person with a covered object.",
+                    "time": "21:46",
+                    "title": "Someone at the loading bay"
+                },
+                {
+                    "body": "Power returns. Staff report Still Water missing.",
+                    "time": "21:52",
+                    "title": "An empty plinth"
+                }
+            ],
+            "difficulty": "A good first case"
+        }
+    },
+    {
+        "payload": {
+            "id": "last-light",
+            "title": "The Last Light",
+            "number": "002",
+            "debrief": "This file separates an immediate safety decision from the quality of earlier preparation. You can accept the need to shut down and still question whether the installation met the promise. A useful discussion makes both questions explicit.",
+            "minutes": 16,
+            "parties": "Lumen Events v. Northline Studio \u00b7 Contract dispute",
+            "summary": "Lumen Events hired Northline Studio to install a rooftop light display for a one-night festival. The contract described a \u201cweather-ready installation.\u201d When rain intensified, Northline shut the display down before the headline performance.\n\nLumen wants its fee returned. Northline says a safe shutdown was essential and the contract did not guarantee operation in severe weather.",
+            "category": "Civil",
+            "evidence": [
+                {
+                    "id": "E1",
+                    "kind": "document",
+                    "title": "A carefully worded promise",
+                    "source": "Signed agreement \u00b7 section 3",
+                    "caution": "Read the promise and exception together; neither sentence automatically cancels the other.",
+                    "content": "\u201cNorthline will supply a weather-ready rooftop installation operating from 19:00 to 23:00. Operation remains subject to on-site electrical safety assessment.\u201d\n\nNo rainfall threshold is defined. Lumen signed without requesting an operational weather standard.",
+                    "summary": "Weather-ready, with a safety exception."
+                },
+                {
+                    "id": "E2",
+                    "kind": "witness",
+                    "title": "The crew chief\u2019s account",
+                    "source": "Statement of Imani Cole",
+                    "caution": "A necessary shutdown can coexist with inadequate preparation.",
+                    "content": "\u201cI saw water inside the connector housing. We had taped it as instructed. I called Northline\u2019s lead, and they said shut everything down. We had no replacement cover on site.\u201d",
+                    "summary": "Water where it should not have been."
+                },
+                {
+                    "id": "E3",
+                    "kind": "diagram",
+                    "title": "The rooftop layout",
+                    "source": "Site reconstruction",
+                    "caution": "The diagram supports a preparation issue but does not establish what rain conditions were anticipated.",
+                    "content": "The main control housing was under a canopy. The final connector was at the edge of the roof beyond the canopy. The supplier\u2019s installation guide recommends a sealed enclosure for exposed outdoor connections.",
+                    "summary": "One exposed connection."
+                },
+                {
+                    "id": "E4",
+                    "kind": "audio",
+                    "title": "Before the storm",
+                    "source": "Planning call transcript",
+                    "caution": "The phrase \u201cnormal showers\u201d is subjective. Avoid treating an undefined term as a measurable guarantee.",
+                    "content": "Lumen: \u201cThe forecast says showers. Are we okay?\u201d\nNorthline: \u201cNormal showers, yes. Anything unsafe and we stop. We\u2019ll bring the outdoor kit.\u201d\n\nThis fictional transcript has no attached recording.",
+                    "summary": "\u201cWe expect some showers.\u201d"
+                }
+            ],
+            "question": "Did Northline Studio fail to meet its agreement with Lumen Events?",
+            "subtitle": "A rooftop promise. A city left in the dark.",
+            "timeline": [
+                {
+                    "body": "A weather-ready display is promised for the evening festival.",
+                    "time": "12 AUG",
+                    "title": "Agreement signed"
+                },
+                {
+                    "body": "Both teams complete a dry-weather check.",
+                    "time": "18:00",
+                    "title": "Installation approved"
+                },
+                {
+                    "body": "Water reaches an electrical housing.",
+                    "time": "20:15",
+                    "title": "Rain intensifies"
+                },
+                {
+                    "body": "Northline turns the display off before the main event.",
+                    "time": "20:28",
+                    "title": "The shutdown"
+                }
+            ],
+            "difficulty": "Two sides to every promise"
+        }
+    },
+    {
+        "payload": {
+            "id": "silent-platform",
+            "title": "The Silent Platform",
+            "number": "003",
+            "debrief": "The key tension is between an observable action and an inferred intention. A bag was taken; whether the camera was knowingly taken is a separate question. Careful jurors identify the missing link and weigh alternative explanations consistently.",
+            "minutes": 20,
+            "parties": "The fictional state v. Robin Ellis \u00b7 Alleged theft",
+            "summary": "At a quiet station, passenger Robin Ellis picked up a navy bag and walked away. The owner of a near-identical bag later reported a missing camera. Robin returned a bag to lost property the next morning, saying it was an honest mistake.\n\nThe camera was not inside. A station attendant remembers two people near the bags, but only one appears clearly on camera.",
+            "category": "Criminal",
+            "evidence": [
+                {
+                    "id": "E1",
+                    "kind": "document",
+                    "title": "The lost-property receipt",
+                    "source": "Station desk \u00b7 next morning",
+                    "caution": "Returning the bag supports a mistake account but does not establish when the camera disappeared.",
+                    "content": "08:30 \u2014 Navy canvas bag received from Robin Ellis. Contents: scarf, paperback, empty camera sleeve. Robin states that the wrong bag was collected from the platform.",
+                    "summary": "A returned bag without a camera."
+                },
+                {
+                    "id": "E2",
+                    "kind": "witness",
+                    "title": "The attendant remembers",
+                    "source": "Station attendant interview",
+                    "caution": "Another person\u2019s presence creates a possibility, not proof of another theft.",
+                    "content": "\u201cThere was someone else near those bags while I was helping a passenger. I did not see them touch anything. Then Robin left. The bags looked the same from where I was.\u201d",
+                    "summary": "Another person at the bench."
+                },
+                {
+                    "id": "E3",
+                    "kind": "diagram",
+                    "title": "A partial view",
+                    "source": "Platform coverage reconstruction",
+                    "caution": "A clear image of departure is not a clear image of intent.",
+                    "content": "Camera A covers the stairs. A structural pillar blocks the bench. Robin can be seen leaving with a bag; the footage cannot show which bag was collected or what happened at the bench.",
+                    "summary": "The bench is behind a pillar."
+                },
+                {
+                    "id": "E4",
+                    "kind": "audio",
+                    "title": "A call on the way home",
+                    "source": "Robin\u2019s call transcript",
+                    "caution": "The comment could fit an unnoticed bag swap. It cannot prove Robin\u2019s state of mind.",
+                    "content": "\u201cI\u2019m on my way. Can you check if I left my notebook at home? I can\u2019t find it in my bag. I\u2019ll look properly when I get in.\u201d\n\nThe call was logged at 22:23. No original audio is available in this fictional file.",
+                    "summary": "\u201cI can\u2019t find my notebook.\u201d"
+                }
+            ],
+            "question": "Does the evidence prove that Robin Ellis knowingly took the camera?",
+            "subtitle": "An empty station. A bag with two owners.",
+            "timeline": [
+                {
+                    "body": "Passengers shelter under the platform canopy.",
+                    "time": "22:10",
+                    "title": "Two bags on a bench"
+                },
+                {
+                    "body": "Camera footage shows Robin with a navy bag.",
+                    "time": "22:16",
+                    "title": "Robin leaves"
+                },
+                {
+                    "body": "The complainant opens the remaining bag.",
+                    "time": "22:25",
+                    "title": "A camera missing"
+                },
+                {
+                    "body": "Robin brings a navy bag to lost property.",
+                    "time": "08:30",
+                    "title": "Returned to the station"
+                }
+            ],
+            "difficulty": "Look beyond the obvious"
+        }
+    }
+]

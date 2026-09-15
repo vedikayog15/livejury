@@ -8,7 +8,7 @@ The original visual system combines sculptural light, architectural depth, and l
 
 ## Typography
 
-Outfit is the display family, with explicit 400/500/600/700/800 font files. Inter provides reading text and controls, bundled at 400/500/600/700/800. No reliance on a browser-installed font, synthetic heavy serif, or runtime font download. Headlines use compact 30–42 dp scales; reading copy is 15–16 dp. Labels and metadata remain subordinate. All text respects device scaling.
+Fraunces is the display family for headings and product/editorial text — a warm, crafted, slightly literary serif — bundled as a single variable font instanced across weights. DM Sans provides body copy, navigation, buttons, and form UI: clean and highly readable, also bundled as a variable font. No reliance on a browser-installed font, synthetic heavy serif, or runtime font download. Headlines use compact 30–42 dp scales; reading copy is 15–16 dp. Labels and metadata remain subordinate. All text respects device scaling.
 
 ## Palette and materials
 

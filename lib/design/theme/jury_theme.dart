@@ -19,7 +19,7 @@ abstract final class JuryTheme {
         );
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Inter',
+      fontFamily: 'DM Sans',
       colorScheme: scheme,
       scaffoldBackgroundColor: JColors.canvas,
       visualDensity: VisualDensity.standard,
@@ -45,7 +45,7 @@ abstract final class JuryTheme {
             borderRadius: BorderRadius.circular(18),
           ),
           textStyle: const TextStyle(
-            fontFamily: 'Inter',
+            fontFamily: 'DM Sans',
             fontSize: 15,
             fontWeight: FontWeight.w700,
           ),
@@ -95,7 +95,7 @@ abstract final class JuryTheme {
         backgroundColor: JColors.ink,
         contentTextStyle: const TextStyle(
           color: JColors.surface,
-          fontFamily: 'Inter',
+          fontFamily: 'DM Sans',
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),

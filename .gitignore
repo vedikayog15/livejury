@@ -47,3 +47,9 @@ app.*.map.json
 
 .claude/
 .agents/
+
+# Local Supabase client configuration (see docs/SUPABASE.md)
+/config/supabase.json
+
+# Local test-account credentials
+/docs/TEST_ACCOUNTS.md

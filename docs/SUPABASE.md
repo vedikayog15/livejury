@@ -1,6 +1,27 @@
 # Supabase setup
 
-The Flutter client and SQL contract are implemented. A hosted Supabase project has not been provisioned because the project owner does not yet have one. Demo mode is fully available without this setup.
+The Flutter client and SQL contract are implemented. A hosted project is provisioned and
+both migrations are applied: all ten tables, the RLS policies, the RPC contract and the
+three seeded cases are live. Demo mode remains fully available without any of this.
+
+Sections 1 and 2 describe first-time provisioning and do not need to be repeated for the
+current project. See `TEST_ACCOUNTS.md` (local, uncommitted) for the six usable accounts.
+
+## Outstanding configuration
+
+Email confirmation is still enabled (`mailer_autoconfirm: false`) and the project uses the
+built-in email sender, which allows roughly two messages per hour. New sign-ups through the
+app therefore fail with `over_email_send_rate_limit` once that allowance is spent.
+
+Choose one before real users sign up:
+
+- Turn off **Authentication → Sign In / Providers → Email → Confirm email** for immediate
+  sign-in without email delivery. Appropriate for a test or demo deployment.
+- Or configure a custom SMTP sender under **Project Settings → Authentication → SMTP** and
+  keep confirmation enabled. Appropriate for production.
+
+The existing test accounts are unaffected either way; they were created pre-confirmed
+through the Auth admin API.
 
 ## 1. Create the project
 
@@ -96,6 +117,20 @@ Room row locks serialize membership and voting mutations. Authenticated clients 
 
 ## What has been verified
 
-The migrations and gameplay/privacy assertions have been executed against a disposable PostgreSQL database with a minimal Auth test harness. This verifies SQL behavior and RLS permissions. Hosted Supabase Auth delivery, Realtime transport, and multi-device callbacks still require the new project and real devices; they are not represented as already live.
+A full six-juror round has been driven against the hosted project through the same RPC
+contract the Flutter client uses: six sign-ins, room creation, join-by-code, capacity and
+host-only guards, the evidence gate, initial ballots with automatic advance to discussion,
+cited messages, final ballots with reason-length enforcement, verdict computation, scoring,
+history, notifications and rankings. Ballot privacy was checked directly — a juror selecting
+from `ballots` sees only their own row, before and after completion.
+
+Confirmed by that run: the profile/notification trigger on `auth.users`, aggregate counts
+staying null until the round completes, and outcome and points matching the specification
+(`Not guilty` on a 2–4 split; 60 + 10 per exhibit + 20 for citing).
+
+Still unverified on real devices: hosted email delivery (confirmation and recovery), the
+native `app.livejury.room://auth-callback` redirect, and Realtime push over a live socket.
+The Realtime publication itself is configured; only end-to-end transport between physical
+devices is untested.
 
 Official references: [Flutter initialization](https://supabase.com/docs/reference/dart/initializing), [Flutter quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/flutter), [securing data](https://supabase.com/docs/guides/database/secure-data), [Postgres Changes](https://supabase.com/docs/guides/realtime/postgres-changes).

@@ -343,7 +343,7 @@ class _DeliberationScreenState extends State<DeliberationScreen> {
                 const Text(
                   'Think out loud.',
                   style: TextStyle(
-                    fontFamily: 'Outfit',
+                    fontFamily: 'Fraunces',
                     fontSize: 31,
                     letterSpacing: -.6,
                   ),

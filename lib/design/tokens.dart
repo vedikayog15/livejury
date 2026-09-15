@@ -47,21 +47,21 @@ abstract final class JSpace {
 abstract final class JType {
   static TextStyle display([double size = 38, Color color = JColors.ink]) =>
       TextStyle(
-        fontFamily: 'Outfit',
+        fontFamily: 'Fraunces',
         fontSize: size,
         height: 1.12,
-        letterSpacing: -size * .027,
+        letterSpacing: -size * .015,
         fontWeight: FontWeight.w500,
         color: color,
       );
   static const body = TextStyle(
-    fontFamily: 'Inter',
+    fontFamily: 'DM Sans',
     fontSize: 16,
     height: 1.65,
     color: JColors.ink,
   );
   static const caption = TextStyle(
-    fontFamily: 'Inter',
+    fontFamily: 'DM Sans',
     fontSize: 11,
     height: 1.4,
     letterSpacing: 1.4,

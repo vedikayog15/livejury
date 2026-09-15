@@ -26,7 +26,7 @@ The final complete Flutter command sequence is reproducible with `bash scripts/v
 
 ## Visual review
 
-`artifacts/previews/` contains the invitation, lobby, assembly, case file, evidence desk, exhibit, discussion, final ballot, verdict and profile, plus 320/560 dp lobby captures. They render the real Flutter widgets with bundled Outfit/Inter fonts and active shadows. They are review artifacts rather than golden-test baselines.
+`artifacts/previews/` contains the invitation, lobby, assembly, case file, evidence desk, exhibit, discussion, final ballot, verdict and profile, plus 320/560 dp lobby captures. They render the real Flutter widgets with bundled Fraunces/DM Sans fonts and active shadows. They are review artifacts rather than golden-test baselines.
 
 The design uses original code-painted chamber and case scenes, layered backgrounds and a frosted navigation surface. The official [Cupertino icon asset](https://pub.dev/packages/cupertino_icons) is included for Flutter's adaptive controls, eliminating the web build's missing platform-font warning.
 
