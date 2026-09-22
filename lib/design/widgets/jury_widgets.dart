@@ -37,6 +37,8 @@ class JuryPage extends StatelessWidget {
     this.back = true,
     this.scroll = true,
     this.padding = true,
+    this.wide = false,
+    this.wideActions = false,
   });
   final Widget child;
   final String? title, eyebrow;
@@ -44,6 +46,15 @@ class JuryPage extends StatelessWidget {
   final int? tab;
   final List<Widget> actions;
   final bool dark, back, scroll, padding;
+
+  /// Opt in to the full desktop canvas. Screens holding a single column of
+  /// reading copy leave this false so the measure stays legible on a laptop.
+  final bool wide;
+
+  /// Let the action bar span the content measure instead of capping at
+  /// [JSpace.actionWidth]. For bars that are a control rather than a button,
+  /// such as the discussion composer.
+  final bool wideActions;
   @override
   Widget build(BuildContext context) {
     final state = JuryScope.of(context);
@@ -54,10 +65,16 @@ class JuryPage extends StatelessWidget {
       ),
       child: child,
     );
+    if (JSpace.isExpanded(context)) {
+      return _buildExpanded(context, state, color, content);
+    }
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: dark ? JColors.ink : JColors.canvas,
+        // The backdrop continues beneath the capsule and the action bar, so no
+        // seam appears where the scaffold's own background would otherwise sit.
+        extendBody: true,
         bottomNavigationBar: bottom == null && tab == null
             ? null
             : Padding(
@@ -66,39 +83,49 @@ class JuryPage extends StatelessWidget {
                       ? MediaQuery.viewInsetsOf(context).bottom
                       : 0,
                 ),
-                child: SafeArea(
-                  top: false,
-                  child: Align(
-                    heightFactor: 1,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: JSpace.maxWidth,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (bottom != null)
-                            Container(
-                              decoration: BoxDecoration(
-                                color: dark ? JColors.ink : JColors.canvas,
-                                border: Border(
-                                  top: BorderSide(
-                                    color: dark
-                                        ? JColors.raised
-                                        : JColors.border,
-                                  ),
+                child: DecoratedBox(
+                  // An action bar sits over scrolling content, so it fades into
+                  // the page instead of drawing a hard edge across it. The tab
+                  // capsule alone needs nothing: it is already frosted.
+                  decoration: bottom == null
+                      ? const BoxDecoration()
+                      : BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              (dark ? JColors.ink : JColors.canvas).withValues(
+                                alpha: 0,
+                              ),
+                              dark ? JColors.ink : JColors.canvas,
+                            ],
+                            stops: const [0, .5],
+                          ),
+                        ),
+                  child: SafeArea(
+                    top: false,
+                    child: Align(
+                      heightFactor: 1,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: JSpace.maxWidth,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (bottom != null)
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  JSpace.gutter(context),
+                                  14,
+                                  JSpace.gutter(context),
+                                  12,
                                 ),
+                                child: bottom,
                               ),
-                              padding: EdgeInsets.fromLTRB(
-                                JSpace.gutter(context),
-                                14,
-                                JSpace.gutter(context),
-                                12,
-                              ),
-                              child: bottom,
-                            ),
-                          if (tab != null) JuryNavigation(selected: tab!),
-                        ],
+                            if (tab != null) JuryNavigation(selected: tab!),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -180,9 +207,14 @@ class JuryPage extends StatelessWidget {
                       child: scroll
                           ? SingleChildScrollView(
                               key: PageStorageKey(title ?? 'invitation'),
-                              padding: const EdgeInsets.only(
+                              // Content now passes beneath the capsule, so the
+                              // last of it needs clearance to stay reachable.
+                              padding: EdgeInsets.only(
                                 top: 8,
-                                bottom: 28,
+                                bottom:
+                                    28 +
+                                    (tab != null ? 92 : 0) +
+                                    (bottom != null ? 86 : 0),
                               ),
                               child: content,
                             )
@@ -197,6 +229,317 @@ class JuryPage extends StatelessWidget {
       ),
     );
   }
+
+  /// Laptop and desktop layout: the tab bar becomes a persistent side rail and
+  /// the content sits in a centred column, so a wide window reads as a desktop
+  /// application rather than a stretched phone screen.
+  Widget _buildExpanded(
+    BuildContext context,
+    JuryController state,
+    Color color,
+    Widget content,
+  ) {
+    final gutter = JSpace.gutter(context);
+    final maxW = wide ? JSpace.wideMaxWidth : JSpace.maxWidth;
+    // Header, content and action bar each span the full area beside the rail,
+    // while their contents align to one shared measure. Constraining the whole
+    // column instead would float the action bar as a narrow slab.
+    Widget measure(Widget child) => Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxW),
+        child: child,
+      ),
+    );
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (title != null)
+          measure(
+            Padding(
+              padding: EdgeInsets.fromLTRB(gutter, 28, gutter, 12),
+              child: Row(
+                children: [
+                  if (back && Navigator.canPop(context))
+                    Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: IconButton(
+                        tooltip: 'Back',
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Icons.arrow_back_rounded, color: color),
+                      ),
+                    ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (eyebrow != null)
+                          Text(
+                            eyebrow!.toUpperCase(),
+                            style: JType.caption.copyWith(
+                              fontSize: 11,
+                              letterSpacing: .8,
+                              color: dark ? JColors.onDarkMuted : JColors.muted,
+                            ),
+                          ),
+                        Text(title!, style: JType.display(28, color)),
+                      ],
+                    ),
+                  ),
+                  ...actions,
+                ],
+              ),
+            ),
+          ),
+        if (state.error != null)
+          measure(
+            Padding(
+              padding: EdgeInsets.fromLTRB(gutter, 4, gutter, 8),
+              child: ErrorNotice(
+                message: state.error!,
+                onDismiss: state.clearError,
+              ),
+            ),
+          ),
+        Expanded(
+          child: scroll
+              // A short screen centres in the window instead of hugging the top
+              // of a tall laptop display; a long one scrolls as usual.
+              ? LayoutBuilder(
+                  builder: (context, constraints) => SingleChildScrollView(
+                    key: PageStorageKey(title ?? 'invitation'),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            top: title == null ? 28 : 4,
+                            bottom: 40,
+                          ),
+                          child: measure(content),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : measure(content),
+        ),
+        if (bottom != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 24),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: wideActions ? maxW : JSpace.actionWidth,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: gutter),
+                  child: bottom,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        backgroundColor: dark ? JColors.ink : JColors.canvas,
+        body: AmbientBackdrop(
+          dark: dark,
+          child: SafeArea(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (tab != null) JurySideNav(selected: tab!, dark: dark),
+                Expanded(child: column),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Desktop two-column body: a reading column that scrolls on its own beside a
+/// sidebar that carries the metadata and the primary action.
+///
+/// Pair it with `scroll: false` and `bottom: null` on [JuryPage] at expanded
+/// widths. The action then sits with the material it acts on instead of in a
+/// bar stretched across the foot of the window.
+class SplitLayout extends StatelessWidget {
+  const SplitLayout({
+    super.key,
+    required this.main,
+    required this.aside,
+    this.mainHeader = const [],
+    this.mainFlex = 6,
+    this.asideFlex = 5,
+  });
+  final List<Widget> main, aside;
+
+  /// Pinned above the scrolling column. A title left in place gives the reader
+  /// something to hold on to while the material beneath it moves.
+  final List<Widget> mainHeader;
+  final int mainFlex, asideFlex;
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Expanded(
+        flex: mainFlex,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (mainHeader.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              ...mainHeader,
+              const SizedBox(height: 20),
+            ],
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  top: mainHeader.isEmpty ? 4 : 0,
+                  bottom: 36,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: main,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(width: 40),
+      Expanded(
+        flex: asideFlex,
+        // Scrolls too, so a tall sidebar on a short window stays reachable.
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(top: 22, bottom: 36),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: aside,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+/// Vertical navigation for laptop and desktop windows. Mirrors the destinations
+/// of [JuryNavigation] so the two layouts stay in step.
+class JurySideNav extends StatelessWidget {
+  const JurySideNav({super.key, required this.selected, this.dark = false});
+  final int selected;
+  final bool dark;
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = dark ? JColors.surface : JColors.ink;
+    return Container(
+      width: JSpace.railWidth,
+      padding: const EdgeInsets.fromLTRB(16, 28, 16, 20),
+      decoration: BoxDecoration(
+        border: Border(
+          right: BorderSide(color: dark ? JColors.raised : JColors.border),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('The Jury Room', style: JType.display(19, onSurface)),
+                const SizedBox(height: 2),
+                Text(
+                  'After hours',
+                  style: JType.caption.copyWith(
+                    color: dark ? JColors.onDarkMuted : JColors.muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          for (final (i, icon, activeIcon, label, route) in _destinations)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Semantics(
+                selected: selected == i,
+                button: true,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () {
+                    if (selected != i) go(context, route, replace: true);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 13,
+                    ),
+                    decoration: BoxDecoration(
+                      color: selected == i
+                          ? JColors.secondary
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          selected == i ? activeIcon : icon,
+                          size: 21,
+                          color: selected == i
+                              ? JColors.brand
+                              : (dark ? JColors.onDarkMuted : JColors.muted),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: selected == i
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: selected == i
+                                ? JColors.brand
+                                : (dark ? JColors.surface : JColors.ink),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  static const _destinations = [
+    (0, Icons.chair_alt_outlined, Icons.chair_alt_rounded, 'Lobby', '/home'),
+    (
+      1,
+      Icons.auto_stories_outlined,
+      Icons.auto_stories_rounded,
+      'Journal',
+      '/history',
+    ),
+    (
+      2,
+      Icons.leaderboard_outlined,
+      Icons.leaderboard_rounded,
+      'Rankings',
+      '/leaderboard',
+    ),
+    (3, Icons.person_outline_rounded, Icons.person_rounded, 'You', '/profile'),
+  ];
 }
 
 class JuryNavigation extends StatelessWidget {
@@ -206,6 +549,10 @@ class JuryNavigation extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
     child: FrostedSurface(
+      // Content scrolls beneath the capsule, so it carries a lighter tint and a
+      // stronger blur than the small utility surfaces.
+      tint: .62,
+      blur: 30,
       child: Padding(
         padding: const EdgeInsets.all(5),
         child: Row(

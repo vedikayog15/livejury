@@ -77,10 +77,18 @@ class FrostedSurface extends StatelessWidget {
     required this.child,
     this.radius = 28,
     this.dark = false,
+    this.tint = .88,
+    this.blur = 18,
   });
   final Widget child;
   final double radius;
   final bool dark;
+
+  /// How much the surface is filled in. A lower tint lets more of the blurred
+  /// content read through; [MediaQuery.highContrastOf] always overrides it to
+  /// fully opaque so text keeps its contrast guarantee.
+  final double tint;
+  final double blur;
   @override
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
@@ -96,11 +104,11 @@ class FrostedSurface extends StatelessWidget {
     child: ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: (dark ? JColors.raised : JColors.surface).withValues(
-              alpha: MediaQuery.highContrastOf(context) ? 1 : .88,
+              alpha: MediaQuery.highContrastOf(context) ? 1 : tint,
             ),
             borderRadius: BorderRadius.circular(radius),
             border: Border.all(

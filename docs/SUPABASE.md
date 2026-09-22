@@ -62,6 +62,18 @@ Android and iOS are configured to receive this custom callback scheme. The app o
 
 ## 4. Configure Flutter
 
+The hosted project's publishable credentials are compiled in as defaults in
+`lib/core/config/supabase_config.dart`, so `flutter run`, `flutter build` and an
+IDE Run button all connect with no extra arguments. Nothing below is needed to
+work against the current project.
+
+Passing no credentials previously left `SUPABASE_URL` empty, which started the
+app in demo-only mode and reported that cloud accounts were not connected — the
+defaults exist so that cannot happen by accident. `test/unit/cloud_contract_test.dart`
+asserts the values stay present and that a secret key never takes their place.
+
+To point a build at a **different** project, override them:
+
 ```sh
 cp config/supabase.example.json config/supabase.json
 ```

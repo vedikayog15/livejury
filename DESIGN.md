@@ -39,7 +39,19 @@ The jury illustration becomes a dimensional chamber: an elliptical table, uphols
 
 ## Geometry and motion
 
-4 dp base; spacing 8/12/16/24/32/40. Page gutters are 20 dp below 360 and 24 otherwise. Reading width is capped at 560 dp. Corners: 12 for controls, 20 for panels, 28 for artwork and navigation. All controls have at least 48 × 48 dp touch targets; primary actions are at least 56 dp. Optional haptics, Material interaction feedback, and short entry reveals provide tactile feedback. Decorative motion is disabled when reduced motion is enabled.
+4 dp base; spacing 8/12/16/24/32/40. Page gutters are 20 dp below 360, 24 up to the expanded breakpoint, and 40 beyond it. Reading width is capped at 560 dp. Corners: 12 for controls, 20 for panels, 28 for artwork and navigation. All controls have at least 48 × 48 dp touch targets; primary actions are at least 56 dp. Optional haptics, Material interaction feedback, and short entry reveals provide tactile feedback. Decorative motion is disabled when reduced motion is enabled.
+
+## One layout, two shapes
+
+A single Flutter codebase serves phone, tablet, desktop and web. Layout, not logic, responds to the window: `JSpace.isExpanded` is true only at 900 dp wide **and** 600 dp tall. The height test matters because a large phone in landscape is about 930 dp wide with nowhere to put a rail, and because a mobile browser reports the same viewport the app does — `width=device-width` in `web/index.html` means a phone in Chrome gets the touch layout exactly as the installed app does.
+
+Below the breakpoint nothing has changed: a single column capped at the reading measure, a frosted tab capsule, and a pinned action bar that fades content out beneath it rather than drawing a line across it.
+
+Above it the page becomes a desktop application. A persistent side rail replaces the tab capsule. `SplitLayout` gives a reading column and a sidebar that scroll independently, with an optional pinned header so a title and its controls hold their place while the material moves. The primary action lives in the sidebar beside the material it acts on, never as a bar stretched across the foot of the window; where an action bar genuinely belongs at the foot, such as the discussion composer, it stays and spans the column.
+
+Screens that are a single column of reading copy — an exhibit, a recovery form — keep the 560 dp measure centred beside the rail. A centred column is a legitimate desktop layout; widening body text past its comfortable measure would be a regression, not an improvement.
+
+Device sizes are asserted rather than assumed: `test/adaptive_breakpoint_test.dart` pins which layout each real phone, tablet, laptop and browser window resolves to, and `test/golden/` renders every screen at both shapes as reviewable images.
 
 Primitive palette values map to semantic colors in `lib/design/tokens.dart`, then to theme and component properties. `JSpace` and `JType` define shared dimensions and text roles. Status always includes a word or icon. Reading content scrolls, metadata wraps, and fixed actions remain within safe areas.
 
@@ -70,5 +82,5 @@ Versioned SQL defines profiles, cases, rooms, membership, evidence review, priva
 
 ## Quality gates
 
-Format; static analysis; unit tests for progression, persistence, errors and consensus; widget tests for onboarding through verdict, private-room validation, chat references, and 320/390/560 dp layouts plus enlarged text; release web build; debug APK build. Visually inspect rendered Flutter screens. Document unverified hosted Supabase behavior if project credentials are unavailable. Mobile store signing and hosted deployment require owner-specific credentials and are separate from successful local builds.
+Format; static analysis; unit tests for progression, persistence, errors and consensus; widget tests for onboarding through verdict, private-room validation, chat references, and 320/390/560 dp layouts plus enlarged text; device-size assertions for the expanded breakpoint; desktop layout checks at 1024/1280/1600 dp; golden renders of every screen at phone and laptop size; release web build; debug APK build. Visually inspect rendered Flutter screens. Document unverified hosted Supabase behavior if project credentials are unavailable. Mobile store signing and hosted deployment require owner-specific credentials and are separate from successful local builds.
 

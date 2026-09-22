@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:live_jury_room/core/config/supabase_config.dart';
 import 'package:live_jury_room/core/models/models.dart';
 
 /// Parses payloads captured from the hosted `jury_player_snapshot` and `cases`
@@ -8,6 +9,28 @@ import 'package:live_jury_room/core/models/models.dart';
 /// unit tests built from local fixtures would not catch.
 void main() {
   final dir = Directory('test/fixtures');
+
+  // Without usable defaults a plain `flutter run` or IDE Run button starts in
+  // demo-only mode and the app reports that cloud accounts are not connected.
+  group('cloud credentials are compiled in', () {
+    test('url is a valid https project endpoint', () {
+      expect(SupabaseConfig.url, isNotEmpty);
+      final uri = Uri.tryParse(SupabaseConfig.url);
+      expect(uri, isNotNull);
+      expect(uri!.scheme, 'https');
+      expect(uri.hasAuthority, isTrue);
+    });
+
+    test('key is present and is not a secret key', () {
+      expect(SupabaseConfig.key, isNotEmpty);
+      expect(
+        SupabaseConfig.key.startsWith('sb_secret_'),
+        isFalse,
+        reason: 'a service-role/secret key must never ship in the client',
+      );
+      expect(SupabaseConfig.key.contains('service_role'), isFalse);
+    });
+  });
 
   test('player snapshot from the server parses into PlayerData', () {
     final file = File('${dir.path}/player_snapshot.json');

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/config/supabase_config.dart';
 import '../core/data/demo_repository.dart';
 import '../core/data/supabase_repository.dart';
 import '../core/state/jury_controller.dart';
@@ -14,11 +15,8 @@ Future<void> bootstrap() async {
   } catch (_) {
     /* Demo remains available if device storage is unavailable. */
   }
-  const url = String.fromEnvironment('SUPABASE_URL');
-  const key = String.fromEnvironment(
-    'SUPABASE_PUBLISHABLE_KEY',
-    defaultValue: String.fromEnvironment('SUPABASE_ANON_KEY'),
-  );
+  const url = SupabaseConfig.url;
+  const key = SupabaseConfig.key;
   SupabaseRepository? cloud;
   String? configurationError;
   if (url.isNotEmpty && key.isNotEmpty) {

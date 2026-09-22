@@ -90,82 +90,88 @@ class _DeliberationScreenState extends State<DeliberationScreen> {
     final visible = r.messages
         .where((m) => !s.mutedJurors.contains(m.senderId))
         .toList();
+    final expanded = JSpace.isExpanded(context);
     return JuryPage(
       title: 'The deliberation',
       eyebrow: 'Room ${r.code}',
       scroll: false,
+      wide: expanded,
+      wideActions: true,
       actions: [
-        IconButton(
-          tooltip: 'Jurors and room guidelines',
-          onPressed: () => showModalBottomSheet<void>(
-            context: context,
-            showDragHandle: true,
-            isScrollControlled: true,
-            builder: (ctx) => StatefulBuilder(
-              builder: (ctx, setSheetState) => SafeArea(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Around the table', style: JType.display(32)),
-                      const SizedBox(height: 12),
-                      Text(
-                        s.isDemo
-                            ? 'Five simulated jurors, plus you.'
-                            : 'Six real jurors. Votes remain private.',
-                        style: const TextStyle(
-                          color: JColors.muted,
-                          fontSize: 13,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      for (final j in r.jurors)
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: Avatar(j.name),
-                          title: Text(j.name),
-                          subtitle: Text(
-                            j.isDemo
-                                ? 'Simulated juror'
-                                : j.id == s.player!.id
-                                ? 'You'
-                                : 'Juror',
+        // The desktop layout shows the roster permanently, so the sheet that
+        // opens it is only offered on touch widths.
+        if (!expanded)
+          IconButton(
+            tooltip: 'Jurors and room guidelines',
+            onPressed: () => showModalBottomSheet<void>(
+              context: context,
+              showDragHandle: true,
+              isScrollControlled: true,
+              builder: (ctx) => StatefulBuilder(
+                builder: (ctx, setSheetState) => SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Around the table', style: JType.display(32)),
+                        const SizedBox(height: 12),
+                        Text(
+                          s.isDemo
+                              ? 'Five simulated jurors, plus you.'
+                              : 'Six real jurors. Votes remain private.',
+                          style: const TextStyle(
+                            color: JColors.muted,
+                            fontSize: 13,
                           ),
-                          trailing: j.id == s.player!.id
-                              ? null
-                              : IconButton(
-                                  tooltip: s.mutedJurors.contains(j.id)
-                                      ? 'Unmute ${j.name}'
-                                      : 'Mute ${j.name}',
-                                  onPressed: () {
-                                    s.toggleMute(j.id);
-                                    setSheetState(() {});
-                                  },
-                                  icon: Icon(
-                                    s.mutedJurors.contains(j.id)
-                                        ? Icons.volume_off_outlined
-                                        : Icons.volume_up_outlined,
+                        ),
+                        const SizedBox(height: 16),
+                        for (final j in r.jurors)
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Avatar(j.name),
+                            title: Text(j.name),
+                            subtitle: Text(
+                              j.isDemo
+                                  ? 'Simulated juror'
+                                  : j.id == s.player!.id
+                                  ? 'You'
+                                  : 'Juror',
+                            ),
+                            trailing: j.id == s.player!.id
+                                ? null
+                                : IconButton(
+                                    tooltip: s.mutedJurors.contains(j.id)
+                                        ? 'Unmute ${j.name}'
+                                        : 'Mute ${j.name}',
+                                    onPressed: () {
+                                      s.toggleMute(j.id);
+                                      setSheetState(() {});
+                                    },
+                                    icon: Icon(
+                                      s.mutedJurors.contains(j.id)
+                                          ? Icons.volume_off_outlined
+                                          : Icons.volume_up_outlined,
+                                    ),
                                   ),
-                                ),
+                          ),
+                        const SizedBox(height: 16),
+                        const Panel(
+                          color: JColors.secondary,
+                          child: Text(
+                            'Challenge the argument, never the person. Avoid personal information. Report a message using its menu. Muting hides a juror’s messages on this device.',
+                            style: TextStyle(fontSize: 13, height: 1.7),
+                          ),
                         ),
-                      const SizedBox(height: 16),
-                      const Panel(
-                        color: JColors.secondary,
-                        child: Text(
-                          'Challenge the argument, never the person. Avoid personal information. Report a message using its menu. Muting hides a juror’s messages on this device.',
-                          style: TextStyle(fontSize: 13, height: 1.7),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
+            icon: const Icon(Icons.group_outlined),
           ),
-          icon: const Icon(Icons.group_outlined),
-        ),
       ],
       bottom: Column(
         mainAxisSize: MainAxisSize.min,
@@ -329,185 +335,271 @@ class _DeliberationScreenState extends State<DeliberationScreen> {
             ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 12),
-          if (!keyboardOpen) const StageStrip(active: 2),
-          if (!keyboardOpen)
-            Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 12,
-              children: [
-                const Text(
-                  'Think out loud.',
-                  style: TextStyle(
-                    fontFamily: 'Fraunces',
-                    fontSize: 31,
-                    letterSpacing: -.6,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => go(context, '/evidence'),
-                  child: const Text('Case evidence'),
-                ),
-              ],
-            ),
-          const SizedBox(height: 6),
-          if (!keyboardOpen)
-            Text(
-              s.isDemo
-                  ? 'DEMO DISCUSSION · SCRIPTED JURORS'
-                  : 'LIVE DISCUSSION · VOTES ARE SEALED',
-              style: JType.caption.copyWith(fontSize: 9, color: JColors.muted),
-            ),
-          const SizedBox(height: 16),
           Expanded(
-            child: ListView.builder(
-              controller: _scroll,
-              padding: const EdgeInsets.only(bottom: 18),
-              itemCount: visible.length,
-              itemBuilder: (context, index) {
-                final m = visible[index];
-                final mine = m.senderId == s.player!.id;
-                if (m.system) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: Panel(
-                      color: JColors.secondary,
-                      padding: 16,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.lock_outline, size: 17),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              m.body,
-                              style: const TextStyle(fontSize: 12, height: 1.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 22),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 12),
+                if (!keyboardOpen) const StageStrip(active: 2),
+                if (!keyboardOpen)
+                  Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
                     children: [
-                      Row(
-                        children: [
-                          Avatar(m.name, size: 28, index: index),
-                          const SizedBox(width: 9),
-                          Expanded(
-                            child: Text(
-                              mine ? 'You' : m.name,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          if (!mine)
-                            SizedBox(
-                              height: 48,
-                              width: 48,
-                              child: PopupMenuButton<String>(
-                                tooltip: 'Message options',
-                                onSelected: (v) async {
-                                  if (v == 'mute') {
-                                    s.toggleMute(m.senderId);
-                                  } else if (await s.report(m.id) &&
-                                      context.mounted) {
-                                    toast(
-                                      context,
-                                      s.isDemo
-                                          ? 'Demo report recorded. No moderator is contacted.'
-                                          : 'Report submitted for review.',
-                                    );
-                                  }
-                                },
-                                itemBuilder: (_) => [
-                                  const PopupMenuItem(
-                                    value: 'report',
-                                    child: Text('Report message'),
-                                  ),
-                                  const PopupMenuItem(
-                                    value: 'mute',
-                                    child: Text('Mute juror'),
-                                  ),
-                                ],
-                                icon: const Icon(Icons.more_horiz, size: 18),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(17),
-                        decoration: BoxDecoration(
-                          color: mine ? JColors.ink : JColors.surface,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(mine ? 18 : 4),
-                            topRight: Radius.circular(mine ? 4 : 18),
-                            bottomLeft: const Radius.circular(18),
-                            bottomRight: const Radius.circular(18),
-                          ),
+                      const Text(
+                        'Think out loud.',
+                        style: TextStyle(
+                          fontFamily: 'Fraunces',
+                          fontSize: 31,
+                          letterSpacing: -.6,
                         ),
+                      ),
+                      TextButton(
+                        onPressed: () => go(context, '/evidence'),
+                        child: const Text('Case evidence'),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 6),
+                if (!keyboardOpen)
+                  Text(
+                    s.isDemo
+                        ? 'DEMO DISCUSSION · SCRIPTED JURORS'
+                        : 'LIVE DISCUSSION · VOTES ARE SEALED',
+                    style: JType.caption.copyWith(
+                      fontSize: 9,
+                      color: JColors.muted,
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scroll,
+                    padding: const EdgeInsets.only(bottom: 18),
+                    itemCount: visible.length,
+                    itemBuilder: (context, index) {
+                      final m = visible[index];
+                      final mine = m.senderId == s.player!.id;
+                      if (m.system) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: Panel(
+                            color: JColors.secondary,
+                            padding: 16,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.lock_outline, size: 17),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    m.body,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      height: 1.7,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 22),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (m.exhibitId != null)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: TextButton.icon(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: mine
-                                        ? JColors.accent
-                                        : JColors.ink,
-                                    backgroundColor: mine
-                                        ? JColors.raised
-                                        : JColors.secondary,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
+                            Row(
+                              children: [
+                                Avatar(m.name, size: 28, index: index),
+                                const SizedBox(width: 9),
+                                Expanded(
+                                  child: Text(
+                                    mine ? 'You' : m.name,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
                                     ),
                                   ),
-                                  onPressed: () => go(
-                                    context,
-                                    '/exhibit',
-                                    arguments: s.currentCase.evidence
-                                        .firstWhere((e) => e.id == m.exhibitId),
+                                ),
+                                if (!mine)
+                                  SizedBox(
+                                    height: 48,
+                                    width: 48,
+                                    child: PopupMenuButton<String>(
+                                      tooltip: 'Message options',
+                                      onSelected: (v) async {
+                                        if (v == 'mute') {
+                                          s.toggleMute(m.senderId);
+                                        } else if (await s.report(m.id) &&
+                                            context.mounted) {
+                                          toast(
+                                            context,
+                                            s.isDemo
+                                                ? 'Demo report recorded. No moderator is contacted.'
+                                                : 'Report submitted for review.',
+                                          );
+                                        }
+                                      },
+                                      itemBuilder: (_) => [
+                                        const PopupMenuItem(
+                                          value: 'report',
+                                          child: Text('Report message'),
+                                        ),
+                                        const PopupMenuItem(
+                                          value: 'mute',
+                                          child: Text('Mute juror'),
+                                        ),
+                                      ],
+                                      icon: const Icon(
+                                        Icons.more_horiz,
+                                        size: 18,
+                                      ),
+                                    ),
                                   ),
-                                  icon: const Icon(Icons.attach_file, size: 14),
-                                  label: Text(
-                                    '${m.exhibitId} · View exhibit',
-                                    style: const TextStyle(fontSize: 11),
-                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(17),
+                              decoration: BoxDecoration(
+                                color: mine ? JColors.ink : JColors.surface,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(mine ? 18 : 4),
+                                  topRight: Radius.circular(mine ? 4 : 18),
+                                  bottomLeft: const Radius.circular(18),
+                                  bottomRight: const Radius.circular(18),
                                 ),
                               ),
-                            Text(
-                              m.body,
-                              style: TextStyle(
-                                color: mine ? JColors.surface : JColors.ink,
-                                fontSize: 14,
-                                height: 1.7,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (m.exhibitId != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: TextButton.icon(
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: mine
+                                              ? JColors.accent
+                                              : JColors.ink,
+                                          backgroundColor: mine
+                                              ? JColors.raised
+                                              : JColors.secondary,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
+                                        ),
+                                        onPressed: () => go(
+                                          context,
+                                          '/exhibit',
+                                          arguments: s.currentCase.evidence
+                                              .firstWhere(
+                                                (e) => e.id == m.exhibitId,
+                                              ),
+                                        ),
+                                        icon: const Icon(
+                                          Icons.attach_file,
+                                          size: 14,
+                                        ),
+                                        label: Text(
+                                          '${m.exhibitId} · View exhibit',
+                                          style: const TextStyle(fontSize: 11),
+                                        ),
+                                      ),
+                                    ),
+                                  Text(
+                                    m.body,
+                                    style: TextStyle(
+                                      color: mine
+                                          ? JColors.surface
+                                          : JColors.ink,
+                                      fontSize: 14,
+                                      height: 1.7,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
+          if (expanded) const SizedBox(width: 32),
+          if (expanded) SizedBox(width: 300, child: _roster(context, s, r)),
         ],
       ),
     );
   }
+
+  /// Persistent roster for desktop windows. Holds the same jurors, mute
+  /// controls and guidance the touch layout keeps behind a sheet.
+  Widget _roster(
+    BuildContext context,
+    JuryController s,
+    JuryRound r,
+  ) => ListView(
+    padding: const EdgeInsets.only(top: 12, bottom: 18),
+    children: [
+      Text('Around the table', style: JType.display(21)),
+      const SizedBox(height: 6),
+      Text(
+        s.isDemo
+            ? 'Five simulated jurors, plus you.'
+            : 'Six real jurors. Votes remain private.',
+        style: const TextStyle(color: JColors.muted, fontSize: 12),
+      ),
+      const SizedBox(height: 12),
+      for (final j in r.jurors)
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          visualDensity: VisualDensity.compact,
+          leading: Avatar(j.name, size: 34),
+          title: Text(
+            j.name,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text(
+            j.isDemo
+                ? 'Simulated juror'
+                : j.id == s.player!.id
+                ? 'You'
+                : 'Juror',
+            style: const TextStyle(fontSize: 11),
+          ),
+          trailing: j.id == s.player!.id
+              ? null
+              : IconButton(
+                  tooltip: s.mutedJurors.contains(j.id)
+                      ? 'Unmute ${j.name}'
+                      : 'Mute ${j.name}',
+                  onPressed: () => s.toggleMute(j.id),
+                  icon: Icon(
+                    s.mutedJurors.contains(j.id)
+                        ? Icons.volume_off_outlined
+                        : Icons.volume_up_outlined,
+                    size: 19,
+                  ),
+                ),
+        ),
+      const SizedBox(height: 14),
+      const Panel(
+        color: JColors.secondary,
+        child: Text(
+          'Challenge the argument, never the person. Avoid personal information. Report a message using its menu. Muting hides a juror’s messages on this device.',
+          style: TextStyle(fontSize: 12, height: 1.65),
+        ),
+      ),
+    ],
+  );
 }

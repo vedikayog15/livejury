@@ -10,174 +10,222 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = JuryScope.of(context);
+    final expanded = JSpace.isExpanded(context);
     return JuryPage(
       dark: true,
-      bottom: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PrimaryButton(
-            'Take your seat',
-            citron: true,
-            loading: s.busy,
-            onPressed: () async {
-              if (await s.signIn(demo: true) && context.mounted) home(context);
-            },
-          ),
-          const SizedBox(height: 5),
-          TextButton(
-            onPressed: () => go(context, '/auth'),
-            style: TextButton.styleFrom(foregroundColor: JColors.surface),
-            child: const Text('Sign in or create an account'),
-          ),
-          const Text(
-            'Free demo · No account needed',
-            style: TextStyle(color: JColors.onDarkMuted, fontSize: 11),
-          ),
-        ],
-      ),
+      wide: expanded,
+      // On a laptop the invitation reads as a landing page, so the call to
+      // action sits beside the copy rather than in a pinned bar.
+      bottom: expanded ? null : _cta(context, s),
       child: EntryReveal(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        JColors.glow.withValues(alpha: .4),
-                        JColors.raised,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: JColors.glow.withValues(alpha: .4),
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Text('VI', style: JType.display(23, JColors.accent)),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Text(
-                    'LIVE\nJURY',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: JColors.surface,
-                      letterSpacing: 2,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: JColors.glow.withValues(alpha: .25),
-                    ),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Text(
-                    '6 SEATS',
-                    style: TextStyle(
-                      color: JColors.onDarkMuted,
-                      fontSize: 9,
-                      letterSpacing: 1.3,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 26),
-            Stack(
-              children: [
-                const ChamberArt(height: 270, seated: 5),
-                Positioned(
-                  left: 0,
-                  top: 12,
-                  child: Transform.rotate(
-                    angle: -.08,
-                    child: const _FloatingNote(
-                      icon: Icons.fingerprint_rounded,
-                      label: 'YOUR VOTE',
-                      value: 'Privately yours.',
-                    ),
-                  ),
-                ),
-                Positioned(
-                  right: 0,
-                  bottom: 8,
-                  child: Transform.rotate(
-                    angle: .04,
-                    child: const _FloatingNote(
-                      icon: Icons.forum_outlined,
-                      label: 'THE DISCUSSION',
-                      value: 'Better together.',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            const Text(
-              'A SOCIAL GAME OF PERSPECTIVE',
-              style: TextStyle(
-                color: JColors.accent,
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.6,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Enter the room.\nChange your mind.',
-              style: JType.display(
-                MediaQuery.sizeOf(context).width < 360 ? 34 : 41,
-                JColors.surface,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'An intriguing case. Five other minds.\nAnd a verdict that starts with you.',
-              style: TextStyle(
-                color: JColors.onDarkMuted,
-                fontSize: 14,
-                height: 1.65,
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Row(
-              children: [
-                _Step('01', Icons.search_rounded, 'Examine'),
-                SizedBox(width: 10),
-                _Step('02', Icons.forum_outlined, 'Discuss'),
-                SizedBox(width: 10),
-                _Step('03', Icons.how_to_vote_outlined, 'Decide'),
-              ],
-            ),
-            const SizedBox(height: 22),
-            const Text(
-              'All cases are fictional. The perspectives are yours.',
-              style: TextStyle(
-                color: JColors.onDarkMuted,
-                fontSize: 11,
-                height: 1.5,
-              ),
-            ),
-          ],
-        ),
+        child: expanded ? _wide(context, s) : _narrow(context, s),
       ),
     );
   }
+
+  Widget _cta(BuildContext context, JuryController s) => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      PrimaryButton(
+        'Take your seat',
+        citron: true,
+        loading: s.busy,
+        onPressed: () async {
+          if (await s.signIn(demo: true) && context.mounted) home(context);
+        },
+      ),
+      const SizedBox(height: 5),
+      TextButton(
+        onPressed: () => go(context, '/auth'),
+        style: TextButton.styleFrom(foregroundColor: JColors.surface),
+        child: const Text('Sign in or create an account'),
+      ),
+      const Text(
+        'Free demo · No account needed',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: JColors.onDarkMuted, fontSize: 11),
+      ),
+    ],
+  );
+
+  /// Laptop and desktop: the chamber sits beside the invitation copy so the
+  /// whole proposition is one screen rather than a tall scroll.
+  Widget _wide(BuildContext context, JuryController s) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SizedBox(height: 8),
+      _brand(),
+      const SizedBox(height: 44),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(flex: 6, child: _art(height: 330)),
+          const SizedBox(width: 52),
+          Expanded(
+            flex: 5,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ..._pitch(context, display: 46),
+                const SizedBox(height: 28),
+                _steps(),
+                const SizedBox(height: 30),
+                _cta(context, s),
+                const SizedBox(height: 18),
+                _footnote(),
+              ],
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 20),
+    ],
+  );
+
+  Widget _narrow(BuildContext context, JuryController s) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const SizedBox(height: 18),
+      _brand(),
+      const SizedBox(height: 26),
+      _art(height: 270),
+      const SizedBox(height: 18),
+      ..._pitch(
+        context,
+        display: MediaQuery.sizeOf(context).width < 360 ? 34 : 41,
+      ),
+      const SizedBox(height: 24),
+      _steps(),
+      const SizedBox(height: 22),
+      _footnote(),
+    ],
+  );
+
+  Widget _art({required double height}) => Stack(
+    children: [
+      ChamberArt(height: height, seated: 5),
+      const Positioned(
+        left: 0,
+        top: 12,
+        child: _Tilted(
+          angle: -.08,
+          child: _FloatingNote(
+            icon: Icons.fingerprint_rounded,
+            label: 'YOUR VOTE',
+            value: 'Privately yours.',
+          ),
+        ),
+      ),
+      const Positioned(
+        right: 0,
+        bottom: 8,
+        child: _Tilted(
+          angle: .04,
+          child: _FloatingNote(
+            icon: Icons.forum_outlined,
+            label: 'THE DISCUSSION',
+            value: 'Better together.',
+          ),
+        ),
+      ),
+    ],
+  );
+
+  List<Widget> _pitch(BuildContext context, {required double display}) => [
+    const Text(
+      'A SOCIAL GAME OF PERSPECTIVE',
+      style: TextStyle(
+        color: JColors.accent,
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.6,
+      ),
+    ),
+    const SizedBox(height: 14),
+    Text(
+      'Enter the room.\nChange your mind.',
+      style: JType.display(display, JColors.surface),
+    ),
+    const SizedBox(height: 16),
+    const Text(
+      'An intriguing case. Five other minds.\nAnd a verdict that starts with you.',
+      style: TextStyle(color: JColors.onDarkMuted, fontSize: 14, height: 1.65),
+    ),
+  ];
+
+  Widget _steps() => const Row(
+    children: [
+      _Step('01', Icons.search_rounded, 'Examine'),
+      SizedBox(width: 10),
+      _Step('02', Icons.forum_outlined, 'Discuss'),
+      SizedBox(width: 10),
+      _Step('03', Icons.how_to_vote_outlined, 'Decide'),
+    ],
+  );
+
+  Widget _footnote() => const Text(
+    'All cases are fictional. The perspectives are yours.',
+    style: TextStyle(color: JColors.onDarkMuted, fontSize: 11, height: 1.5),
+  );
+
+  Widget _brand() => Row(
+    children: [
+      Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [JColors.glow.withValues(alpha: .4), JColors.raised],
+          ),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: JColors.glow.withValues(alpha: .4)),
+        ),
+        alignment: Alignment.center,
+        child: Text('VI', style: JType.display(23, JColors.accent)),
+      ),
+      const SizedBox(width: 12),
+      const Expanded(
+        child: Text(
+          'LIVE\nJURY',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: JColors.surface,
+            letterSpacing: 2,
+            height: 1.5,
+          ),
+        ),
+      ),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: JColors.glow.withValues(alpha: .25)),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: const Text(
+          '6 SEATS',
+          style: TextStyle(
+            color: JColors.onDarkMuted,
+            fontSize: 9,
+            letterSpacing: 1.3,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+/// Kept separate so the hero art can stay a const widget.
+class _Tilted extends StatelessWidget {
+  const _Tilted({required this.angle, required this.child});
+  final double angle;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) =>
+      Transform.rotate(angle: angle, child: child);
 }
 
 class _FloatingNote extends StatelessWidget {

@@ -46,208 +46,238 @@ class _ExhibitScreenState extends State<ExhibitScreen> {
     final s = JuryScope.of(context);
     final e = widget.exhibit;
     final reviewed = s.room!.reviewed.contains(e.id);
+    final expanded = JSpace.isExpanded(context);
+    final action = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        PrimaryButton(
+          reviewed ? 'Reviewed · back to evidence' : 'Mark as reviewed',
+          loading: s.busy,
+          icon: reviewed ? Icons.check_rounded : Icons.done_all_rounded,
+          onPressed: () async {
+            if (!reviewed && !await s.markReviewed(e)) return;
+            if (context.mounted) {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              } else {
+                go(context, '/evidence', replace: true);
+              }
+            }
+          },
+        ),
+        if (s.room!.stage == RoundStage.deliberation)
+          TextButton(
+            onPressed: () {
+              s.attach(e.id);
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/discussion',
+                (route) => route.settings.name == '/home' || route.isFirst,
+              );
+            },
+            child: const Text('Reference in discussion'),
+          ),
+      ],
+    );
     return JuryPage(
       title: 'Exhibit ${e.id}',
       eyebrow: e.kind.name,
-      bottom: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          PrimaryButton(
-            reviewed ? 'Reviewed · back to evidence' : 'Mark as reviewed',
-            loading: s.busy,
-            icon: reviewed ? Icons.check_rounded : Icons.done_all_rounded,
-            onPressed: () async {
-              if (!reviewed && !await s.markReviewed(e)) return;
-              if (context.mounted) {
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                } else {
-                  go(context, '/evidence', replace: true);
-                }
-              }
-            },
-          ),
-          if (s.room!.stage == RoundStage.deliberation)
-            TextButton(
-              onPressed: () {
-                s.attach(e.id);
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/discussion',
-                  (route) => route.settings.name == '/home' || route.isFirst,
-                );
-              },
-              child: const Text('Reference in discussion'),
-            ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              StatusTag(e.id),
-              const SizedBox(width: 8),
-              StatusTag(e.kind.name.toUpperCase()),
-              if (reviewed) ...[
-                const Spacer(),
-                const Icon(Icons.check_circle_outline, color: JColors.success),
+      bottom: expanded ? null : action,
+      wide: expanded,
+      scroll: !expanded,
+      child: expanded
+          // A flex-6 share of the wide canvas keeps the exhibit text near the
+          // reading measure; provenance and the action sit beside it.
+          ? SplitLayout(
+              mainHeader: [
+                _tags(e, reviewed),
+                const SizedBox(height: 22),
+                _title(e),
               ],
-            ],
-          ),
-          const SizedBox(height: 24),
-          Text(e.title, style: JType.display(42)),
-          const SizedBox(height: 12),
-          Text(
-            e.source,
-            style: const TextStyle(
-              color: JColors.muted,
-              fontSize: 12,
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: 24),
-          if (e.kind == EvidenceKind.diagram) ...[
-            Panel(
-              color: JColors.ink,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Eyebrow('Schematic · not to scale', dark: true),
-                  const SizedBox(height: 16),
-                  Semantics(
-                    label:
-                        'Reconstructed scene diagram showing a main area, a service route, and an unobserved exit. Read the text below for complete details.',
-                    image: true,
-                    child: const SizedBox(
-                      height: 170,
-                      width: double.infinity,
-                      child: CustomPaint(painter: _PlanPainter()),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Solid outline: observed area\nDashed route: unobserved connection',
-                    style: TextStyle(
-                      color: JColors.onDarkMuted,
-                      fontSize: 11,
-                      height: 1.7,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-          if (e.kind == EvidenceKind.audio) ...[
-            Panel(
-              color: JColors.ink,
-              child: Column(
-                children: [
-                  const Text(
-                    'TRANSCRIPT VISUALIZATION · NO AUDIO',
-                    style: TextStyle(
-                      color: JColors.onDarkMuted,
-                      fontSize: 9,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      IconButton.filled(
-                        tooltip: playing
-                            ? 'Pause visualization'
-                            : 'Play visualization',
-                        onPressed: play,
-                        style: IconButton.styleFrom(
-                          backgroundColor: JColors.accent,
-                          foregroundColor: JColors.ink,
-                        ),
-                        icon: Icon(
-                          playing
-                              ? Icons.pause_rounded
-                              : Icons.play_arrow_rounded,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Semantics(
-                          label:
-                              'Transcript progress ${(progress * 100).round()} percent',
-                          child: SizedBox(
-                            height: 48,
-                            child: CustomPaint(painter: _WavePainter(progress)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  LinearProgressIndicator(
-                    value: progress,
-                    color: JColors.accent,
-                    backgroundColor: JColors.raised,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    '${(progress * 12).round()}s / 12s',
-                    style: const TextStyle(
-                      color: JColors.onDarkMuted,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-          Panel(
-            child: Column(
+              main: [..._media(e), _record(e)],
+              aside: [
+                _source(e),
+                const SizedBox(height: 24),
+                _caution(e),
+                const SizedBox(height: 28),
+                action,
+                const SizedBox(height: 20),
+                _disclaimer(),
+              ],
+            )
+          : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(evidenceIcon(e.kind), size: 18, color: JColors.muted),
-                    const SizedBox(width: 10),
-                    const Expanded(child: Eyebrow('From the case record')),
-                  ],
-                ),
                 const SizedBox(height: 18),
-                SelectableText(e.content, style: JType.body),
+                _tags(e, reviewed),
+                const SizedBox(height: 24),
+                _title(e),
+                const SizedBox(height: 12),
+                _source(e),
+                const SizedBox(height: 24),
+                ..._media(e),
+                _record(e),
+                const SizedBox(height: 24),
+                _caution(e),
+                const SizedBox(height: 20),
+                _disclaimer(),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
-          Panel(
-            color: JColors.secondary,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.lightbulb_outline, size: 20),
-                    SizedBox(width: 10),
-                    Expanded(child: Eyebrow('Consider the limitation')),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  e.caution,
-                  style: const TextStyle(fontSize: 14, height: 1.7),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'All material is written for this fictional game.',
-            style: TextStyle(color: JColors.muted, fontSize: 11),
-          ),
-        ],
-      ),
     );
   }
+
+  Widget _tags(Exhibit e, bool reviewed) => Row(
+    children: [
+      StatusTag(e.id),
+      const SizedBox(width: 8),
+      StatusTag(e.kind.name.toUpperCase()),
+      if (reviewed) ...[
+        const Spacer(),
+        const Icon(Icons.check_circle_outline, color: JColors.success),
+      ],
+    ],
+  );
+
+  Widget _title(Exhibit e) => Text(e.title, style: JType.display(42));
+
+  Widget _source(Exhibit e) => Text(
+    e.source,
+    style: const TextStyle(color: JColors.muted, fontSize: 12, height: 1.6),
+  );
+
+  /// The diagram or audio panel, each followed by its own spacing so the
+  /// narrow column keeps the order it always had.
+  List<Widget> _media(Exhibit e) => [
+    if (e.kind == EvidenceKind.diagram) ...[
+      Panel(
+        color: JColors.ink,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Eyebrow('Schematic · not to scale', dark: true),
+            const SizedBox(height: 16),
+            Semantics(
+              label:
+                  'Reconstructed scene diagram showing a main area, a service route, and an unobserved exit. Read the text below for complete details.',
+              image: true,
+              child: const SizedBox(
+                height: 170,
+                width: double.infinity,
+                child: CustomPaint(painter: _PlanPainter()),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Solid outline: observed area\nDashed route: unobserved connection',
+              style: TextStyle(
+                color: JColors.onDarkMuted,
+                fontSize: 11,
+                height: 1.7,
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 24),
+    ],
+    if (e.kind == EvidenceKind.audio) ...[
+      Panel(
+        color: JColors.ink,
+        child: Column(
+          children: [
+            const Text(
+              'TRANSCRIPT VISUALIZATION · NO AUDIO',
+              style: TextStyle(
+                color: JColors.onDarkMuted,
+                fontSize: 9,
+                letterSpacing: 1,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                IconButton.filled(
+                  tooltip: playing
+                      ? 'Pause visualization'
+                      : 'Play visualization',
+                  onPressed: play,
+                  style: IconButton.styleFrom(
+                    backgroundColor: JColors.accent,
+                    foregroundColor: JColors.ink,
+                  ),
+                  icon: Icon(
+                    playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Semantics(
+                    label:
+                        'Transcript progress ${(progress * 100).round()} percent',
+                    child: SizedBox(
+                      height: 48,
+                      child: CustomPaint(painter: _WavePainter(progress)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(
+              value: progress,
+              color: JColors.accent,
+              backgroundColor: JColors.raised,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '${(progress * 12).round()}s / 12s',
+              style: const TextStyle(color: JColors.onDarkMuted, fontSize: 11),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 24),
+    ],
+  ];
+
+  Widget _record(Exhibit e) => Panel(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(evidenceIcon(e.kind), size: 18, color: JColors.muted),
+            const SizedBox(width: 10),
+            const Expanded(child: Eyebrow('From the case record')),
+          ],
+        ),
+        const SizedBox(height: 18),
+        SelectableText(e.content, style: JType.body),
+      ],
+    ),
+  );
+
+  Widget _caution(Exhibit e) => Panel(
+    color: JColors.secondary,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.lightbulb_outline, size: 20),
+            SizedBox(width: 10),
+            Expanded(child: Eyebrow('Consider the limitation')),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Text(e.caution, style: const TextStyle(fontSize: 14, height: 1.7)),
+      ],
+    ),
+  );
+
+  Widget _disclaimer() => const Text(
+    'All material is written for this fictional game.',
+    style: TextStyle(color: JColors.muted, fontSize: 11),
+  );
 }
 
 class _WavePainter extends CustomPainter {

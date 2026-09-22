@@ -40,8 +40,35 @@ abstract final class JSpace {
       xxl = 32.0,
       section = 40.0;
   static const maxWidth = 560.0, touch = 48.0, button = 56.0;
-  static double gutter(BuildContext context) =>
-      MediaQuery.sizeOf(context).width < 360 ? 20 : 24;
+
+  /// Reading copy stays at [maxWidth] on every platform; only layouts that hold
+  /// distinct side-by-side regions widen to [wideMaxWidth].
+  static const wideMaxWidth = 1120.0, railWidth = 240.0;
+
+  /// Primary actions stretch edge to edge on a phone, where the thumb expects
+  /// it. On a desktop a button that wide reads as a banner, so the action bar
+  /// caps its contents here instead.
+  static const actionWidth = 420.0;
+
+  /// Above this the bottom tab bar is replaced by a side rail. Chosen so phones
+  /// and portrait tablets keep the touch layout and only laptops change.
+  static const expanded = 900.0;
+
+  /// A large phone in landscape is around 930 wide but only ~430 tall, which
+  /// clears the width test while having nowhere to put a rail and a column.
+  /// Requiring height as well keeps those on the touch layout, in the app and
+  /// in a mobile browser alike.
+  static const expandedHeight = 600.0;
+  static bool isExpanded(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    return size.width >= expanded && size.height >= expandedHeight;
+  }
+
+  static double gutter(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    if (width >= expanded) return 40;
+    return width < 360 ? 20 : 24;
+  }
 }
 
 abstract final class JType {

@@ -1,0 +1,11 @@
+# Golden images depend on the host's font rasterisation, so they stay out of the
+# default run and are reviewed deliberately:
+#   flutter test --tags golden --run-skipped                 # compare
+#   flutter test --tags golden --run-skipped --update-goldens # regenerate
+tags:
+  golden:
+    skip: "Run explicitly: flutter test --tags golden --run-skipped"
+  # Hits the hosted Supabase project, so it needs network and real accounts:
+  #   flutter test --tags live --run-skipped
+  live:
+    skip: "Run explicitly: flutter test --tags live --run-skipped"

@@ -25,380 +25,436 @@ class _HomeScreenState extends State<HomeScreen> {
         s.room != null &&
         s.room!.stage != RoundStage.complete &&
         s.room!.stage != RoundStage.cancelled;
+    final expanded = JSpace.isExpanded(context);
     return JuryPage(
       tab: 0,
+      wide: expanded,
       child: EntryReveal(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          children: expanded
+              ? _wide(s, featured, files, resume)
+              : _narrow(s, featured, files, resume),
+        ),
+      ),
+    );
+  }
+
+  /// Phone and tablet: one column, in reading order.
+  List<Widget> _narrow(
+    JuryController s,
+    CaseFile featured,
+    List<CaseFile> files,
+    bool resume,
+  ) => [
+    const SizedBox(height: 16),
+    _greeting(s),
+    const SizedBox(height: 28),
+    ..._headline(s),
+    const SizedBox(height: 26),
+    ..._featured(s, featured, resume),
+    const SizedBox(height: 22),
+    _roomActions(),
+    const SizedBox(height: 30),
+    ..._collection(s, files),
+    const SizedBox(height: 12),
+    _quote(),
+    const SizedBox(height: 24),
+    _footerNote(s),
+  ];
+
+  /// Laptop and desktop: the invitation and the featured case hold the primary
+  /// column while the browsable library sits beside them, so the whole lobby is
+  /// visible without scrolling on a standard laptop.
+  List<Widget> _wide(
+    JuryController s,
+    CaseFile featured,
+    List<CaseFile> files,
+    bool resume,
+  ) => [
+    const SizedBox(height: 4),
+    _greeting(s),
+    const SizedBox(height: 34),
+    Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 6,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ..._headline(s),
+              const SizedBox(height: 26),
+              ..._featured(s, featured, resume),
+              const SizedBox(height: 22),
+              _roomActions(),
+            ],
+          ),
+        ),
+        const SizedBox(width: 36),
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ..._collection(s, files),
+              const SizedBox(height: 12),
+              _quote(),
+            ],
+          ),
+        ),
+      ],
+    ),
+    const SizedBox(height: 30),
+    _footerNote(s),
+  ];
+
+  Widget _greeting(JuryController s) => Row(
+    children: [
+      InkWell(
+        onTap: () => go(context, '/profile'),
+        borderRadius: BorderRadius.circular(16),
+        child: Avatar(s.player!.name, size: 48),
+      ),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                InkWell(
-                  onTap: () => go(context, '/profile'),
-                  borderRadius: BorderRadius.circular(16),
-                  child: Avatar(s.player!.name, size: 48),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            const Text(
+              'LIVE JURY',
+              style: TextStyle(
+                fontSize: 9,
+                letterSpacing: 1.4,
+                color: JColors.muted,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              'Welcome back, ${s.player!.name.split(' ').first}',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(width: 6),
+      FrostedSurface(
+        radius: 18,
+        child: IconButton(
+          tooltip: 'Notifications',
+          onPressed: () => go(context, '/notifications'),
+          icon: Badge(
+            isLabelVisible: s.unread > 0,
+            smallSize: 6,
+            backgroundColor: JColors.brand,
+            child: const Icon(Icons.notifications_none_rounded, size: 23),
+          ),
+        ),
+      ),
+    ],
+  );
+
+  List<Widget> _headline(JuryController s) => [
+    Text('Your next\nplot twist awaits.', style: JType.display(37)),
+    const SizedBox(height: 12),
+    Row(
+      children: [
+        Container(
+          width: 6,
+          height: 6,
+          decoration: const BoxDecoration(
+            color: JColors.brand,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            s.isDemo
+                ? 'A room for curious minds. Try the full demo.'
+                : 'A room for curious minds. Find your people.',
+            style: const TextStyle(
+              color: JColors.muted,
+              fontSize: 12,
+              height: 1.5,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ];
+
+  List<Widget> _featured(JuryController s, CaseFile featured, bool resume) => [
+    Row(
+      children: [
+        const Expanded(child: Eyebrow('Tonight’s featured case')),
+        Text(
+          '01 / 03',
+          style: JType.caption.copyWith(fontSize: 10, color: JColors.muted),
+        ),
+      ],
+    ),
+    const SizedBox(height: 13),
+    Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: JColors.ink,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: JColors.ink.withValues(alpha: .2),
+            blurRadius: 28,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              const DossierArt(height: 206),
+              Positioned(
+                top: 18,
+                left: 18,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 11,
+                    vertical: 7,
+                  ),
+                  decoration: BoxDecoration(
+                    color: JColors.ink.withValues(alpha: .64),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: JColors.surface.withValues(alpha: .15),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'LIVE JURY',
-                        style: TextStyle(
-                          fontSize: 9,
-                          letterSpacing: 1.4,
-                          color: JColors.muted,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      Icon(
+                        Icons.auto_awesome_outlined,
+                        size: 12,
+                        color: JColors.accent,
                       ),
-                      const SizedBox(height: 5),
+                      SizedBox(width: 6),
                       Text(
-                        'Welcome back, ${s.player!.name.split(' ').first}',
-                        style: const TextStyle(
-                          fontSize: 14,
+                        'THE STARTER CASE',
+                        style: TextStyle(
+                          fontSize: 8,
+                          color: JColors.surface,
+                          letterSpacing: 1,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 6),
-                FrostedSurface(
-                  radius: 18,
-                  child: IconButton(
-                    tooltip: 'Notifications',
-                    onPressed: () => go(context, '/notifications'),
-                    icon: Badge(
-                      isLabelVisible: s.unread > 0,
-                      smallSize: 6,
-                      backgroundColor: JColors.brand,
-                      child: const Icon(
-                        Icons.notifications_none_rounded,
-                        size: 23,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 28),
-            Text('Your next\nplot twist awaits.', style: JType.display(37)),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: const BoxDecoration(
-                    color: JColors.brand,
+              ),
+              Positioned(
+                top: 18,
+                right: 18,
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: JColors.ink.withValues(alpha: .5),
                     shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    s.isDemo
-                        ? 'A room for curious minds. Try the full demo.'
-                        : 'A room for curious minds. Find your people.',
-                    style: const TextStyle(
-                      color: JColors.muted,
-                      fontSize: 12,
-                      height: 1.5,
+                    border: Border.all(
+                      color: JColors.surface.withValues(alpha: .15),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 26),
-            Row(
-              children: [
-                const Expanded(child: Eyebrow('Tonight’s featured case')),
-                Text(
-                  '01 / 03',
-                  style: JType.caption.copyWith(
-                    fontSize: 10,
-                    color: JColors.muted,
+                  child: const Icon(
+                    Icons.north_east,
+                    size: 15,
+                    color: JColors.surface,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 13),
-            Container(
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: JColors.ink,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: JColors.ink.withValues(alpha: .2),
-                    blurRadius: 28,
-                    offset: const Offset(0, 12),
-                  ),
-                ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      const DossierArt(height: 206),
-                      Positioned(
-                        top: 18,
-                        left: 18,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 11,
-                            vertical: 7,
-                          ),
-                          decoration: BoxDecoration(
-                            color: JColors.ink.withValues(alpha: .64),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: JColors.surface.withValues(alpha: .15),
-                            ),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.auto_awesome_outlined,
-                                size: 12,
-                                color: JColors.accent,
-                              ),
-                              SizedBox(width: 6),
-                              Text(
-                                'THE STARTER CASE',
-                                style: TextStyle(
-                                  fontSize: 8,
-                                  color: JColors.surface,
-                                  letterSpacing: 1,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 18,
-                        right: 18,
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: JColors.ink.withValues(alpha: .5),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: JColors.surface.withValues(alpha: .15),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.north_east,
-                            size: 15,
-                            color: JColors.surface,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(22, 0, 22, 22),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          featured.title,
-                          style: JType.display(32, JColors.surface),
-                        ),
-                        const SizedBox(height: 9),
-                        Text(
-                          featured.subtitle,
-                          style: const TextStyle(
-                            color: JColors.onDarkMuted,
-                            fontSize: 12,
-                            height: 1.65,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        Wrap(
-                          spacing: 14,
-                          runSpacing: 8,
-                          children: [
-                            _Meta(Icons.balance_outlined, featured.category),
-                            const _Meta(Icons.group_outlined, '6 jurors'),
-                            _Meta(
-                              Icons.schedule_rounded,
-                              '${featured.minutes} min',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        PrimaryButton(
-                          resume ? 'Resume your room' : 'Find my jury',
-                          citron: true,
-                          loading: s.busy,
-                          onPressed: () async {
-                            if (resume) {
-                              go(context, s.resumeRoute);
-                              return;
-                            }
-                            if (await s.openRoom(featured) && context.mounted) {
-                              go(context, '/room');
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 22),
-            Row(
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(22, 0, 22, 22),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _RoomAction(
-                    icon: Icons.group_add_outlined,
-                    title: 'Private room',
-                    detail: 'Make it your circle.',
-                    tone: JColors.brand,
-                    onTap: () =>
-                        go(context, '/matchmaking', arguments: 'create'),
+                Text(featured.title, style: JType.display(32, JColors.surface)),
+                const SizedBox(height: 9),
+                Text(
+                  featured.subtitle,
+                  style: const TextStyle(
+                    color: JColors.onDarkMuted,
+                    fontSize: 12,
+                    height: 1.65,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _RoomAction(
-                    icon: Icons.dialpad_rounded,
-                    title: 'Join with code',
-                    detail: 'An invitation is waiting.',
-                    tone: JColors.success,
-                    onTap: () => go(context, '/matchmaking', arguments: 'join'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-            SectionHeading(
-              'The case collection',
-              action: 'How to play',
-              onAction: () => _showGuide(context),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Small details. Entirely different stories.',
-              style: TextStyle(color: JColors.muted, fontSize: 12),
-            ),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final f in ['All cases', 'Criminal', 'Civil'])
-                  ChoiceChip(
-                    label: Text(f),
-                    selected: filter == f,
-                    onSelected: (_) => setState(() => filter = f),
-                    showCheckmark: false,
-                    selectedColor: JColors.ink,
-                    backgroundColor: JColors.surface,
-                    labelStyle: TextStyle(
-                      fontSize: 12,
-                      color: filter == f ? JColors.surface : JColors.muted,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      side: BorderSide.none,
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 18),
-            for (final file in files)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: _CaseRow(file: file, index: s.cases.indexOf(file)),
-              ),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    JColors.secondary,
-                    Color.lerp(JColors.accent, JColors.surface, .72)!,
+                const SizedBox(height: 18),
+                Wrap(
+                  spacing: 14,
+                  runSpacing: 8,
+                  children: [
+                    _Meta(Icons.balance_outlined, featured.category),
+                    const _Meta(Icons.group_outlined, '6 jurors'),
+                    _Meta(Icons.schedule_rounded, '${featured.minutes} min'),
                   ],
                 ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: -20,
-                    top: -14,
-                    child: Transform.rotate(
-                      angle: .3,
-                      child: Icon(
-                        Icons.format_quote_rounded,
-                        size: 150,
-                        color: JColors.brand.withValues(alpha: .08),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Eyebrow('A note before you enter'),
-                        const SizedBox(height: 15),
-                        Text(
-                          'Be willing to\nbe persuaded.',
-                          style: JType.display(29),
-                        ),
-                        const SizedBox(height: 12),
-                        const Text(
-                          'A changed mind is a sign of thought,\nnot defeat.',
-                          style: TextStyle(
-                            color: JColors.muted,
-                            fontSize: 12,
-                            height: 1.7,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Center(
-              child: Text(
-                s.isDemo
-                    ? 'DEMO EXPERIENCE · FICTIONAL CASES'
-                    : 'FICTIONAL CASES · REAL PERSPECTIVES',
-                style: const TextStyle(
-                  color: JColors.muted,
-                  fontSize: 9,
-                  letterSpacing: 1.2,
+                const SizedBox(height: 20),
+                PrimaryButton(
+                  resume ? 'Resume your room' : 'Find my jury',
+                  citron: true,
+                  loading: s.busy,
+                  onPressed: () async {
+                    if (resume) {
+                      go(context, s.resumeRoute);
+                      return;
+                    }
+                    if (await s.openRoom(featured) && mounted) {
+                      go(context, '/room');
+                    }
+                  },
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
+        ],
+      ),
+    ),
+  ];
+
+  Widget _roomActions() => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        child: _RoomAction(
+          icon: Icons.group_add_outlined,
+          title: 'Private room',
+          detail: 'Make it your circle.',
+          tone: JColors.brand,
+          onTap: () => go(context, '/matchmaking', arguments: 'create'),
         ),
       ),
-    );
-  }
+      const SizedBox(width: 12),
+      Expanded(
+        child: _RoomAction(
+          icon: Icons.dialpad_rounded,
+          title: 'Join with code',
+          detail: 'An invitation is waiting.',
+          tone: JColors.success,
+          onTap: () => go(context, '/matchmaking', arguments: 'join'),
+        ),
+      ),
+    ],
+  );
+
+  List<Widget> _collection(JuryController s, List<CaseFile> files) => [
+    SectionHeading(
+      'The case collection',
+      action: 'How to play',
+      onAction: () => _showGuide(context),
+    ),
+    const SizedBox(height: 8),
+    const Text(
+      'Small details. Entirely different stories.',
+      style: TextStyle(color: JColors.muted, fontSize: 12),
+    ),
+    const SizedBox(height: 18),
+    Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final f in ['All cases', 'Criminal', 'Civil'])
+          ChoiceChip(
+            label: Text(f),
+            selected: filter == f,
+            onSelected: (_) => setState(() => filter = f),
+            showCheckmark: false,
+            selectedColor: JColors.ink,
+            backgroundColor: JColors.surface,
+            labelStyle: TextStyle(
+              fontSize: 12,
+              color: filter == f ? JColors.surface : JColors.muted,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide.none,
+            ),
+          ),
+      ],
+    ),
+    const SizedBox(height: 18),
+    for (final file in files)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: _CaseRow(file: file, index: s.cases.indexOf(file)),
+      ),
+  ];
+
+  Widget _quote() => Container(
+    width: double.infinity,
+    clipBehavior: Clip.antiAlias,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(24),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          JColors.secondary,
+          Color.lerp(JColors.accent, JColors.surface, .72)!,
+        ],
+      ),
+    ),
+    child: Stack(
+      children: [
+        Positioned(
+          right: -20,
+          top: -14,
+          child: Transform.rotate(
+            angle: .3,
+            child: Icon(
+              Icons.format_quote_rounded,
+              size: 150,
+              color: JColors.brand.withValues(alpha: .08),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Eyebrow('A note before you enter'),
+              const SizedBox(height: 15),
+              Text('Be willing to\nbe persuaded.', style: JType.display(29)),
+              const SizedBox(height: 12),
+              const Text(
+                'A changed mind is a sign of thought,\nnot defeat.',
+                style: TextStyle(
+                  color: JColors.muted,
+                  fontSize: 12,
+                  height: 1.7,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+
+  Widget _footerNote(JuryController s) => Center(
+    child: Text(
+      s.isDemo
+          ? 'DEMO EXPERIENCE · FICTIONAL CASES'
+          : 'FICTIONAL CASES · REAL PERSPECTIVES',
+      style: const TextStyle(
+        color: JColors.muted,
+        fontSize: 9,
+        letterSpacing: 1.2,
+      ),
+    ),
+  );
 
   void _showGuide(BuildContext context) => showModalBottomSheet<void>(
     context: context,

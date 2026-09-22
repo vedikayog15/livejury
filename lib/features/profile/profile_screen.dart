@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/models/models.dart';
 import '../../core/state/jury_controller.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/jury_widgets.dart';
@@ -46,204 +47,238 @@ class ProfileScreen extends StatelessWidget {
           icon: const Icon(Icons.tune_rounded),
         ),
       ],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 28),
-          Row(
-            children: [
-              Avatar(p.name, size: 72),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(p.name, style: JType.display(32)),
-                    const SizedBox(height: 8),
-                    StatusTag(
-                      s.isDemo ? 'DEMO JUROR' : 'CONNECTED JUROR',
-                      icon: s.isDemo
-                          ? Icons.science_outlined
-                          : Icons.verified_user_outlined,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 28),
-          Panel(
-            color: JColors.ink,
-            child: Column(
+      wide: JSpace.isExpanded(context),
+      child: JSpace.isExpanded(context)
+          ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Eyebrow('The thoughtful juror', dark: true),
-                const SizedBox(height: 18),
-                Text(
-                  p.history.isEmpty
-                      ? 'A fresh perspective.'
-                      : p.history.length >= 5
-                      ? 'A regular at the table.'
-                      : 'Finding your voice.',
-                  style: JType.display(32, JColors.surface),
-                ),
-                const SizedBox(height: 22),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${p.points}',
-                            style: JType.display(36, JColors.accent),
-                          ),
-                          const Text(
-                            'TOTAL POINTS',
-                            style: TextStyle(
-                              color: JColors.onDarkMuted,
-                              fontSize: 9,
-                              letterSpacing: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${p.history.length}',
-                            style: JType.display(36, JColors.surface),
-                          ),
-                          const Text(
-                            'CASES CLOSED',
-                            style: TextStyle(
-                              color: JColors.onDarkMuted,
-                              fontSize: 9,
-                              letterSpacing: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 30),
-          SectionHeading('Earned through thought'),
-          const SizedBox(height: 16),
-          for (final (name, icon, earned, description) in badges)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Panel(
-                padding: 16,
-                color: earned ? JColors.secondary : JColors.surface,
-                child: Row(
-                  children: [
-                    Icon(
-                      icon,
-                      size: 26,
-                      color: earned ? JColors.ink : JColors.muted,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            description,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: JColors.muted,
-                              height: 1.6,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      earned ? Icons.check_circle_outline : Icons.lock_outline,
-                      size: 18,
-                      color: earned ? JColors.success : JColors.muted,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          const SizedBox(height: 20),
-          InfoRow(
-            icon: Icons.settings_outlined,
-            title: 'Your preferences',
-            subtitle: 'Name, haptics, and in-app notifications',
-            onTap: () => go(context, '/profile-edit'),
-          ),
-          const Divider(),
-          InfoRow(
-            icon: Icons.info_outline,
-            title: 'About this experience',
-            subtitle: 'Fictional cases. Respectful conversation.',
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: Text('The Jury Room', style: JType.display(28)),
-                content: const SingleChildScrollView(
-                  child: Text(
-                    'Version 1.0.0\n\nA social deliberation game for curious minds. Every case, character, document, and statement is fictional.\n\nYour score reflects participation and evidence review, not legal expertise.\n\nDemo data is stored on this device. Connected accounts store profile and game records in the configured Supabase project. Ballots are account-linked and visible only to their owner; other jurors see only the final aggregate.\n\nRespect other jurors. Challenge ideas, avoid personal data, and use mute or report when needed.',
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 24),
+                      _identity(s, p),
+                      const SizedBox(height: 28),
+                      _stats(p),
+                      const SizedBox(height: 30),
+                      ..._settings(context, s),
+                    ],
                   ),
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('Back to the room'),
+                const SizedBox(width: 40),
+                Expanded(
+                  flex: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [const SizedBox(height: 28), ..._badges(badges)],
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 28),
+                _identity(s, p),
+                const SizedBox(height: 28),
+                _stats(p),
+                const SizedBox(height: 30),
+                ..._badges(badges),
+                const SizedBox(height: 20),
+                ..._settings(context, s),
+              ],
+            ),
+    );
+  }
+
+  Widget _identity(JuryController s, PlayerData p) => Row(
+    children: [
+      Avatar(p.name, size: 72),
+      const SizedBox(width: 20),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(p.name, style: JType.display(32)),
+            const SizedBox(height: 8),
+            StatusTag(
+              s.isDemo ? 'DEMO JUROR' : 'CONNECTED JUROR',
+              icon: s.isDemo
+                  ? Icons.science_outlined
+                  : Icons.verified_user_outlined,
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+
+  Widget _stats(PlayerData p) => Panel(
+    color: JColors.ink,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Eyebrow('The thoughtful juror', dark: true),
+        const SizedBox(height: 18),
+        Text(
+          p.history.isEmpty
+              ? 'A fresh perspective.'
+              : p.history.length >= 5
+              ? 'A regular at the table.'
+              : 'Finding your voice.',
+          style: JType.display(32, JColors.surface),
+        ),
+        const SizedBox(height: 22),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${p.points}', style: JType.display(36, JColors.accent)),
+                  const Text(
+                    'TOTAL POINTS',
+                    style: TextStyle(
+                      color: JColors.onDarkMuted,
+                      fontSize: 9,
+                      letterSpacing: 1.4,
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: s.busy
-                  ? null
-                  : () async {
-                      if (await s.signOut() && context.mounted) {
-                        Navigator.of(
-                          context,
-                        ).pushNamedAndRemoveUntil('/', (_) => false);
-                      }
-                    },
-              child: const Text('Sign out'),
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Center(
-            child: Text(
-              'LIVE JURY · 1.0.0',
-              style: TextStyle(
-                fontSize: 10,
-                color: JColors.muted,
-                letterSpacing: 1.2,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${p.history.length}',
+                    style: JType.display(36, JColors.surface),
+                  ),
+                  const Text(
+                    'CASES CLOSED',
+                    style: TextStyle(
+                      color: JColors.onDarkMuted,
+                      fontSize: 9,
+                      letterSpacing: 1.4,
+                    ),
+                  ),
+                ],
               ),
             ),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  List<Widget> _badges(List<(String, IconData, bool, String)> badges) => [
+    SectionHeading('Earned through thought'),
+    const SizedBox(height: 16),
+    for (final (name, icon, earned, description) in badges)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Panel(
+          padding: 16,
+          color: earned ? JColors.secondary : JColors.surface,
+          child: Row(
+            children: [
+              Icon(icon, size: 26, color: earned ? JColors.ink : JColors.muted),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      description,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: JColors.muted,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                earned ? Icons.check_circle_outline : Icons.lock_outline,
+                size: 18,
+                color: earned ? JColors.success : JColors.muted,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    );
-  }
+  ];
+
+  List<Widget> _settings(BuildContext context, JuryController s) => [
+    InfoRow(
+      icon: Icons.settings_outlined,
+      title: 'Your preferences',
+      subtitle: 'Name, haptics, and in-app notifications',
+      onTap: () => go(context, '/profile-edit'),
+    ),
+    const Divider(),
+    InfoRow(
+      icon: Icons.info_outline,
+      title: 'About this experience',
+      subtitle: 'Fictional cases. Respectful conversation.',
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('The Jury Room', style: JType.display(28)),
+          content: const SingleChildScrollView(
+            child: Text(
+              'Version 1.0.0\n\nA social deliberation game for curious minds. Every case, character, document, and statement is fictional.\n\nYour score reflects participation and evidence review, not legal expertise.\n\nDemo data is stored on this device. Connected accounts store profile and game records in the configured Supabase project. Ballots are account-linked and visible only to their owner; other jurors see only the final aggregate.\n\nRespect other jurors. Challenge ideas, avoid personal data, and use mute or report when needed.',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Back to the room'),
+            ),
+          ],
+        ),
+      ),
+    ),
+    const SizedBox(height: 20),
+    SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: s.busy
+            ? null
+            : () async {
+                if (await s.signOut() && context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/', (_) => false);
+                }
+              },
+        child: const Text('Sign out'),
+      ),
+    ),
+    const SizedBox(height: 20),
+    const Center(
+      child: Text(
+        'LIVE JURY · 1.0.0',
+        style: TextStyle(
+          fontSize: 10,
+          color: JColors.muted,
+          letterSpacing: 1.2,
+        ),
+      ),
+    ),
+  ];
 }
 
 class ProfileEditScreen extends StatefulWidget {
