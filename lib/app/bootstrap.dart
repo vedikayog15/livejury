@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/config/supabase_config.dart';
+import '../core/data/admin_repository.dart';
 import '../core/data/demo_repository.dart';
 import '../core/data/supabase_repository.dart';
 import '../core/state/jury_controller.dart';
@@ -18,6 +19,7 @@ Future<void> bootstrap() async {
   const url = SupabaseConfig.url;
   const key = SupabaseConfig.key;
   SupabaseRepository? cloud;
+  AdminRepository? adminRepository;
   String? configurationError;
   if (url.isNotEmpty && key.isNotEmpty) {
     try {
@@ -31,6 +33,7 @@ Future<void> bootstrap() async {
       }
       await Supabase.initialize(url: url, publishableKey: key);
       cloud = SupabaseRepository(Supabase.instance.client);
+      adminRepository = AdminRepository(Supabase.instance.client);
     } catch (_) {
       configurationError =
           'The cloud configuration could not be loaded. Demo mode is available.';
@@ -39,6 +42,7 @@ Future<void> bootstrap() async {
   final controller = JuryController(
     demoRepository: DemoRepository(preferences: preferences),
     cloudRepository: cloud,
+    adminRepository: adminRepository,
     configurationError: configurationError,
   );
   await controller.restoreCloud();

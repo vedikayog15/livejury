@@ -6,9 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:live_jury_room/app/jury_app.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:live_jury_room/core/data/admin_repository.dart';
+import 'package:live_jury_room/core/data/demo_cases.dart';
 import 'package:live_jury_room/core/data/demo_repository.dart';
 import 'package:live_jury_room/core/models/models.dart';
 import 'package:live_jury_room/core/state/jury_controller.dart';
+import 'package:live_jury_room/features/admin/case_editor_screen.dart';
 
 /// Renders every screen at phone and laptop sizes and writes PNGs with
 /// `flutter test --tags golden --run-skipped --update-goldens`, so the adaptive
@@ -41,15 +45,91 @@ Future<void> _loadFonts() async {
 }
 
 /// How far through a round the controller should be before rendering.
-enum Seed { signedOut, lobby, seated, reviewed, finished }
+enum Seed { signedOut, lobby, seated, reviewed, finished, admin }
+
+/// Stands in for a signed-in cloud account so the admin area can be rendered.
+class _CloudLikeRepository extends DemoRepository {
+  _CloudLikeRepository() : super(latency: Duration.zero);
+  @override
+  bool get isDemo => false;
+}
+
+/// Canned admin data, so the dashboard renders populated rather than as an
+/// error. The client is never used: every call is overridden.
+class _FakeAdminRepository extends AdminRepository {
+  _FakeAdminRepository()
+    : super(SupabaseClient('https://example.supabase.co', 'public-anon-key'));
+
+  @override
+  Future<AdminOverview> overview() async => AdminOverview.fromJson({
+    'jurors': 7,
+    'admins': 1,
+    'suspended': 0,
+    'cases': 3,
+    'rooms_open': 1,
+    'rooms_complete': 1,
+    'ballots': 12,
+    'messages': 6,
+    'reports': 0,
+  });
+
+  @override
+  Future<List<AdminProfile>> profiles() async => [
+    const AdminProfile(
+      id: 'a',
+      email: 'vaibhav.katendra@athenaeducation.co.in',
+      name: 'Vaibhav Katendra',
+      points: 0,
+      isAdmin: true,
+      suspended: false,
+      cases: 0,
+    ),
+    const AdminProfile(
+      id: 'b',
+      email: 'juror1@livejury.test',
+      name: 'Ada Whitlock',
+      points: 120,
+      isAdmin: false,
+      suspended: false,
+      cases: 1,
+    ),
+    const AdminProfile(
+      id: 'c',
+      email: 'juror2@livejury.test',
+      name: 'Ben Okafor',
+      points: 120,
+      isAdmin: false,
+      suspended: true,
+      cases: 1,
+    ),
+  ];
+
+  @override
+  Future<List<AdminCase>> cases() async => [
+    for (final (i, f) in demoCases.indexed)
+      AdminCase(file: f, rounds: i == 0 ? 1 : 0),
+  ];
+}
 
 Future<JuryController> _seed(Seed stage) async {
-  final repo = DemoRepository(latency: Duration.zero);
+  final repo = stage == Seed.admin
+      ? _CloudLikeRepository()
+      : DemoRepository(latency: Duration.zero);
   final state = JuryController(
     demoRepository: repo,
+    adminRepository: stage == Seed.admin ? _FakeAdminRepository() : null,
     simulationInterval: const Duration(days: 1),
   );
   if (stage == Seed.signedOut) return state;
+  if (stage == Seed.admin) {
+    await state.signIn(demo: true);
+    state.player = PlayerData(
+      id: state.player!.id,
+      name: 'Vaibhav Katendra',
+      isAdmin: true,
+    );
+    return state;
+  }
 
   await state.signIn(demo: true);
   if (stage == Seed.lobby) return state;
@@ -142,6 +222,7 @@ void main() {
     ('vote', Seed.reviewed, '/initial-vote'),
     ('discussion', Seed.reviewed, '/discussion'),
     ('result', Seed.finished, '/result'),
+    ('admin', Seed.admin, '/admin'),
     ('journal', Seed.finished, '/history'),
   ];
 
@@ -154,6 +235,42 @@ void main() {
         stage: stage,
         route: route,
       );
+    });
+  }
+
+  // The case editor is pushed directly rather than by name.
+  for (final (label, size) in [('laptop', laptop), ('phone', phone)]) {
+    testWidgets('case editor at $label', (tester) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+
+      late JuryController state;
+      await tester.runAsync(() async => state = await _seed(Seed.admin));
+      await tester.pumpWidget(JuryApp(controller: state));
+      await tester.pumpAndSettle();
+      tester
+          .state<NavigatorState>(find.byType(Navigator))
+          .push(
+            MaterialPageRoute<void>(
+              builder: (_) => CaseEditorScreen(existing: demoCases.first),
+            ),
+          );
+      await tester.pumpAndSettle();
+
+      await expectLater(
+        find.byType(JuryApp),
+        matchesGoldenFile('images/case_editor_$label.png'),
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      state.dispose();
     });
   }
 
@@ -185,6 +302,7 @@ void main() {
     ('invitation', Seed.signedOut, null),
     ('lobby', Seed.lobby, '/home'),
     ('room', Seed.seated, '/room'),
+    ('admin', Seed.admin, '/admin'),
   ]) {
     testWidgets('$name at phone', (tester) async {
       await shoot(

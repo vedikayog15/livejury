@@ -322,6 +322,8 @@ class PlayerData {
     List<JuryNotice>? notices,
     this.haptics = true,
     this.notifications = true,
+    this.isAdmin = false,
+    this.suspended = false,
     this.round,
   }) : history = history ?? [],
        notices = notices ?? [];
@@ -330,6 +332,11 @@ class PlayerData {
   List<CaseRecord> history;
   List<JuryNotice> notices;
   bool haptics, notifications;
+
+  /// Both are decided by the server and are read-only to the client. The app
+  /// only uses them to decide what to show; every admin action is re-checked in
+  /// the database.
+  final bool isAdmin, suspended;
   JuryRound? round;
   int get points => history.fold(0, (sum, r) => sum + r.points);
   Map<String, dynamic> toJson() => {
@@ -339,6 +346,8 @@ class PlayerData {
     'notices': notices.map((e) => e.toJson()).toList(),
     'haptics': haptics,
     'notifications': notifications,
+    'is_admin': isAdmin,
+    'suspended': suspended,
     'round': round?.toJson(),
   };
   factory PlayerData.fromJson(Map<String, dynamic> j) => PlayerData(
@@ -352,6 +361,8 @@ class PlayerData {
         .toList(),
     haptics: j['haptics'] ?? true,
     notifications: j['notifications'] ?? true,
+    isAdmin: j['is_admin'] ?? false,
+    suspended: j['suspended'] ?? false,
     round: j['round'] == null
         ? null
         : JuryRound.fromJson(Map<String, dynamic>.from(j['round'])),

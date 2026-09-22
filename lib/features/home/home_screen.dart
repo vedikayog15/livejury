@@ -72,9 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
     List<CaseFile> files,
     bool resume,
   ) => [
-    const SizedBox(height: 4),
-    _greeting(s),
-    const SizedBox(height: 34),
+    // The top bar already carries identity and notifications, so the in-page
+    // greeting would only repeat it here.
+    const SizedBox(height: 18),
     Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

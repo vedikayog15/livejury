@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../data/admin_repository.dart';
 import '../data/demo_repository.dart';
 import '../data/jury_repository.dart';
 import '../data/demo_cases.dart';
@@ -11,6 +12,7 @@ class JuryController extends ChangeNotifier {
   JuryController({
     required this.demoRepository,
     this.cloudRepository,
+    this.adminRepository,
     this.configurationError,
     this.simulationInterval = const Duration(milliseconds: 850),
   }) {
@@ -42,6 +44,7 @@ class JuryController extends ChangeNotifier {
   });
   final DemoRepository demoRepository;
   final JuryRepository? cloudRepository;
+  final AdminRepository? adminRepository;
   final String? configurationError;
   final Duration simulationInterval;
   JuryRepository? _repository;
@@ -60,6 +63,26 @@ class JuryController extends ChangeNotifier {
   bool get signedIn => player != null;
   bool get isDemo => _repository?.isDemo ?? true;
   bool get cloudAvailable => cloudRepository != null;
+
+  /// Admin is a cloud-only, server-decided capability. This only gates what the
+  /// app offers; the database re-checks it on every admin call.
+  bool get isAdmin => !isDemo && (player?.isAdmin ?? false);
+  bool get suspended => player?.suspended ?? false;
+
+  /// Non-null only while a cloud admin is signed in.
+  AdminRepository? get admin => isAdmin ? adminRepository : null;
+
+  /// Reloads the player after an admin action, so a change to your own row —
+  /// demoting yourself, say — is reflected immediately.
+  Future<bool> adminAction(Future<void> Function(AdminRepository a) action) =>
+      perform(() async {
+        final a = admin;
+        if (a == null) {
+          throw const JuryException('Administrator access required.');
+        }
+        await action(a);
+        player = await cloudRepository!.loadPlayer();
+      });
   JuryRound? get room => player?.round;
   CaseFile get currentCase =>
       cases.firstWhere((c) => c.id == room?.caseId, orElse: () => cases.first);

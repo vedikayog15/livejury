@@ -351,10 +351,10 @@ class JuryPage extends StatelessWidget {
         body: AmbientBackdrop(
           dark: dark,
           child: SafeArea(
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (tab != null) JurySideNav(selected: tab!, dark: dark),
+                if (tab != null) JuryTopNav(selected: tab!, dark: dark),
                 Expanded(child: column),
               ],
             ),
@@ -433,113 +433,187 @@ class SplitLayout extends StatelessWidget {
 
 /// Vertical navigation for laptop and desktop windows. Mirrors the destinations
 /// of [JuryNavigation] so the two layouts stay in step.
-class JurySideNav extends StatelessWidget {
-  const JurySideNav({super.key, required this.selected, this.dark = false});
+/// Horizontal navigation for laptop, desktop and web, where a bar across the
+/// top is the convention. Mirrors the destinations of [JuryNavigation] so the
+/// two layouts stay in step, and surfaces the admin area only to an admin.
+class JuryTopNav extends StatelessWidget {
+  const JuryTopNav({super.key, required this.selected, this.dark = false});
   final int selected;
   final bool dark;
   @override
   Widget build(BuildContext context) {
+    final state = JuryScope.of(context);
     final onSurface = dark ? JColors.surface : JColors.ink;
+    final muted = dark ? JColors.onDarkMuted : JColors.muted;
     return Container(
-      width: JSpace.railWidth,
-      padding: const EdgeInsets.fromLTRB(16, 28, 16, 20),
       decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: dark ? JColors.raised : JColors.border),
+          bottom: BorderSide(color: dark ? JColors.raised : JColors.border),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('The Jury Room', style: JType.display(19, onSurface)),
-                const SizedBox(height: 2),
-                Text(
-                  'After hours',
-                  style: JType.caption.copyWith(
-                    color: dark ? JColors.onDarkMuted : JColors.muted,
+      padding: EdgeInsets.symmetric(
+        horizontal: JSpace.gutter(context),
+        vertical: 12,
+      ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: JSpace.wideMaxWidth),
+          child: Row(
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  if (selected != 0) go(context, '/home', replace: true);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
                   ),
-                ),
-              ],
-            ),
-          ),
-          for (final (i, icon, activeIcon, label, route) in _destinations)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Semantics(
-                selected: selected == i,
-                button: true,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: () {
-                    if (selected != i) go(context, route, replace: true);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 13,
-                    ),
-                    decoration: BoxDecoration(
-                      color: selected == i
-                          ? JColors.secondary
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          selected == i ? activeIcon : icon,
-                          size: 21,
-                          color: selected == i
-                              ? JColors.brand
-                              : (dark ? JColors.onDarkMuted : JColors.muted),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 30,
+                        height: 30,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: JColors.brand,
+                          borderRadius: BorderRadius.circular(9),
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          label,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: selected == i
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                            color: selected == i
-                                ? JColors.brand
-                                : (dark ? JColors.surface : JColors.ink),
-                          ),
+                        child: Text(
+                          'VI',
+                          style: JType.display(13, JColors.surface),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'The Jury Room',
+                        style: JType.display(17, onSurface),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-        ],
+              const SizedBox(width: 28),
+              for (final (i, label, route) in _destinations)
+                _NavLink(
+                  label: label,
+                  active: selected == i,
+                  dark: dark,
+                  onTap: () {
+                    if (selected != i) go(context, route, replace: true);
+                  },
+                ),
+              const Spacer(),
+              if (state.isAdmin)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: _NavLink(
+                    label: 'Admin',
+                    active: selected == 4,
+                    dark: dark,
+                    icon: Icons.shield_outlined,
+                    onTap: () {
+                      if (selected != 4) go(context, '/admin', replace: true);
+                    },
+                  ),
+                ),
+              IconButton(
+                tooltip: 'Notifications',
+                onPressed: () => go(context, '/notifications'),
+                icon: Badge(
+                  isLabelVisible: state.unread > 0,
+                  smallSize: 6,
+                  backgroundColor: JColors.brand,
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    size: 22,
+                    color: muted,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              if (state.player != null)
+                Tooltip(
+                  message: state.player!.name,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () {
+                      if (selected != 3) go(context, '/profile', replace: true);
+                    },
+                    child: Avatar(state.player!.name, size: 34),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   static const _destinations = [
-    (0, Icons.chair_alt_outlined, Icons.chair_alt_rounded, 'Lobby', '/home'),
-    (
-      1,
-      Icons.auto_stories_outlined,
-      Icons.auto_stories_rounded,
-      'Journal',
-      '/history',
-    ),
-    (
-      2,
-      Icons.leaderboard_outlined,
-      Icons.leaderboard_rounded,
-      'Rankings',
-      '/leaderboard',
-    ),
-    (3, Icons.person_outline_rounded, Icons.person_rounded, 'You', '/profile'),
+    (0, 'Lobby', '/home'),
+    (1, 'Journal', '/history'),
+    (2, 'Rankings', '/leaderboard'),
+    (3, 'You', '/profile'),
   ];
+}
+
+class _NavLink extends StatelessWidget {
+  const _NavLink({
+    required this.label,
+    required this.active,
+    required this.dark,
+    required this.onTap,
+    this.icon,
+  });
+  final String label;
+  final bool active, dark;
+  final VoidCallback onTap;
+  final IconData? icon;
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: active,
+    button: true,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: active ? JColors.secondary : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 16,
+                color: active
+                    ? JColors.brand
+                    : (dark ? JColors.onDarkMuted : JColors.muted),
+              ),
+              const SizedBox(width: 7),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                color: active
+                    ? JColors.brand
+                    : (dark ? JColors.surface : JColors.ink),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class JuryNavigation extends StatelessWidget {

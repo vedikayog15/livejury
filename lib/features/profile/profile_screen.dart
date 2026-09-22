@@ -222,6 +222,17 @@ class ProfileScreen extends StatelessWidget {
   ];
 
   List<Widget> _settings(BuildContext context, JuryController s) => [
+    // The desktop top bar carries this too, but that bar does not exist on a
+    // phone, so the profile is the way in on every layout.
+    if (s.isAdmin) ...[
+      InfoRow(
+        icon: Icons.shield_outlined,
+        title: 'Administration',
+        subtitle: 'Jurors, cases and room statistics',
+        onTap: () => go(context, '/admin'),
+      ),
+      const Divider(),
+    ],
     InfoRow(
       icon: Icons.settings_outlined,
       title: 'Your preferences',

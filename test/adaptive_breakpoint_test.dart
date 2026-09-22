@@ -43,9 +43,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.byType(JurySideNav),
+      find.byType(JuryTopNav),
       desktop ? findsOneWidget : findsNothing,
-      reason: '$device (${size.width}x${size.height}) side rail',
+      reason: '$device (${size.width}x${size.height}) top nav',
     );
     expect(
       find.byType(JuryNavigation),

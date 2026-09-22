@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/state/jury_controller.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/chamber_art.dart';
 import '../../design/widgets/jury_widgets.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -33,28 +34,39 @@ class _AuthScreenState extends State<AuthScreen> {
         key: _form,
         child: AutofillGroup(
           child: JSpace.isExpanded(context)
+              // Each panel sizes to its own content. Forcing equal heights
+              // overflows once the form grows a field on the create tab.
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Expanded(flex: 5, child: _hero()),
+                    const SizedBox(width: 32),
                     Expanded(
                       flex: 5,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const SizedBox(height: 20),
-                          ..._intro(),
-                          const SizedBox(height: 28),
-                          ..._cloudNotice(s),
+                          Container(
+                            padding: const EdgeInsets.all(30),
+                            decoration: BoxDecoration(
+                              color: JColors.surface,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: JColors.ink.withValues(alpha: .07),
+                                  blurRadius: 34,
+                                  offset: const Offset(0, 14),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [..._cloudNotice(s), ..._fields(s)],
+                            ),
+                          ),
+                          const SizedBox(height: 18),
                           _footnote(),
                         ],
-                      ),
-                    ),
-                    const SizedBox(width: 44),
-                    Expanded(
-                      flex: 5,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [const SizedBox(height: 26), ..._fields(s)],
                       ),
                     ),
                   ],
@@ -75,6 +87,50 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
     );
   }
+
+  /// The desktop introduction, in the same dark material the invitation and the
+  /// featured case use, so signing in belongs to the same product.
+  Widget _hero() => Container(
+    clipBehavior: Clip.antiAlias,
+    decoration: BoxDecoration(
+      color: JColors.ink,
+      borderRadius: BorderRadius.circular(24),
+      boxShadow: [
+        BoxShadow(
+          color: JColors.ink.withValues(alpha: .22),
+          blurRadius: 34,
+          offset: const Offset(0, 14),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const ChamberArt(height: 210, seated: 5),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(30, 10, 30, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Eyebrow('A considered introduction', dark: true),
+              const SizedBox(height: 14),
+              Text(
+                _create
+                    ? 'Every perspective\nstarts somewhere.'
+                    : 'Welcome\nback, juror.',
+                style: JType.display(38, JColors.surface),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Keep your case history, find your people, and bring your perspective to the table.',
+                style: TextStyle(color: JColors.onDarkMuted, height: 1.7),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 
   List<Widget> _intro() => [
     const Eyebrow('A considered introduction'),

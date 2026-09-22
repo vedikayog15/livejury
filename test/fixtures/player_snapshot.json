@@ -2,105 +2,26 @@
     "id": "2cd5f9b0-ff8c-4a3f-ad31-82a55ac74a1c",
     "name": "Ada Whitlock",
     "round": {
-        "id": "b8582a74-2ee4-429f-b384-1d03e3f9c6dd",
-        "code": "4FD391",
-        "stage": "complete",
+        "id": "21f15ddd-5659-445d-8b56-6e562c8694c4",
+        "code": "3FCF93",
+        "stage": "waiting",
         "jurors": [
             {
                 "id": "2cd5f9b0-ff8c-4a3f-ad31-82a55ac74a1c",
                 "name": "Ada Whitlock",
                 "is_demo": false
-            },
-            {
-                "id": "8a182e0f-0195-45ff-a744-2e173ecb5140",
-                "name": "Ben Okafor",
-                "is_demo": false
-            },
-            {
-                "id": "8842ba7b-62da-4f5c-8dcd-c310a9cf10ec",
-                "name": "Cira Delgado",
-                "is_demo": false
-            },
-            {
-                "id": "c39eb5f1-b10b-4361-92c7-dccc8a65677b",
-                "name": "Dmitri Vance",
-                "is_demo": false
-            },
-            {
-                "id": "d86746a2-e52e-49ce-b0c6-69ce90c980c5",
-                "name": "Elena Marsh",
-                "is_demo": false
-            },
-            {
-                "id": "e0aa4e2c-7214-4097-8871-f8fbf6f8506e",
-                "name": "Farid Nasser",
-                "is_demo": false
             }
         ],
-        "reason": "The access log and the witness together still leave the identity of the carrier unproven to my standard.",
-        "case_id": "glass-hour",
+        "reason": "",
+        "case_id": "silent-platform",
         "host_id": "2cd5f9b0-ff8c-4a3f-ad31-82a55ac74a1c",
-        "initial": "responsible",
-        "messages": [
-            {
-                "id": "7464e99a-a3a0-447a-b27f-c91ea56849f9",
-                "body": "The access log puts a key at the bay, but a key is not a person.",
-                "name": "Ada Whitlock",
-                "system": false,
-                "sender_id": "2cd5f9b0-ff8c-4a3f-ad31-82a55ac74a1c",
-                "exhibit_id": "E1"
-            },
-            {
-                "id": "cbead638-0501-4c50-b014-1c8b6bb5dc02",
-                "body": "Right - and the witness never saw a face. Rain, 24 metres, a coat.",
-                "name": "Ben Okafor",
-                "system": false,
-                "sender_id": "8a182e0f-0195-45ff-a744-2e173ecb5140",
-                "exhibit_id": "E2"
-            },
-            {
-                "id": "3cf64462-19c7-4b25-a869-f0ebc093d538",
-                "body": "The camera gap allows the stairwell route too. Not just the bay.",
-                "name": "Cira Delgado",
-                "system": false,
-                "sender_id": "8842ba7b-62da-4f5c-8dcd-c310a9cf10ec",
-                "exhibit_id": "E3"
-            },
-            {
-                "id": "824dc517-84ee-49ec-a3a5-ed16ba6dc13b",
-                "body": "The voice note fits the projector account. It does not prove it.",
-                "name": "Dmitri Vance",
-                "system": false,
-                "sender_id": "c39eb5f1-b10b-4361-92c7-dccc8a65677b",
-                "exhibit_id": "E4"
-            },
-            {
-                "id": "8981d808-517e-4a12-807d-5a05354f0963",
-                "body": "Opportunity is established. Identity is not, on this record.",
-                "name": "Elena Marsh",
-                "system": false,
-                "sender_id": "d86746a2-e52e-49ce-b0c6-69ce90c980c5",
-                "exhibit_id": "E1"
-            },
-            {
-                "id": "d9809fc8-c7b4-4e20-a1d0-20bf70ad1fdb",
-                "body": "I keep returning to what the covered object actually was.",
-                "name": "Farid Nasser",
-                "system": false,
-                "sender_id": "e0aa4e2c-7214-4097-8871-f8fbf6f8506e",
-                "exhibit_id": "E2"
-            }
-        ],
-        "reviewed": [
-            "E1",
-            "E2",
-            "E3",
-            "E4"
-        ],
-        "is_private": true,
-        "final_count": 6,
-        "final_decision": "responsible",
-        "responsible_count": 2
+        "initial": null,
+        "messages": [],
+        "reviewed": [],
+        "is_private": false,
+        "final_count": 0,
+        "final_decision": null,
+        "responsible_count": null
     },
     "haptics": true,
     "history": [
@@ -131,5 +52,7 @@
             "title": "Your seat is waiting"
         }
     ],
+    "is_admin": false,
+    "suspended": false,
     "notifications": true
 }

@@ -7,7 +7,7 @@ import 'package:live_jury_room/core/state/jury_controller.dart';
 import 'package:live_jury_room/design/widgets/jury_widgets.dart';
 
 /// Laptop and desktop windows. Guards the adaptive shell: a wide window shows
-/// the side rail instead of the bottom tab bar, and no layout overflows.
+/// the top nav instead of the bottom tab bar, and no layout overflows.
 Future<JuryController> _seed() async {
   final repo = DemoRepository(latency: Duration.zero);
   final state = JuryController(
@@ -69,9 +69,9 @@ void main() {
       for (final route in ['/home', '/history', '/leaderboard', '/profile']) {
         await visit(route);
         expect(
-          find.byType(JurySideNav),
+          find.byType(JuryTopNav),
           findsOneWidget,
-          reason: '$route should show the side rail at $width',
+          reason: '$route should show the top nav at $width',
         );
         expect(
           find.byType(JuryNavigation),
@@ -138,7 +138,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(JuryNavigation), findsOneWidget);
-    expect(find.byType(JurySideNav), findsNothing);
+    expect(find.byType(JuryTopNav), findsNothing);
 
     await tester.pumpWidget(const SizedBox.shrink());
     state.dispose();

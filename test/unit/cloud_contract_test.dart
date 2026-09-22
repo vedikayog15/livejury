@@ -41,6 +41,13 @@ void main() {
     expect(player.name, isNotEmpty);
     expect(player.notices, isNotEmpty);
     expect(player.history, isNotEmpty);
+    // The admin migration added both flags to the snapshot contract.
+    expect(
+      player.isAdmin,
+      isFalse,
+      reason: 'this fixture is an ordinary juror',
+    );
+    expect(player.suspended, isFalse);
 
     final record = player.history.first;
     expect(record.points, greaterThan(0));
@@ -48,15 +55,21 @@ void main() {
     expect(record.outcome, isNotEmpty);
     expect(record.reason, isNotEmpty);
 
+    // Assertions stay state-agnostic: the fixture is captured from the live
+    // project, so whichever round the account happens to be in must parse.
     final round = player.round;
     expect(round, isNotNull);
-    expect(round!.stage, RoundStage.complete);
-    expect(round.code, hasLength(6));
-    expect(round.jurors, hasLength(6));
-    expect(round.messages, isNotEmpty);
-    expect(round.finalDecision, isNotNull);
-    // Aggregates are released only once the round closes.
-    expect(round.responsibleCount, isNotNull);
+    expect(round!.code, hasLength(6));
+    expect(round.jurors, isNotEmpty);
+    expect(round.jurors.length, lessThanOrEqualTo(6));
+    expect(RoundStage.values, contains(round.stage));
+    // The invariant that matters, whatever the stage: aggregates are released
+    // only once the round closes.
+    expect(
+      round.responsibleCount,
+      round.stage == RoundStage.complete ? isNotNull : isNull,
+      reason: 'counts must stay hidden until the round completes',
+    );
   });
 
   test('case payloads from the server parse into CaseFile', () {

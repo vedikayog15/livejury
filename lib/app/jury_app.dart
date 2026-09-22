@@ -19,6 +19,7 @@ import '../features/history/history_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/leaderboard/leaderboard_screen.dart';
+import '../features/admin/admin_screen.dart';
 
 class JuryApp extends StatelessWidget {
   const JuryApp({super.key, required this.controller});
@@ -82,6 +83,7 @@ class JuryApp extends StatelessWidget {
             '/profile-edit' => const ProfileEditScreen(),
             '/notifications' => const NotificationsScreen(),
             '/leaderboard' => const LeaderboardScreen(),
+            '/admin' => const AdminScreen(),
             _ =>
               controller.signedIn
                   ? const HomeScreen()
