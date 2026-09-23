@@ -83,48 +83,52 @@ class JuryPage extends StatelessWidget {
                       ? MediaQuery.viewInsetsOf(context).bottom
                       : 0,
                 ),
-                child: DecoratedBox(
-                  // An action bar sits over scrolling content, so it fades into
-                  // the page instead of drawing a hard edge across it. The tab
-                  // capsule alone needs nothing: it is already frosted.
-                  decoration: bottom == null
-                      ? const BoxDecoration()
-                      : BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              (dark ? JColors.ink : JColors.canvas).withValues(
-                                alpha: 0,
-                              ),
-                              dark ? JColors.ink : JColors.canvas,
-                            ],
-                            stops: const [0, .5],
+                // Content scrolling past the bar ramps into blur rather than
+                // meeting a hard edge, across the whole strip and not only
+                // inside the capsule.
+                child: ProgressiveBlur(
+                  maxSigma: 20,
+                  child: DecoratedBox(
+                    // An action bar sits over scrolling content, so it also fades
+                    // into the page rather than drawing a hard edge across it.
+                    decoration: bottom == null
+                        ? const BoxDecoration()
+                        : BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                (dark ? JColors.ink : JColors.canvas)
+                                    .withValues(alpha: 0),
+                                dark ? JColors.ink : JColors.canvas,
+                              ],
+                              stops: const [0, .5],
+                            ),
                           ),
-                        ),
-                  child: SafeArea(
-                    top: false,
-                    child: Align(
-                      heightFactor: 1,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: JSpace.maxWidth,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (bottom != null)
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                  JSpace.gutter(context),
-                                  14,
-                                  JSpace.gutter(context),
-                                  12,
+                    child: SafeArea(
+                      top: false,
+                      child: Align(
+                        heightFactor: 1,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxWidth: JSpace.maxWidth,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (bottom != null)
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                    JSpace.gutter(context),
+                                    14,
+                                    JSpace.gutter(context),
+                                    12,
+                                  ),
+                                  child: bottom,
                                 ),
-                                child: bottom,
-                              ),
-                            if (tab != null) JuryNavigation(selected: tab!),
-                          ],
+                              if (tab != null) JuryNavigation(selected: tab!),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -616,100 +620,165 @@ class _NavLink extends StatelessWidget {
   );
 }
 
-class JuryNavigation extends StatelessWidget {
+/// The touch tab bar: a floating pill whose selected destination carries a
+/// sliding indicator, a lifted icon and a label that fades in.
+class JuryNavigation extends StatefulWidget {
   const JuryNavigation({super.key, required this.selected});
   final int selected;
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-    child: FrostedSurface(
-      // Content scrolls beneath the capsule, so it carries a lighter tint and a
-      // stronger blur than the small utility surfaces.
-      tint: .62,
-      blur: 30,
-      child: Padding(
-        padding: const EdgeInsets.all(5),
-        child: Row(
-          children: [
-            for (final (i, icon, activeIcon, label, route) in [
-              (
-                0,
-                Icons.chair_alt_outlined,
-                Icons.chair_alt_rounded,
-                'Lobby',
-                '/home',
-              ),
-              (
-                1,
-                Icons.auto_stories_outlined,
-                Icons.auto_stories_rounded,
-                'Journal',
-                '/history',
-              ),
-              (
-                2,
-                Icons.leaderboard_outlined,
-                Icons.leaderboard_rounded,
-                'Rankings',
-                '/leaderboard',
-              ),
-              (
-                3,
-                Icons.person_outline_rounded,
-                Icons.person_rounded,
-                'You',
-                '/profile',
-              ),
-            ])
-              Expanded(
-                child: Semantics(
-                  selected: selected == i,
-                  button: true,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(23),
-                    onTap: () {
-                      if (selected != i) go(context, route, replace: true);
-                    },
-                    child: AnimatedContainer(
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : const Duration(milliseconds: 220),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: selected == i
-                            ? JColors.secondary
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(23),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            selected == i ? activeIcon : icon,
-                            size: 23,
-                            color: selected == i
-                                ? JColors.brand
-                                : JColors.muted,
+  State<JuryNavigation> createState() => _JuryNavigationState();
+}
+
+class _JuryNavigationState extends State<JuryNavigation> {
+  static const _destinations = [
+    (Icons.chair_alt_outlined, Icons.chair_alt_rounded, 'Lobby', '/home'),
+    (
+      Icons.auto_stories_outlined,
+      Icons.auto_stories_rounded,
+      'Journal',
+      '/history',
+    ),
+    (
+      Icons.leaderboard_outlined,
+      Icons.leaderboard_rounded,
+      'Rankings',
+      '/leaderboard',
+    ),
+    (Icons.person_outline_rounded, Icons.person_rounded, 'You', '/profile'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final still = MediaQuery.disableAnimationsOf(context);
+    final duration = still ? Duration.zero : const Duration(milliseconds: 380);
+    return Padding(
+      // Sits as low as the safe area allows; SafeArea above already clears the
+      // home indicator, so only a hairline is kept beneath the capsule.
+      padding: const EdgeInsets.fromLTRB(14, 6, 14, 2),
+      child: FrostedSurface(
+        // A true pill rather than a rounded rectangle.
+        radius: 999,
+        // Content scrolls beneath the capsule, so it carries a lighter tint and
+        // a stronger blur than the small utility surfaces.
+        tint: .62,
+        blur: 30,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final slot = c.maxWidth / _destinations.length;
+              return Stack(
+                children: [
+                  // The indicator slides between destinations rather than
+                  // blinking from one to the next.
+                  AnimatedPositioned(
+                    duration: duration,
+                    curve: Curves.easeOutCubic,
+                    left: slot * widget.selected,
+                    top: 0,
+                    bottom: 0,
+                    width: slot,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: DecoratedBox(
+                        // Tinted with the brand rather than the pale secondary,
+                        // which all but disappeared against the frosted glass.
+                        decoration: BoxDecoration(
+                          color: JColors.brand.withValues(alpha: .13),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: JColors.brand.withValues(alpha: .16),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            label,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: selected == i
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                              color: selected == i
-                                  ? JColors.brand
-                                  : JColors.muted,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
+                  Row(
+                    children: [
+                      for (final (i, d) in _destinations.indexed)
+                        Expanded(
+                          child: _NavDestination(
+                            icon: d.$1,
+                            activeIcon: d.$2,
+                            label: d.$3,
+                            active: widget.selected == i,
+                            duration: duration,
+                            onTap: () {
+                              if (widget.selected == i) return;
+                              HapticFeedback.selectionClick();
+                              go(context, d.$4, replace: true);
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavDestination extends StatelessWidget {
+  const _NavDestination({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.active,
+    required this.duration,
+    required this.onTap,
+  });
+  final IconData icon, activeIcon;
+  final String label;
+  final bool active;
+  final Duration duration;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: active,
+    button: true,
+    child: InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // The chosen icon lifts and fills; the others stay quiet.
+            AnimatedSlide(
+              duration: duration,
+              curve: Curves.easeOutBack,
+              offset: active ? const Offset(0, -.06) : Offset.zero,
+              child: AnimatedScale(
+                duration: duration,
+                curve: Curves.easeOutBack,
+                scale: active ? 1.12 : 1,
+                child: Icon(
+                  active ? activeIcon : icon,
+                  size: 22,
+                  color: active ? JColors.brand : JColors.muted,
                 ),
               ),
+            ),
+            const SizedBox(height: 3),
+            // Built from the ambient style: AnimatedDefaultTextStyle replaces
+            // rather than merges, so a bare TextStyle here would drop the
+            // family and fall back to the platform font.
+            AnimatedDefaultTextStyle(
+              duration: duration,
+              curve: Curves.easeOut,
+              style: DefaultTextStyle.of(context).style.copyWith(
+                fontSize: 10,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                color: active ? JColors.brand : JColors.muted,
+              ),
+              child: Text(label),
+            ),
           ],
         ),
       ),

@@ -168,9 +168,10 @@ void main() {
     required Seed stage,
     String? route,
     Object? Function(JuryController state)? argumentsFrom,
+    double dpr = 1,
   }) async {
-    tester.view.physicalSize = size;
-    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = size * dpr;
+    tester.view.devicePixelRatio = dpr;
     tester.platformDispatcher.accessibilityFeaturesTestValue =
         const FakeAccessibilityFeatures(disableAnimations: true);
     addTearDown(tester.view.resetPhysicalSize);
@@ -311,6 +312,8 @@ void main() {
         size: phone,
         stage: stage,
         route: route,
+        // Rendered at 2x so small labels stay legible when reviewing.
+        dpr: 2,
       );
     });
   }

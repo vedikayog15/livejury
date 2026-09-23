@@ -71,6 +71,59 @@ class _AmbientPainter extends CustomPainter {
   bool shouldRepaint(_AmbientPainter old) => old.dark != dark;
 }
 
+/// A blur that deepens towards the bottom instead of starting all at once.
+///
+/// A single [BackdropFilter] blurs its whole rectangle evenly, which leaves a
+/// hard horizontal seam where the effect begins. Stacking several bands, each
+/// blurring only its own slice a little more than the one above, reads as one
+/// smooth ramp from sharp content into the bar.
+class ProgressiveBlur extends StatelessWidget {
+  const ProgressiveBlur({
+    super.key,
+    required this.child,
+    this.maxSigma = 22,
+    this.bands = 6,
+  });
+  final Widget child;
+  final double maxSigma;
+  final int bands;
+
+  @override
+  Widget build(BuildContext context) {
+    // Not gated on reduced motion: the ramp is static, nothing here moves.
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Column(
+            children: [
+              for (var i = 0; i < bands; i++)
+                Expanded(
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      // Squared so the first bands stay nearly sharp and the
+                      // ramp gathers pace towards the bar itself.
+                      filter: ImageFilter.blur(
+                        sigmaX: _sigma(i),
+                        sigmaY: _sigma(i),
+                      ),
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        child,
+      ],
+    );
+  }
+
+  double _sigma(int band) {
+    final t = (band + 1) / bands;
+    return (maxSigma * t * t).clamp(0.6, maxSigma);
+  }
+}
+
 class FrostedSurface extends StatelessWidget {
   const FrostedSurface({
     super.key,
