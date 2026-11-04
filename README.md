@@ -1,8 +1,8 @@
 # The Jury Room
 
-**Six perspectives. One room.** An original Flutter social deliberation game with a complete local demo and a Supabase implementation for real shared rooms.
+**Every perspective. One room.** An original Flutter social deliberation game with a complete local demo and a Supabase implementation for real shared rooms.
 
-The **After Hours** design combines original Flutter-painted case scenes, an illuminated six-seat chamber, Fraunces / DM Sans typography, soft atmospheric backgrounds, and a floating navigation bar. No stock or AI-generated images. See [DESIGN.md](DESIGN.md) for the design rationale.
+The **After Hours** design combines original Flutter-painted case scenes, an illuminated jury chamber, Fraunces / DM Sans typography, soft atmospheric backgrounds, and a floating navigation bar. No stock or AI-generated images. See [DESIGN.md](DESIGN.md) for the design rationale.
 
 ## Run the demo
 
@@ -15,7 +15,7 @@ flutter run
 flutter run -d chrome
 ```
 
-Choose **Take your seat**. No credentials or network calls are needed for demo gameplay. Public and private demo rooms fill with five visibly labeled simulated jurors. Try **JURY06** in Join with code. Demo room codes are local; Supabase is required to share a room across devices.
+Choose **Take your seat**. No credentials or network calls are needed for demo gameplay. Public and private demo rooms fill with visibly labeled simulated jurors. Try **JURY06** in Join with code. Demo room codes are local; Supabase is required to share a room across devices.
 
 The demo includes three original cases, all four evidence formats, a private first vote, chat and evidence references, final reasoning, anonymous aggregate results, participation points, badges, a saved journal, profile preferences, notices, and sample rankings. Transcripts have a playback visualization, not a real audio recording.
 

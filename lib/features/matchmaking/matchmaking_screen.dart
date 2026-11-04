@@ -97,7 +97,7 @@ class _MatchmakingScreenState extends State<MatchmakingScreen> {
     Text(
       widget.join
           ? 'Your people\nare in the room.'
-          : 'Bring five minds.\nFind a sixth view.',
+          : 'Bring your people.\nFind a fresh view.',
       style: JType.display(40),
     ),
     const SizedBox(height: 20),
@@ -202,8 +202,8 @@ class _MatchmakingScreenState extends State<MatchmakingScreen> {
     icon: Icons.lock_outline,
     title: 'Invitation only',
     subtitle: s.isDemo
-        ? 'Five simulated jurors join your demo room.'
-        : 'Only people with your code can join. Six seats per room.',
+        ? 'Simulated jurors join your demo room.'
+        : 'Only people with your code can join.',
   );
 
   List<Widget> _resume(BuildContext context, JuryController s) => [

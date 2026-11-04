@@ -58,7 +58,7 @@ class _VoteScreenState extends State<VoteScreen> {
             const SizedBox(height: 18),
             Text(
               widget.finalVote && r.stage != RoundStage.complete
-                  ? '${r.finalCount} of 6 final ballots received. Results appear after every juror has voted.'
+                  ? '${r.finalCount} final ballots received. Results appear after every juror has voted.'
                   : 'Your ballot has been saved. Continue when you’re ready.',
               textAlign: TextAlign.center,
               style: const TextStyle(color: JColors.muted, height: 1.7),

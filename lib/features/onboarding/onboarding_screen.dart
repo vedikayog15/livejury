@@ -149,7 +149,7 @@ class OnboardingScreen extends StatelessWidget {
     ),
     const SizedBox(height: 16),
     const Text(
-      'An intriguing case. Five other minds.\nAnd a verdict that starts with you.',
+      'An intriguing case. A room of other minds.\nAnd a verdict that starts with you.',
       style: TextStyle(color: JColors.onDarkMuted, fontSize: 14, height: 1.65),
     ),
   ];
@@ -183,8 +183,8 @@ class OnboardingScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: JColors.glow.withValues(alpha: .4)),
         ),
-        alignment: Alignment.center,
-        child: Text('VI', style: JType.display(23, JColors.accent)),
+        padding: const EdgeInsets.all(5),
+        child: Image.asset('assets/brand/logo-mark.png'),
       ),
       const SizedBox(width: 12),
       const Expanded(
@@ -206,7 +206,7 @@ class OnboardingScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
         child: const Text(
-          '6 SEATS',
+          'FICTIONAL CASES',
           style: TextStyle(
             color: JColors.onDarkMuted,
             fontSize: 9,

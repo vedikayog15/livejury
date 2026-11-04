@@ -119,8 +119,8 @@ class _DeliberationScreenState extends State<DeliberationScreen> {
                         const SizedBox(height: 12),
                         Text(
                           s.isDemo
-                              ? 'Five simulated jurors, plus you.'
-                              : 'Six real jurors. Votes remain private.',
+                              ? 'Simulated jurors, plus you.'
+                              : 'Real jurors. Votes remain private.',
                           style: const TextStyle(
                             color: JColors.muted,
                             fontSize: 13,
@@ -281,7 +281,7 @@ class _DeliberationScreenState extends State<DeliberationScreen> {
                               style: JType.display(28),
                             ),
                             content: const Text(
-                              'Opening final voting closes the discussion for all six jurors. Each person must submit a choice and a reason.',
+                              'Opening final voting closes the discussion for every juror. Each person must submit a choice and a reason.',
                             ),
                             actions: [
                               TextButton(
@@ -315,7 +315,7 @@ class _DeliberationScreenState extends State<DeliberationScreen> {
             const Padding(
               padding: EdgeInsets.all(12),
               child: Text(
-                'Waiting for all six first impressions. Discussion opens automatically when every ballot is sealed.',
+                'Waiting for every first impression. Discussion opens automatically when every ballot is sealed.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: JColors.muted,
@@ -555,8 +555,8 @@ class _DeliberationScreenState extends State<DeliberationScreen> {
       const SizedBox(height: 6),
       Text(
         s.isDemo
-            ? 'Five simulated jurors, plus you.'
-            : 'Six real jurors. Votes remain private.',
+            ? 'Simulated jurors, plus you.'
+            : 'Real jurors. Votes remain private.',
         style: const TextStyle(color: JColors.muted, fontSize: 12),
       ),
       const SizedBox(height: 12),

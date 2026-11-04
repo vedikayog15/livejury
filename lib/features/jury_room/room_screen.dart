@@ -151,7 +151,7 @@ class RoomScreen extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(
-            '${r.jurors.length} of 6 jurors seated',
+            '${r.jurors.length} jurors seated',
             style: const TextStyle(
               color: JColors.surface,
               fontSize: 14,

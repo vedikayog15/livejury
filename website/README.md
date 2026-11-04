@@ -4,17 +4,11 @@ Static marketing site for Live Jury: home, privacy policy and account deletion. 
 
 ## Publish on GitHub Pages
 
-1. Create a new GitHub repository (for example `livejury-site`).
-2. Upload **the contents of this folder** (not the folder itself) to the repository root, including the hidden `.nojekyll` file.
-   ```sh
-   cd website
-   git init && git add . && git commit -m "Live Jury website"
-   git branch -M main
-   git remote add origin https://github.com/<you>/livejury-site.git
-   git push -u origin main
-   ```
-3. On GitHub, open **Settings → Pages → Build and deployment**, set **Source** to *Deploy from a branch*, and choose `main` and `/ (root)`.
-4. After about a minute the site is live at `https://<you>.github.io/livejury-site/`.
+The site is published from this repo by `.github/workflows/pages.yml`, which uploads **only** the `website/` folder. The Pages folder picker only offers `/ (root)` and `/docs`, and `/docs` holds internal notes that must not be published.
+
+1. On GitHub, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**.
+2. Commit and push to `main`. Any change under `website/` redeploys automatically. You can also run the **Website** workflow by hand from the **Actions** tab.
+3. The site goes live at `https://vedikayog15.github.io/livejury/`.
 
 All paths are relative, so the site works at a sub-path or on a custom domain.
 

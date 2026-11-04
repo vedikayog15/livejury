@@ -57,3 +57,6 @@ app.*.map.json
 supabase/.temp/
 # Firebase CLI cache
 .firebase/
+# Intermediate logo renders (regenerate with branding/build_assets.py)
+branding/out/
+branding/__pycache__/

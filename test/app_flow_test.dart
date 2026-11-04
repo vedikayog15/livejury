@@ -62,7 +62,7 @@ void main() {
       await tester.pump();
       await fillRoom(tester);
       expect(state.room!.jurors.length, 6);
-      expect(find.text('6 of 6 jurors seated'), findsOneWidget);
+      expect(find.text('6 jurors seated'), findsOneWidget);
       await tapText(tester, 'Open the case file');
       await tapText(tester, 'Examine the evidence');
       final firstButton = tester.widget<FilledButton>(

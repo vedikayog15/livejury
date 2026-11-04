@@ -481,15 +481,12 @@ class JuryTopNav extends StatelessWidget {
                       Container(
                         width: 30,
                         height: 30,
-                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
-                          color: JColors.brand,
+                          color: JColors.ink,
                           borderRadius: BorderRadius.circular(9),
                         ),
-                        child: Text(
-                          'VI',
-                          style: JType.display(13, JColors.surface),
-                        ),
+                        child: Image.asset('assets/brand/logo-mark.png'),
                       ),
                       const SizedBox(width: 10),
                       Text(

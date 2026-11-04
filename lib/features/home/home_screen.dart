@@ -295,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   runSpacing: 8,
                   children: [
                     _Meta(Icons.balance_outlined, featured.category),
-                    const _Meta(Icons.group_outlined, '6 jurors'),
+                    const _Meta(Icons.group_outlined, 'Group play'),
                     _Meta(Icons.schedule_rounded, '${featured.minutes} min'),
                   ],
                 ),
@@ -482,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icons.forum_outlined,
               title: '02 · Hear another perspective',
               subtitle:
-                  'Seal a private first impression. Compare arguments with five other jurors.',
+                  'Seal a private first impression. Compare arguments with your fellow jurors.',
             ),
             const InfoRow(
               icon: Icons.how_to_vote_outlined,

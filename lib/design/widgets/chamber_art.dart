@@ -16,7 +16,7 @@ class ChamberArt extends StatelessWidget {
   final bool compact;
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'A dimensional jury chamber with $seated of six seats occupied',
+    label: 'A dimensional jury chamber with $seated jurors seated',
     image: true,
     child: RepaintBoundary(
       child: SizedBox(
@@ -269,21 +269,17 @@ class _ChamberPainter extends CustomPainter {
     for (final i in [2, 4, 3]) {
       chair(i);
     }
-    final label = TextPainter(
-      text: TextSpan(
-        text: 'VI',
-        style: TextStyle(
-          fontFamily: 'Fraunces',
-          fontSize: compact ? 24 : 26,
-          fontWeight: FontWeight.w300,
-          color: JColors.accent.withValues(alpha: .9),
-          letterSpacing: 4,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    label.paint(c, Offset(200 - label.width / 2, 151));
-    // Six small evidence lights on the table.
+    // The brand mark at the centre of the table: a ring with your seat on top.
+    c.drawCircle(
+      const Offset(200, 168),
+      11,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.5
+        ..color = JColors.glow.withValues(alpha: .75),
+    );
+    c.drawCircle(const Offset(200, 157), 3.6, Paint()..color = JColors.accent);
+    // One small evidence light per seat on the table.
     for (var i = 0; i < 6; i++) {
       c.drawCircle(
         Offset(182 + i * 7.0, 188),

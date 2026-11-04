@@ -16,7 +16,7 @@ class ResultScreen extends StatelessWidget {
         title: 'The verdict',
         child: EmptyState(
           title: 'The room is still deciding.',
-          body: 'Results stay sealed until all six final ballots are received.',
+          body: 'Results stay sealed until every final ballot is received.',
           action: PrimaryButton(
             'Return to the room',
             onPressed: () => go(context, s.resumeRoute, replace: true),
@@ -161,7 +161,7 @@ class ResultScreen extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         Text(
-          '${tied ? 50 : ((yes > no ? yes : no) / 6 * 100).round()}% consensus · 6 anonymous ballots',
+          '${tied ? 50 : ((yes > no ? yes : no) / (yes + no) * 100).round()}% consensus · ${yes + no} anonymous ballots',
           style: const TextStyle(color: JColors.onDarkMuted, fontSize: 11),
         ),
       ],
@@ -265,7 +265,7 @@ class ResultScreen extends StatelessWidget {
     if (s.isDemo) ...[
       const SizedBox(height: 18),
       const Text(
-        'Demo result: five scripted ballots plus your real choice. Your reasoning and points are saved on this device.',
+        'Demo result: scripted ballots plus your real choice. Your reasoning and points are saved on this device.',
         style: TextStyle(color: JColors.muted, fontSize: 11, height: 1.6),
       ),
     ],

@@ -148,7 +148,7 @@ class DemoRepository implements JuryRepository {
     final r = _room(id);
     if (r.jurors.length != 6) {
       throw const JuryException(
-        'The room needs six jurors before the case begins.',
+        'The room needs a full jury before the case begins.',
       );
     }
     if (r.stage != RoundStage.waiting) return;
