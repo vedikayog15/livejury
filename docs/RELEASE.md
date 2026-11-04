@@ -2,7 +2,7 @@
 
 ## Android
 
-The default application ID is `app.livejury.room`. Change it to an identifier you control before store publication. Debug APKs use development signing. Production signing is read only from the ignored `android/key.properties` file:
+The application ID is `com.livejury.app`. Debug APKs use development signing. Production signing is read only from the ignored `android/key.properties` file:
 
 ```properties
 storeFile=/absolute/path/to/your-upload-key.jks

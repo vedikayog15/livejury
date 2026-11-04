@@ -4,7 +4,7 @@
 <dict>
     <key>FlutterDeepLinkingEnabled</key><false/>
     <key>CFBundleURLTypes</key>
-    <array><dict><key>CFBundleURLSchemes</key><array><string>app.livejury.room</string></array></dict></array>
+    <array><dict><key>CFBundleURLSchemes</key><array><string>com.livejury.app</string></array></dict></array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

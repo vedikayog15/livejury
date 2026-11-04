@@ -55,7 +55,7 @@ Set the Auth **Site URL** to the deployed web app origin. Add the exact deployed
 For native mobile recovery, add:
 
 ```text
-app.livejury.room://auth-callback?recovery=1
+com.livejury.app://auth-callback?recovery=1
 ```
 
 Android and iOS are configured to receive this custom callback scheme. The app observes the SDK password-recovery event, presents a new-password form, updates the credential, signs out, and returns to sign-in. Web recovery also recognizes the `recovery=1` callback marker. Test confirmation and recovery emails on your deployed origin and native devices after provisioning.
@@ -141,7 +141,7 @@ staying null until the round completes, and outcome and points matching the spec
 (`Not guilty` on a 2–4 split; 60 + 10 per exhibit + 20 for citing).
 
 Still unverified on real devices: hosted email delivery (confirmation and recovery), the
-native `app.livejury.room://auth-callback` redirect, and Realtime push over a live socket.
+native `com.livejury.app://auth-callback` redirect, and Realtime push over a live socket.
 The Realtime publication itself is configured; only end-to-end transport between physical
 devices is untested.
 

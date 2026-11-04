@@ -28,7 +28,7 @@ class SupabaseRepository implements JuryRepository {
               fragment: '',
             )
             .toString()
-      : 'app.livejury.room://auth-callback?recovery=1';
+      : 'com.livejury.app://auth-callback?recovery=1';
   @override
   String? get currentUserId => client.auth.currentUser?.id;
   @override

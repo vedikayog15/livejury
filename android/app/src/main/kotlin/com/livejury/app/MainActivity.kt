@@ -1,4 +1,4 @@
-package app.livejury.room
+package com.livejury.app
 
 import io.flutter.embedding.android.FlutterActivity
 
