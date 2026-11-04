@@ -354,6 +354,12 @@ class DemoRepository implements JuryRepository {
   }
 
   @override
+  Future<void> deleteAccount() async {
+    await preferences?.remove(storageKey);
+    _player = null;
+  }
+
+  @override
   void dispose() {
     _events.close();
   }

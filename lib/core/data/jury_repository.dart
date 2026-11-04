@@ -36,5 +36,6 @@ abstract class JuryRepository {
   Future<List<RankingEntry>> rankings();
   Stream<void> watchRoom(String id);
   Future<void> signOut();
+  Future<void> deleteAccount();
   void dispose();
 }

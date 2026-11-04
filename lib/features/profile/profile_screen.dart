@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../core/config/site_config.dart';
 import '../../core/models/models.dart';
 import '../../core/state/jury_controller.dart';
 import '../../design/tokens.dart';
@@ -262,6 +264,13 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
     ),
+    const Divider(),
+    InfoRow(
+      icon: Icons.privacy_tip_outlined,
+      title: 'Privacy policy',
+      subtitle: 'What we store and how to remove it',
+      onTap: () => launchUrl(Uri.parse(SiteConfig.privacyUrl)),
+    ),
     const SizedBox(height: 20),
     SizedBox(
       width: double.infinity,
@@ -276,6 +285,32 @@ class ProfileScreen extends StatelessWidget {
                 }
               },
         child: const Text('Sign out'),
+      ),
+    ),
+    const SizedBox(height: 8),
+    SizedBox(
+      width: double.infinity,
+      child: TextButton(
+        style: TextButton.styleFrom(foregroundColor: JColors.error),
+        onPressed: s.busy
+            ? null
+            : () async {
+                final confirmed = await confirmAction(
+                  context,
+                  title: 'Delete your account?',
+                  body: s.isDemo
+                      ? 'This erases your demo profile, points and case journal from this device.'
+                      : 'This permanently deletes your account, profile, points, ballots, messages and case journal. It cannot be undone.',
+                  confirm: 'Delete permanently',
+                );
+                if (confirmed && await s.deleteAccount() && context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/', (_) => false);
+                  toast(context, 'Your account has been deleted.');
+                }
+              },
+        child: const Text('Delete account'),
       ),
     ),
     const SizedBox(height: 20),

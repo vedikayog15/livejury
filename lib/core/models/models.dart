@@ -228,7 +228,7 @@ class JuryRound {
     id: j['id'],
     code: j['code'],
     caseId: j['case_id'],
-    hostId: j['host_id'],
+    hostId: j['host_id'] ?? '',
     isPrivate: j['is_private'],
     stage: RoundStage.values.byName(j['stage']),
     jurors: (j['jurors'] as List? ?? [])

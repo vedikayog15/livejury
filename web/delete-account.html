@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Permanently delete your The Jury Room (Live Jury) account and its data.">
+  <meta name="theme-color" content="#101426">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+  <title>Delete Account · The Jury Room</title>
+</head>
+<body>
+  <header><div class="bar"><img src="/icons/Icon-192.png" alt=""><a href="/">LIVE JURY</a></div></header>
+  <main>
+    <p class="eyebrow">Account deletion</p>
+    <h1>Delete your Jury Room account</h1>
+    <p>The Jury Room is published by Vedika Yog. Sign in below to permanently delete your account. You can also do this in the app: open <em>You</em>, then tap <em>Delete account</em>.</p>
+
+    <div class="panel note">
+      <strong>What is deleted, right away and permanently:</strong>
+      <ul>
+        <li>Your account, email address and password</li>
+        <li>Your display name, points and preferences</li>
+        <li>Your ballots, written reasons and chat messages</li>
+        <li>Your case journal, notices and reports</li>
+      </ul>
+      <strong>What stays:</strong> rooms you took part in stay in other jurors' journals, but without your name, messages or ballots. We keep nothing else.
+    </div>
+
+    <form id="form" class="panel" novalidate>
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <label class="check"><input id="confirm" type="checkbox"> I understand that my account and data will be permanently deleted. This cannot be undone.</label>
+      <button id="submit" class="danger" type="submit">Delete my account permanently</button>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </form>
+
+    <p class="muted">Can't sign in or forgot your password? Reset it from the app's sign-in screen, or email <a href="mailto:vedika.yog@gmail.com?subject=Delete%20my%20Jury%20Room%20account">vedika.yog@gmail.com</a> from your account's email address. We will delete your account within 30 days.</p>
+  </main>
+  <footer>© 2026 Vedika Yog · <a href="/privacy">Privacy policy</a> · <a href="/">Open the app</a></footer>
+
+  <!-- site-config.js is generated at build time from config/supabase.json. -->
+  <script src="/site-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+  <script>
+    const form = document.getElementById('form');
+    const status = document.getElementById('status');
+    const submit = document.getElementById('submit');
+    const say = (text, kind) => { status.textContent = text; status.className = 'status ' + (kind || ''); };
+    const config = window.JURY_SITE_CONFIG;
+    const client = config && window.supabase
+      ? window.supabase.createClient(config.supabaseUrl, config.supabaseKey, { auth: { persistSession: false } })
+      : null;
+    if (!client) {
+      submit.disabled = true;
+      say('Account deletion is temporarily unavailable. Please email vedika.yog@gmail.com.', 'error');
+    }
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      if (!email || !password) return say('Enter your email and password.', 'error');
+      if (!document.getElementById('confirm').checked) return say('Tick the box to confirm you want to delete your account.', 'error');
+      submit.disabled = true;
+      say('Deleting your account…');
+      try {
+        const { error: signInError } = await client.auth.signInWithPassword({ email, password });
+        if (signInError) throw new Error('That email and password did not match an account.');
+        const { error } = await client.rpc('jury_delete_my_account');
+        if (error) throw new Error(error.message);
+        await client.auth.signOut({ scope: 'local' });
+        form.reset();
+        form.querySelectorAll('input,button').forEach((el) => { el.disabled = true; });
+        say('Your account and all of its data have been permanently deleted.', 'ok');
+      } catch (e) {
+        submit.disabled = false;
+        say(e.message || 'Something went wrong. Please try again.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

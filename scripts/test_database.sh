@@ -14,4 +14,6 @@ psql -X -h "$task_pgdir" -d postgres -v ON_ERROR_STOP=1 \
   -f supabase/tests/bootstrap_local.sql \
   -f supabase/migrations/202609060001_jury_schema.sql \
   -f supabase/migrations/202609060002_case_library.sql \
+  -f supabase/migrations/202609220003_admin.sql \
+  -f supabase/migrations/202611040004_account_deletion.sql \
   -f supabase/tests/security_and_flow.sql

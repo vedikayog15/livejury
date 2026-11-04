@@ -17,11 +17,21 @@ flutter build appbundle --release --dart-define-from-file=config/supabase.json
 
 Never commit keystores, passwords, or Supabase secret/service keys. Without `key.properties`, the release configuration has no production signing key. Supply your own store listing, privacy policy, content rating, moderation process, and signed release artifact before distribution.
 
-## Web
+## Web (Firebase Hosting)
+
+The web app is hosted on the Firebase project `live-jury` (see `firebase.json`, `.firebaserc`).
 
 ```sh
-flutter build web --dart-define-from-file=config/supabase.json
+./scripts/build_web.sh          # flutter build web + generates build/web/site-config.js
+firebase deploy --only hosting
 ```
+
+Static pages ship with the app and are what the Play Console links to:
+
+- `/privacy`: privacy policy (`web/privacy.html`)
+- `/delete-account`: self-service account deletion (`web/delete-account.html`), which calls `jury_delete_my_account()` from migration `202611040004_account_deletion.sql`
+
+`site-config.js` is generated from the ignored `config/supabase.json` and is never committed. Add the hosted origin(s) to Supabase Auth → URL Configuration (Site URL and Redirect URLs).
 
 Serve `build/web/` over HTTPS. For subdirectory hosting, pass `--base-href /your-path/`. Keep `index.html` and the bootstrap script short-lived in the host cache so new versions are discovered. Deploy all generated files together. The compiled Flutter renderer may download renderer resources unless built with `--no-web-resources-cdn`; use that option for self-contained static distribution.
 

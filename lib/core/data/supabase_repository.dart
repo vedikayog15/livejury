@@ -198,6 +198,13 @@ class SupabaseRepository implements JuryRepository {
   @override
   Future<void> signOut() => client.auth.signOut();
   @override
+  Future<void> deleteAccount() async {
+    await client.rpc('jury_delete_my_account');
+    // The session's user no longer exists; drop it locally only.
+    await client.auth.signOut(scope: SignOutScope.local);
+  }
+
+  @override
   void dispose() {
     for (final channel in List<RealtimeChannel>.of(_channels)) {
       client.removeChannel(channel);

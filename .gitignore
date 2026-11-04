@@ -53,3 +53,7 @@ app.*.map.json
 
 # Local test-account credentials
 /docs/TEST_ACCOUNTS.md
+# Supabase CLI local state
+supabase/.temp/
+# Firebase CLI cache
+.firebase/

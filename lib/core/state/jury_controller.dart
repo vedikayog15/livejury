@@ -370,17 +370,20 @@ class JuryController extends ChangeNotifier {
   Future<bool> loadRankings() => perform(() async {
     leaders = await _repository!.rankings();
   });
-  Future<bool> signOut() => perform(() async {
-    _simulation?.cancel();
-    _reply?.cancel();
-    _poll?.cancel();
-    await _roomSubscription?.cancel();
-    await _repository!.signOut();
-    player = null;
-    _repository = null;
-    chatDraft = '';
-    reasonDraft = '';
-  });
+  Future<bool> signOut() => _endSession((r) => r.signOut());
+  Future<bool> deleteAccount() => _endSession((r) => r.deleteAccount());
+  Future<bool> _endSession(Future<void> Function(JuryRepository) end) =>
+      perform(() async {
+        _simulation?.cancel();
+        _reply?.cancel();
+        _poll?.cancel();
+        await _roomSubscription?.cancel();
+        await end(_repository!);
+        player = null;
+        _repository = null;
+        chatDraft = '';
+        reasonDraft = '';
+      });
   @override
   void dispose() {
     _disposed = true;

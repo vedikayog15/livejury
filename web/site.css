@@ -1,0 +1,35 @@
+/* Shared styling for the static pages (privacy, account deletion). Mirrors the
+   app's palette in lib/design/tokens.dart. */
+@font-face{font-family:"Fraunces";src:url("/assets/assets/fonts/Fraunces-Variable.ttf") format("truetype");font-display:swap}
+@font-face{font-family:"DM Sans";src:url("/assets/assets/fonts/DMSans-Variable.ttf") format("truetype");font-display:swap}
+:root{--midnight:#101426;--paper:#f6f5fa;--white:#fff;--apricot:#f5caa5;--lilac:#ece9f5;--violet:#6554b8;--muted:#646579;--rule:#e1dfeb;--clay:#a73d37;--forest:#286650}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--midnight);font:16px/1.7 "DM Sans",system-ui,-apple-system,sans-serif}
+header{background:var(--midnight);color:var(--white);padding:20px 16px}
+header .bar{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px}
+header img{width:36px;height:36px;border-radius:9px}
+header a{color:inherit;text-decoration:none;font-weight:700;letter-spacing:2px;font-size:13px}
+main{max-width:720px;margin:0 auto;padding:40px 16px 64px}
+h1,h2{font-family:"Fraunces",Georgia,serif;font-weight:500;line-height:1.2}
+h1{font-size:clamp(32px,6vw,44px);margin:0 0 8px}
+h2{font-size:24px;margin:40px 0 8px}
+.eyebrow{color:var(--violet);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.muted{color:var(--muted)}
+a{color:var(--violet)}
+ul{padding-left:22px}
+li{margin:4px 0}
+.panel{background:var(--white);border:1px solid var(--rule);border-radius:16px;padding:24px;margin:24px 0}
+.panel.note{background:var(--lilac);border:0}
+label{display:block;font-weight:700;font-size:14px;margin:16px 0 6px}
+input[type=email],input[type=password]{width:100%;font:inherit;padding:12px 14px;border:1px solid var(--rule);border-radius:12px;background:var(--paper)}
+input:focus{outline:2px solid var(--violet);outline-offset:1px}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:400;margin-top:20px}
+.check input{margin-top:6px}
+button{font:inherit;font-weight:700;border:0;border-radius:14px;padding:14px 20px;width:100%;margin-top:20px;cursor:pointer;background:var(--midnight);color:var(--white)}
+button.danger{background:var(--clay)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.status{margin-top:16px;font-size:14px}
+.status.error{color:var(--clay)}
+.status.ok{color:var(--forest)}
+footer{max-width:720px;margin:0 auto;padding:0 16px 40px;font-size:13px;color:var(--muted)}
+footer a{color:inherit}

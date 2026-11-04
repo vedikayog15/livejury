@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:live_jury_room/app/jury_app.dart';
 import 'package:live_jury_room/core/data/demo_repository.dart';
 import 'package:live_jury_room/core/models/models.dart';
@@ -205,5 +206,29 @@ void main() {
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
+  });
+  testWidgets('deleting a demo account erases it and returns to the start', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    state.dispose();
+    state = JuryController(
+      demoRepository: DemoRepository(
+        preferences: preferences,
+        latency: Duration.zero,
+      ),
+    );
+    await launch(tester);
+    await tapText(tester, 'Take your seat');
+    await tapText(tester, 'You');
+    await tapText(tester, 'Delete account');
+    await tapText(tester, 'Keep my seat');
+    expect(state.signedIn, isTrue);
+    await tapText(tester, 'Delete account');
+    await tapText(tester, 'Delete permanently');
+    expect(state.signedIn, isFalse);
+    expect(preferences.getString(DemoRepository.storageKey), isNull);
+    expect(find.text('Take your seat'), findsOneWidget);
   });
 }
