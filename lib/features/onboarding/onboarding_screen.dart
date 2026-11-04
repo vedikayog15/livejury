@@ -30,19 +30,11 @@ class OnboardingScreen extends StatelessWidget {
       PrimaryButton(
         'Take your seat',
         citron: true,
-        loading: s.busy,
-        onPressed: () async {
-          if (await s.signIn(demo: true) && context.mounted) home(context);
-        },
-      ),
-      const SizedBox(height: 5),
-      TextButton(
         onPressed: () => go(context, '/auth'),
-        style: TextButton.styleFrom(foregroundColor: JColors.surface),
-        child: const Text('Sign in or create an account'),
       ),
+      const SizedBox(height: 12),
       const Text(
-        'Free demo · No account needed',
+        'Free to play · Sign in or create an account',
         textAlign: TextAlign.center,
         style: TextStyle(color: JColors.onDarkMuted, fontSize: 11),
       ),

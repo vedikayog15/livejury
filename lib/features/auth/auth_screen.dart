@@ -159,7 +159,7 @@ class _AuthScreenState extends State<AuthScreen> {
             SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Cloud accounts are not connected yet. Demo mode has the full case experience, saved on this device.',
+                'Accounts are unavailable right now. Check your connection and try again shortly.',
                 style: TextStyle(fontSize: 13, height: 1.6),
               ),
             ),
@@ -263,20 +263,6 @@ class _AuthScreenState extends State<AuthScreen> {
           home(context);
         }
       },
-    ),
-    const SizedBox(height: 12),
-    SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: s.busy
-            ? null
-            : () async {
-                if (await s.signIn(demo: true) && mounted) {
-                  home(context);
-                }
-              },
-        child: const Text('Continue with demo profile'),
-      ),
     ),
   ];
 

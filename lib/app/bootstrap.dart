@@ -36,7 +36,7 @@ Future<void> bootstrap() async {
       adminRepository = AdminRepository(Supabase.instance.client);
     } catch (_) {
       configurationError =
-          'The cloud configuration could not be loaded. Demo mode is available.';
+          'Accounts are unavailable right now. Check your connection and try again shortly.';
     }
   }
   final controller = JuryController(

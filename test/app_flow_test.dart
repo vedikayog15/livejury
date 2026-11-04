@@ -44,6 +44,18 @@ void main() {
     expect(tester.takeException(), isNull, reason: 'after tapping $text');
   }
 
+  // Demo mode has no button in the app any more; tests enter it directly so
+  // every game screen can still run offline.
+  Future<void> enterDemo(WidgetTester tester) async {
+    final signedIn = state.signIn(demo: true);
+    await tester.pumpAndSettle();
+    expect(await signedIn, isTrue);
+    tester
+        .state<NavigatorState>(find.byType(Navigator))
+        .pushNamedAndRemoveUntil('/home', (_) => false);
+    await tester.pumpAndSettle();
+  }
+
   Future<void> fillRoom(WidgetTester tester) async {
     for (var i = 0; i < 7; i++) {
       await tester.pump(const Duration(milliseconds: 20));
@@ -55,7 +67,7 @@ void main() {
     'complete user journey: invitation, evidence, discussion, final reason, verdict and journal',
     (tester) async {
       await launch(tester);
-      await tapText(tester, 'Take your seat');
+      await enterDemo(tester);
       expect(find.text('Find my jury'), findsOneWidget);
       await tester.ensureVisible(find.text('Find my jury'));
       await tester.tap(find.text('Find my jury'));
@@ -121,7 +133,7 @@ void main() {
     'join-code errors are actionable, demo room joins and can be cancelled',
     (tester) async {
       await launch(tester);
-      await tapText(tester, 'Take your seat');
+      await enterDemo(tester);
       await tapText(tester, 'Join with code');
       await tapText(tester, 'Find my seat');
       expect(find.text('Enter all six characters.'), findsOneWidget);
@@ -147,7 +159,7 @@ void main() {
     'private case selection, profile updates, notification read state and empty journal',
     (tester) async {
       await launch(tester);
-      await tapText(tester, 'Take your seat');
+      await enterDemo(tester);
       await tapText(tester, 'Journal');
       expect(find.text('Your first chapter awaits.'), findsOneWidget);
       await tapText(tester, 'You');
@@ -180,7 +192,7 @@ void main() {
     ) async {
       await launch(tester, width: width);
       expect(tester.takeException(), isNull);
-      await tapText(tester, 'Take your seat');
+      await enterDemo(tester);
       expect(tester.takeException(), isNull);
       await tester.drag(
         find.byType(SingleChildScrollView).first,
@@ -198,11 +210,11 @@ void main() {
     tester,
   ) async {
     await launch(tester);
-    await tapText(tester, 'Sign in or create an account');
+    await tapText(tester, 'Take your seat');
     await tapText(tester, 'Sign in');
     expect(find.text('Enter a valid email address.'), findsOneWidget);
     expect(
-      find.textContaining('Cloud accounts are not connected'),
+      find.textContaining('Accounts are unavailable'),
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
@@ -220,7 +232,7 @@ void main() {
       ),
     );
     await launch(tester);
-    await tapText(tester, 'Take your seat');
+    await enterDemo(tester);
     await tapText(tester, 'You');
     await tapText(tester, 'Delete account');
     await tapText(tester, 'Keep my seat');

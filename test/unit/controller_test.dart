@@ -46,7 +46,7 @@ void main() {
         isFalse,
       );
       expect(s.signedIn, isFalse);
-      expect(s.error, contains('not connected'));
+      expect(s.error, contains('Accounts are unavailable'));
       expect(await s.signIn(demo: true), isTrue);
       expect(s.isDemo, isTrue);
       s.dispose();

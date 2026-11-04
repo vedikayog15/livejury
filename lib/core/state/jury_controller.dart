@@ -141,7 +141,7 @@ class JuryController extends ChangeNotifier {
     final repo = demo ? demoRepository : cloudRepository;
     if (repo == null) {
       throw const JuryException(
-        'Cloud accounts are not connected yet. Continue with a demo profile to explore the full experience.',
+        'Accounts are unavailable right now. Check your connection and try again shortly.',
       );
     }
     final p = await repo.signIn(
@@ -178,7 +178,7 @@ class JuryController extends ChangeNotifier {
   Future<bool> resetPassword(String email) => perform(() async {
     if (cloudRepository == null) {
       throw const JuryException(
-        'Cloud accounts are not configured. Demo mode needs no password.',
+        'Accounts are unavailable right now. Check your connection and try again shortly.',
       );
     }
     await cloudRepository!.resetPassword(email);
