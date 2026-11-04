@@ -155,62 +155,68 @@ class _EvidenceScreenState extends State<EvidenceScreen> {
     for (final e in exhibits)
       Padding(
         padding: const EdgeInsets.only(bottom: 14),
-        child: Material(
-          color: JColors.surface,
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            onTap: () => go(context, '/exhibit', arguments: e),
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+        child: HoverLift(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: JDepth.card,
+            ),
+            child: Material(
+              color: JColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              child: InkWell(
+                onTap: () => go(context, '/exhibit', arguments: e),
+                borderRadius: BorderRadius.circular(20),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: JColors.secondary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(evidenceIcon(e.kind), size: 23),
-                      ),
-                      const Spacer(),
-                      StatusTag(
-                        r.reviewed.contains(e.id) ? 'REVIEWED' : e.id,
-                        icon: r.reviewed.contains(e.id) ? Icons.check : null,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Text(e.title, style: JType.display(29)),
-                  const SizedBox(height: 8),
-                  Text(
-                    e.summary,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: JColors.muted,
-                      height: 1.6,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          e.kind.name.toUpperCase(),
-                          style: JType.caption.copyWith(
-                            fontSize: 10,
-                            color: JColors.muted,
+                      Row(
+                        children: [
+                          DepthIcon(
+                            evidenceIcon(e.kind),
+                            tone: evidenceTone(e.kind),
+                            size: 46,
                           ),
+                          const Spacer(),
+                          StatusTag(
+                            r.reviewed.contains(e.id) ? 'REVIEWED' : e.id,
+                            icon: r.reviewed.contains(e.id)
+                                ? Icons.check
+                                : null,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Text(e.title, style: JType.display(29)),
+                      const SizedBox(height: 8),
+                      Text(
+                        e.summary,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: JColors.muted,
+                          height: 1.6,
                         ),
                       ),
-                      const Icon(Icons.arrow_forward_rounded, size: 20),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              e.kind.name.toUpperCase(),
+                              style: JType.caption.copyWith(
+                                fontSize: 10,
+                                color: JColors.muted,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.arrow_forward_rounded, size: 20),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

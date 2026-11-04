@@ -4,6 +4,9 @@ import '../../core/models/models.dart';
 import '../../core/state/jury_controller.dart';
 import '../tokens.dart';
 import 'ambient_backdrop.dart';
+import 'depth.dart';
+
+export 'depth.dart';
 
 void go(
   BuildContext context,
@@ -485,6 +488,14 @@ class JuryTopNav extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: JColors.ink,
                           borderRadius: BorderRadius.circular(9),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x596554B8),
+                              blurRadius: 10,
+                              spreadRadius: -2,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Image.asset('assets/brand/logo-mark.png'),
                       ),
@@ -783,7 +794,7 @@ class _NavDestination extends StatelessWidget {
   );
 }
 
-class PrimaryButton extends StatelessWidget {
+class PrimaryButton extends StatefulWidget {
   const PrimaryButton(
     this.label, {
     super.key,
@@ -797,38 +808,61 @@ class PrimaryButton extends StatelessWidget {
   final IconData? icon;
   final bool loading, citron;
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    child: FilledButton(
-      onPressed: loading ? null : onPressed,
-      style: citron
-          ? FilledButton.styleFrom(
-              backgroundColor: JColors.accent,
-              foregroundColor: JColors.ink,
-              disabledBackgroundColor: JColors.raised,
-              disabledForegroundColor: JColors.onDarkMuted,
-            )
-          : null,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(child: Text(label, textAlign: TextAlign.center)),
-          const SizedBox(width: 8),
-          if (loading)
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: citron ? JColors.ink : JColors.onDarkMuted,
-              ),
-            )
-          else if (icon != null)
-            Icon(icon, size: 20),
-        ],
+  State<PrimaryButton> createState() => _PrimaryButtonState();
+}
+
+class _PrimaryButtonState extends State<PrimaryButton> {
+  bool hovered = false;
+  @override
+  Widget build(BuildContext context) {
+    final citron = widget.citron;
+    return SizedBox(
+      width: double.infinity,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => hovered = true),
+        onExit: (_) => setState(() => hovered = false),
+        child: DepthButtonFace(
+          enabled: !widget.loading && widget.onPressed != null,
+          apricot: citron,
+          hovered: hovered,
+          child: FilledButton(
+            onPressed: widget.loading ? null : widget.onPressed,
+            // The face is painted by DepthButtonFace; the button supplies
+            // the label, focus, ripple and semantics.
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              disabledBackgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor: citron ? JColors.ink : JColors.surface,
+              disabledForegroundColor: citron
+                  ? JColors.onDarkMuted
+                  : JColors.ink.withValues(alpha: .38),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(widget.label, textAlign: TextAlign.center),
+                ),
+                const SizedBox(width: 8),
+                if (widget.loading)
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: citron ? JColors.ink : JColors.onDarkMuted,
+                    ),
+                  )
+                else if (widget.icon != null)
+                  Icon(widget.icon, size: 20),
+              ],
+            ),
+          ),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class Panel extends StatelessWidget {
@@ -848,7 +882,17 @@ class Panel extends StatelessWidget {
     width: double.infinity,
     padding: EdgeInsets.all(padding),
     decoration: BoxDecoration(
-      color: color,
+      // Lit from above: the top of a panel is a touch brighter than its foot.
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: color == JColors.ink
+            ? [const Color(0xFF1C2140), JColors.ink]
+            : [
+                Color.lerp(color, JColors.surface, .5)!,
+                Color.lerp(color, const Color(0xFFF1EFFA), .25)!,
+              ],
+      ),
       borderRadius: BorderRadius.circular(20),
       border: Border.all(
         color: border
@@ -857,13 +901,7 @@ class Panel extends StatelessWidget {
                   ? JColors.onDarkMuted.withValues(alpha: .16)
                   : JColors.surface.withValues(alpha: .65)),
       ),
-      boxShadow: [
-        BoxShadow(
-          color: JColors.ink.withValues(alpha: .025),
-          blurRadius: 22,
-          offset: const Offset(0, 7),
-        ),
-      ],
+      boxShadow: color == JColors.ink ? JDepth.onDark : JDepth.card,
     ),
     child: child,
   );
@@ -940,10 +978,35 @@ class Avatar extends StatelessWidget {
     width: size,
     height: size,
     alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: [JColors.secondary, JColors.accent, JColors.border][index % 3],
-      borderRadius: BorderRadius.circular(size * .35),
-    ),
+    decoration: () {
+      final base = [
+        JColors.secondary,
+        JColors.accent,
+        JColors.border,
+      ][index % 3];
+      return BoxDecoration(
+        borderRadius: BorderRadius.circular(size * .35),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color.lerp(base, JColors.surface, .55)!,
+            base,
+            Color.lerp(base, JColors.ink, .1)!,
+          ],
+          stops: const [0, .5, 1],
+        ),
+        border: Border.all(color: JColors.surface.withValues(alpha: .7)),
+        boxShadow: [
+          BoxShadow(
+            color: JColors.ink.withValues(alpha: .22),
+            blurRadius: size * .22,
+            spreadRadius: -size * .06,
+            offset: Offset(0, size * .1),
+          ),
+        ],
+      );
+    }(),
     child: Text(
       name
           .split(' ')
@@ -969,56 +1032,56 @@ class InfoRow extends StatelessWidget {
     required this.subtitle,
     this.onTap,
     this.trailing,
+    this.tone = DepthTone.glow,
   });
   final IconData icon;
+  final DepthTone tone;
   final String title, subtitle;
   final VoidCallback? onTap;
   final Widget? trailing;
   @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: JColors.secondary,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, size: 22),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+  Widget build(BuildContext context) => HoverLift(
+    distance: 0,
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Row(
+            children: [
+              DepthIcon(icon, tone: tone, size: 46),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(color: JColors.muted, fontSize: 13),
-                  ),
-                ],
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: JColors.muted,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            trailing ??
-                (onTap != null
-                    ? const Icon(Icons.arrow_forward_rounded, size: 20)
-                    : const SizedBox.shrink()),
-          ],
+              const SizedBox(width: 8),
+              trailing ??
+                  (onTap != null
+                      ? const Icon(Icons.arrow_forward_rounded, size: 20)
+                      : const SizedBox.shrink()),
+            ],
+          ),
         ),
       ),
     ),
@@ -1077,14 +1140,7 @@ class EmptyState extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 40),
     child: Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            color: JColors.secondary,
-          ),
-          child: Icon(icon, size: 36),
-        ),
+        DepthIcon(icon, tone: DepthTone.glow, size: 84),
         const SizedBox(height: 24),
         Text(title, textAlign: TextAlign.center, style: JType.display(32)),
         const SizedBox(height: 12),
@@ -1140,6 +1196,13 @@ class StageStrip extends StatelessWidget {
     ),
   );
 }
+
+DepthTone evidenceTone(EvidenceKind kind) => switch (kind) {
+  EvidenceKind.document => DepthTone.apricot,
+  EvidenceKind.witness => DepthTone.glow,
+  EvidenceKind.diagram => DepthTone.violet,
+  EvidenceKind.audio => DepthTone.forest,
+};
 
 IconData evidenceIcon(EvidenceKind kind) => switch (kind) {
   EvidenceKind.document => Icons.description_outlined,

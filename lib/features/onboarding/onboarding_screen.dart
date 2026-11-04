@@ -156,11 +156,11 @@ class OnboardingScreen extends StatelessWidget {
 
   Widget _steps() => const Row(
     children: [
-      _Step('01', Icons.search_rounded, 'Examine'),
+      _Step('01', Icons.search_rounded, 'Examine', DepthTone.glow),
       SizedBox(width: 10),
-      _Step('02', Icons.forum_outlined, 'Discuss'),
+      _Step('02', Icons.forum_outlined, 'Discuss', DepthTone.violet),
       SizedBox(width: 10),
-      _Step('03', Icons.how_to_vote_outlined, 'Decide'),
+      _Step('03', Icons.how_to_vote_outlined, 'Decide', DepthTone.apricot),
     ],
   );
 
@@ -182,6 +182,14 @@ class OnboardingScreen extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: JColors.glow.withValues(alpha: .4)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x806554B8),
+              blurRadius: 18,
+              spreadRadius: -4,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
         padding: const EdgeInsets.all(5),
         child: Image.asset('assets/brand/logo-mark.png'),
@@ -285,9 +293,10 @@ class _FloatingNote extends StatelessWidget {
 }
 
 class _Step extends StatelessWidget {
-  const _Step(this.number, this.icon, this.label);
+  const _Step(this.number, this.icon, this.label, this.tone);
   final String number, label;
   final IconData icon;
+  final DepthTone tone;
   @override
   Widget build(BuildContext context) => Expanded(
     child: Container(
@@ -302,7 +311,7 @@ class _Step extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, size: 19, color: JColors.accent),
+              DepthIcon(icon, tone: tone, size: 32),
               const Spacer(),
               Text(
                 number,

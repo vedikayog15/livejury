@@ -186,7 +186,17 @@ class ProfileScreen extends StatelessWidget {
           color: earned ? JColors.secondary : JColors.surface,
           child: Row(
             children: [
-              Icon(icon, size: 26, color: earned ? JColors.ink : JColors.muted),
+              earned
+                  ? DepthIcon(icon, tone: DepthTone.apricot, size: 44)
+                  : Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(13),
+                        border: Border.all(color: JColors.border),
+                      ),
+                      child: Icon(icon, size: 22, color: JColors.muted),
+                    ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -229,6 +239,7 @@ class ProfileScreen extends StatelessWidget {
     if (s.isAdmin) ...[
       InfoRow(
         icon: Icons.shield_outlined,
+        tone: DepthTone.night,
         title: 'Administration',
         subtitle: 'Jurors, cases and room statistics',
         onTap: () => go(context, '/admin'),
@@ -237,6 +248,7 @@ class ProfileScreen extends StatelessWidget {
     ],
     InfoRow(
       icon: Icons.settings_outlined,
+      tone: DepthTone.violet,
       title: 'Your preferences',
       subtitle: 'Name, haptics, and in-app notifications',
       onTap: () => go(context, '/profile-edit'),
@@ -267,6 +279,7 @@ class ProfileScreen extends StatelessWidget {
     const Divider(),
     InfoRow(
       icon: Icons.privacy_tip_outlined,
+      tone: DepthTone.forest,
       title: 'Privacy policy',
       subtitle: 'What we store and how to remove it',
       onTap: () => launchUrl(Uri.parse(SiteConfig.privacyUrl)),

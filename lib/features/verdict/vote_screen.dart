@@ -41,13 +41,10 @@ class _VoteScreenState extends State<VoteScreen> {
         child: Column(
           children: [
             const SizedBox(height: 44),
-            Container(
-              padding: const EdgeInsets.all(28),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: JColors.accent,
-              ),
-              child: const Icon(Icons.lock_outline, size: 40),
+            const DepthIcon(
+              Icons.lock_outline,
+              tone: DepthTone.apricot,
+              size: 96,
             ),
             const SizedBox(height: 28),
             Text(

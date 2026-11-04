@@ -178,6 +178,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
 
+    // flutter_test flattens every shadow to a hard offset copy by default. The
+    // design relies on soft, layered shadows for depth, so render them for
+    // real, and restore the flag before the test's invariant check.
+    debugDisableShadows = false;
     late JuryController state;
     await tester.runAsync(() async => state = await _seed(stage));
     await tester.pumpWidget(JuryApp(controller: state));
@@ -201,6 +205,7 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     state.dispose();
+    debugDisableShadows = true;
   }
 
   const laptop = Size(1440, 900);
@@ -252,6 +257,7 @@ void main() {
         tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
       );
 
+      debugDisableShadows = false;
       late JuryController state;
       await tester.runAsync(() async => state = await _seed(Seed.admin));
       await tester.pumpWidget(JuryApp(controller: state));
@@ -272,6 +278,7 @@ void main() {
 
       await tester.pumpWidget(const SizedBox.shrink());
       state.dispose();
+      debugDisableShadows = true;
     });
   }
 

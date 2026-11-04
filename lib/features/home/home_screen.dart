@@ -330,7 +330,7 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.group_add_outlined,
           title: 'Private room',
           detail: 'Make it your circle.',
-          tone: JColors.brand,
+          tone: DepthTone.violet,
           onTap: () => go(context, '/matchmaking', arguments: 'create'),
         ),
       ),
@@ -340,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.dialpad_rounded,
           title: 'Join with code',
           detail: 'An invitation is waiting.',
-          tone: JColors.success,
+          tone: DepthTone.forest,
           onTap: () => go(context, '/matchmaking', arguments: 'join'),
         ),
       ),
@@ -527,60 +527,56 @@ class _RoomAction extends StatelessWidget {
   });
   final IconData icon;
   final String title, detail;
-  final Color tone;
+  final DepthTone tone;
   final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Material(
-    color: JColors.surface,
-    borderRadius: BorderRadius.circular(22),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(22),
-      child: Container(
-        padding: const EdgeInsets.all(17),
-        decoration: BoxDecoration(
+  Widget build(BuildContext context) => HoverLift(
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: JDepth.card,
+      ),
+      child: Material(
+        color: JColors.surface,
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: JColors.surface),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [JColors.surface, tone.withValues(alpha: .035)],
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 43,
-              height: 43,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    tone.withValues(alpha: .15),
-                    tone.withValues(alpha: .04),
-                  ],
+          child: Container(
+            padding: const EdgeInsets.all(17),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: JColors.surface),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [JColors.surface, tone.light.withValues(alpha: .08)],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DepthIcon(icon, tone: tone, size: 44),
+                const SizedBox(height: 18),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, size: 22, color: tone),
+                const SizedBox(height: 7),
+                Text(
+                  detail,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: JColors.muted,
+                    height: 1.6,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 18),
-            Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-            ),
-            const SizedBox(height: 7),
-            Text(
-              detail,
-              style: const TextStyle(
-                fontSize: 11,
-                color: JColors.muted,
-                height: 1.6,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     ),
@@ -592,57 +588,68 @@ class _CaseRow extends StatelessWidget {
   final CaseFile file;
   final int index;
   @override
-  Widget build(BuildContext context) => Material(
-    color: JColors.surface,
-    borderRadius: BorderRadius.circular(20),
-    child: InkWell(
-      onTap: () => go(context, '/case-preview', arguments: file),
-      borderRadius: BorderRadius.circular(20),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Container(
-              width: 86,
-              height: 100,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: JColors.ink,
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: DossierArt(variant: index, height: 100),
-            ),
-            const SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${file.category.toUpperCase()} · FILE ${file.number}',
-                    style: const TextStyle(
-                      fontSize: 8,
-                      color: JColors.brand,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: .8,
-                    ),
+  Widget build(BuildContext context) => HoverLift(
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: JDepth.card,
+      ),
+      child: Material(
+        color: JColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: () => go(context, '/case-preview', arguments: file),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  width: 86,
+                  height: 100,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    color: JColors.ink,
+                    borderRadius: BorderRadius.circular(13),
                   ),
-                  const SizedBox(height: 7),
-                  Text(file.title, style: JType.display(22)),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${file.minutes} min · 4 exhibits',
-                    style: const TextStyle(color: JColors.muted, fontSize: 10),
+                  child: DossierArt(variant: index, height: 100),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${file.category.toUpperCase()} · FILE ${file.number}',
+                        style: const TextStyle(
+                          fontSize: 8,
+                          color: JColors.brand,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: .8,
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+                      Text(file.title, style: JType.display(22)),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${file.minutes} min · 4 exhibits',
+                        style: const TextStyle(
+                          color: JColors.muted,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 6),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 19,
+                  color: JColors.muted,
+                ),
+              ],
             ),
-            const SizedBox(width: 6),
-            const Icon(
-              Icons.chevron_right_rounded,
-              size: 19,
-              color: JColors.muted,
-            ),
-          ],
+          ),
         ),
       ),
     ),
